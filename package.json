@@ -1,0 +1,31 @@
+{
+  "name": "xiangqi-recorder",
+  "private": true,
+  "version": "0.1.0",
+  "description": "象棋記譜 — 面對面實體對局的語音/點按記譜 PWA,含本地引擎復盤與殘局解析",
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "setup:engine": "node scripts/setup-engine.mjs"
+  },
+  "dependencies": {
+    "dexie": "^4.0.8",
+    "fairy-stockfish-nnue.wasm": "^1.1.11",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vite-plugin-pwa": "^0.21.1",
+    "vitest": "^2.1.8"
+  }
+}
