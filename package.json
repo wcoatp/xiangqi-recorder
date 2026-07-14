@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "setup:engine": "node scripts/setup-engine.mjs"
+    "setup:engine": "node scripts/setup-engine.mjs",
+    "postinstall": "node scripts/setup-engine.mjs"
   },
   "dependencies": {
     "dexie": "^4.0.8",

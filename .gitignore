@@ -3,3 +3,6 @@ dist
 dev-dist
 *.local
 .DS_Store
+public/engine/stockfish.js
+public/engine/stockfish.wasm
+public/engine/stockfish.worker.js
