@@ -74,7 +74,7 @@ function tagFor(loss: number, playedBest: boolean): MoveTag {
 }
 
 /** 把引擎 pv(UCI)轉成中文著法序列 */
-function pvToZh(startPos: Position, pv: string[], limit = 6): string[] {
+export function pvToZh(startPos: Position, pv: string[], limit = 6): string[] {
   const out: string[] = []
   let pos = startPos
   for (const u of pv.slice(0, limit)) {

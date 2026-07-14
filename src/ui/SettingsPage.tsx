@@ -1,0 +1,137 @@
+import { useState } from "react";
+import { useApp } from "../App";
+import { engine } from "../engine/engineClient";
+import { detectSpeechMode } from "../speech/speech";
+
+export default function SettingsPage() {
+  const { go, settings, updateSettings } = useApp();
+  const [engineMsg, setEngineMsg] = useState("");
+  const speechMode = detectSpeechMode();
+
+  const preloadEngine = () => {
+    if (!engine.supported()) {
+      setEngineMsg("⚠ 此環境不支援(需要 HTTPS + COOP/COEP 標頭)");
+      return;
+    }
+    setEngineMsg("引擎載入中…(首次會下載 12MB 棋力檔)");
+    engine
+      .init()
+      .then(() => setEngineMsg("✓ 引擎就緒(fairy-stockfish xiangqi NNUE)"))
+      .catch((e: Error) => setEngineMsg(`⚠ ${e.message}`));
+  };
+
+  return (
+    <div className="page">
+      <div className="topbar">
+        <button onClick={() => go({ name: "home" })}>← 返回</button>
+        <div className="title">設定</div>
+      </div>
+
+      <div className="card">
+        <h3>語音</h3>
+        <div className="settings-row">
+          <div>
+            辨識語系
+            <div className="muted">影響辨識輸出的字形與口音</div>
+          </div>
+          <select
+            value={settings.voiceLang}
+            onChange={(e) => updateSettings({ voiceLang: e.target.value as "zh-TW" | "zh-CN" })}
+          >
+            <option value="zh-TW">中文(台灣)</option>
+            <option value="zh-CN">中文(普通話)</option>
+          </select>
+        </div>
+        <div className="settings-row">
+          <div>
+            語音覆誦
+            <div className="muted">記下每著後唸出「紅,炮二平五」確認</div>
+          </div>
+          <input
+            type="checkbox"
+            checked={settings.ttsReadback}
+            onChange={(e) => updateSettings({ ttsReadback: e.target.checked })}
+          />
+        </div>
+        <div className="settings-row">
+          <div>
+            連續語音
+            <div className="muted">套用一著後自動開始聆聽下一方(僅即時語音模式)</div>
+          </div>
+          <input
+            type="checkbox"
+            checked={settings.autoRelisten}
+            onChange={(e) => updateSettings({ autoRelisten: e.target.checked })}
+          />
+        </div>
+        <div className="muted">
+          目前語音模式:
+          {speechMode === "webspeech"
+            ? "即時語音(Web Speech API)"
+            : "鍵盤聽寫(此環境不支援即時語音;iOS 加入主畫面的 App 請點輸入框後按鍵盤上的 🎤)"}
+        </div>
+      </div>
+
+      <div className="card">
+        <h3>棋盤</h3>
+        <div className="settings-row">
+          <div>
+            面對面模式
+            <div className="muted">記譜時黑方棋子與控制列旋轉 180°,手機平放桌上雙方都正向</div>
+          </div>
+          <input
+            type="checkbox"
+            checked={settings.tabletop}
+            onChange={(e) => updateSettings({ tabletop: e.target.checked })}
+          />
+        </div>
+      </div>
+
+      <div className="card">
+        <h3>引擎(解棋/殘局)</h3>
+        <div className="settings-row">
+          <div>
+            分析強度
+            <div className="muted">每個局面的思考時間;越長越準、越耗時</div>
+          </div>
+          <select
+            value={settings.analysisMovetimeMs}
+            onChange={(e) => updateSettings({ analysisMovetimeMs: Number(e.target.value) })}
+          >
+            <option value={500}>快(0.5 秒/著)</option>
+            <option value={1000}>標準(1 秒/著)</option>
+            <option value={2000}>深(2 秒/著)</option>
+          </select>
+        </div>
+        <div className="settings-row">
+          <div>
+            預先載入引擎
+            <div className="muted">首次使用前先下載並快取棋力檔(之後離線可用)</div>
+          </div>
+          <button onClick={preloadEngine}>載入</button>
+        </div>
+        {engineMsg && <div className="muted">{engineMsg}</div>}
+      </div>
+
+      <div className="card">
+        <h3>AI 白話講解(規劃中)</h3>
+        <div className="muted">
+          解棋的引擎變化未來可選配用 AI 轉成白話說明。核心分析完全在手機本機引擎執行,
+          不需要任何 API Token;此欄位為未來功能預留。
+        </div>
+        <input
+          placeholder="API Token(未啟用)"
+          value={settings.llmToken}
+          onChange={(e) => updateSettings({ llmToken: e.target.value })}
+          style={{ width: "100%", marginTop: 8 }}
+        />
+      </div>
+
+      <div className="card muted">
+        <div>象棋記譜 v0.1(開源 GPL-3.0)</div>
+        <div>引擎:Fairy-Stockfish(WASM)+ xiangqi NNUE(Pikafish 團隊訓練)</div>
+        <div>記譜規範:WXF / 中國象棋電腦應用規範(xqbase)</div>
+      </div>
+    </div>
+  );
+}

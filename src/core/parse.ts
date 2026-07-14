@@ -131,7 +131,7 @@ export function parseMoveText(
     const e = hits[0];
     return { kind: "exact", move: e.move, zh: e.zh, wxf: e.wxf };
   }
-  return fuzzyMatch(pos, text, idx);
+  return fuzzyMatch(text, idx);
 }
 
 /** 語音輸入解析:先精確、再拼音模糊 */
@@ -152,7 +152,7 @@ export function parseMoveVoice(
   // 模糊:取所有候選中最高分
   let best: ParseResult | null = null;
   for (const text of alternatives) {
-    const r = fuzzyMatch(pos, text, idx);
+    const r = fuzzyMatch(text, idx);
     if (!best || rank(r) > rank(best) || topScore(r) > topScore(best)) best = r;
   }
   return best ?? { kind: "none", candidates: [] };
@@ -173,11 +173,7 @@ const AUTO_SCORE = 0.72;
 const AUTO_LEAD = 0.12;
 const MIN_SCORE = 0.45;
 
-function fuzzyMatch(
-  pos: Position,
-  text: string,
-  idx: MoveIndexEntry[],
-): ParseResult {
+function fuzzyMatch(text: string, idx: MoveIndexEntry[]): ParseResult {
   const inputSyl = textToSyllables(text);
   if (inputSyl.length < 2) return { kind: "none", candidates: [] };
   const scored: ScoredCandidate[] = idx

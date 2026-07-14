@@ -4,7 +4,7 @@
 //   ICCS:H2-E2(a..i 從紅方左手邊、rank 0..9 紅底線為 0)
 //   UCI(Fairy-Stockfish):h3e3(rank 1..10)
 import type { Move, PieceType, Position, Side } from './board'
-import { fileOf, forwardDir, rankOf } from './board'
+import { fileOf, rankOf } from './board'
 
 export const ZH_PIECE: Record<Side, Record<PieceType, string>> = {
   red: { K: '帥', A: '仕', B: '相', N: '馬', R: '車', C: '炮', P: '兵' },
