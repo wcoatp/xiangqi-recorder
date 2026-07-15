@@ -5,6 +5,7 @@ import { detectSpeechMode } from "../speech/speech";
 import { loadCnn } from "../vision/cnn";
 import { loadTemplates, saveTemplates, type PieceTemplates } from "../vision/templates";
 import CalibrateDialog from "./CalibrateDialog";
+import { APP_VERSION } from "./FeedbackDialog";
 
 export default function SettingsPage() {
   const { go, settings, updateSettings } = useApp();
@@ -175,10 +176,40 @@ export default function SettingsPage() {
         />
       </div>
 
-      <div className="card muted">
-        <div>象棋記譜 v0.1(開源 GPL-3.0)</div>
-        <div>引擎:Fairy-Stockfish(WASM)+ xiangqi NNUE(Pikafish 團隊訓練)</div>
-        <div>記譜規範:WXF / 中國象棋電腦應用規範(xqbase)</div>
+      <div className="card">
+        <h3>授權與原始碼</h3>
+        <div className="muted">
+          象棋記譜 v{APP_VERSION}.授權 <b>GPL-3.0-or-later</b>。
+          本 App 內含 <b>Fairy-Stockfish</b> 引擎與 <b>Pikafish</b> 團隊訓練的 xiangqi NNUE(皆為 GPL-3.0),
+          依授權,取得本程式的人都有權取得對應的原始碼、並可自由重製與散布。
+        </div>
+        <ul className="muted" style={{ margin: "8px 0", paddingLeft: 20 }}>
+          <li>
+            引擎原始碼:{" "}
+            <a href="https://github.com/fairy-stockfish/fairy-stockfish.wasm" target="_blank" rel="noreferrer">
+              fairy-stockfish.wasm
+            </a>{" "}
+            /{" "}
+            <a href="https://github.com/fairy-stockfish/Fairy-Stockfish" target="_blank" rel="noreferrer">
+              Fairy-Stockfish
+            </a>
+          </li>
+          <li>
+            NNUE 棋力檔:{" "}
+            <a href="https://fairy-stockfish.github.io/nnue/" target="_blank" rel="noreferrer">
+              xiangqi-c07e94a5c7cb.nnue
+            </a>
+            (由 Pikafish 團隊訓練)
+          </li>
+          <li>本 App 原始碼:尚未公開發布 —— 需要的話可用「回饋及建議」向作者索取</li>
+          <li>
+            記譜規範:
+            <a href="https://www.xqbase.com/protocol/cchess_move.htm" target="_blank" rel="noreferrer">
+              中國象棋電腦應用規範(xqbase)
+            </a>{" "}
+            / WXF
+          </li>
+        </ul>
       </div>
       {showCalibrate && (
         <CalibrateDialog

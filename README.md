@@ -102,9 +102,27 @@ Cross-Origin-Embedder-Policy: require-corp
 
 沒有這些標頭時,記譜/復盤照常運作,只有引擎分析功能會停用並提示。
 
-## 授權
+## 授權(重要:影響能不能上架/營利)
 
-GPL-3.0-or-later(因內含 GPL-3.0 的 Fairy-Stockfish WASM 引擎與其衍生 NNUE 網路)。
+**GPL-3.0-or-later** —— 因為內含 GPL-3.0 的 Fairy-Stockfish WASM 引擎與 Pikafish 團隊訓練的 NNUE 網路。
+
+實務上的後果(非法律意見,金額大時請找律師):
+
+| | 可行? | 說明 |
+|---|---|---|
+| PWA(現況) | ✅ | 沒有商店條款問題。但**散布 = 必須提供對應原始碼**(App 內需給連結) |
+| Google Play | ✅ | Play 條款與 GPL 不衝突(DroidFish 等內含 Stockfish 的 App 就在上面) |
+| **iOS App Store** | ❌ | Apple 條款的 DRM/裝置數限制 = GPL §6「不得附加額外限制」的衝突;2011 年 VLC 就是因此被下架 |
+| 收費 | ✅ 合法 | GPL 不禁止賣錢,但買家有權拿到原始碼並免費再散布 |
+| 廣告 | ✅ 合法 | GPL 不管廣告;但任何人可 fork 掉廣告再散布 |
+
+要在 iOS App Store 上架且收費,必須**拿掉 GPL 引擎**:改成伺服器端跑引擎(GPL-3.0 沒有 AGPL 的網路條款,
+SaaS 不算散布)、或自寫/改用寬鬆授權的引擎。Stockfish 團隊**會實際執法**(2021 年告 ChessBase,
+2022 年法院確認 GPL 授權可被終止,最後和解要求合規)。
+
+⚠ 合規檢查:因為部署的 PWA 就是在散布 GPL 程式,App 內必須提供對應原始碼的取得方式。
+目前設定頁已列出引擎/NNUE 的上游原始碼連結;**本 App 自身的原始碼尚未公開發布**,
+公開 repo 後要把連結補進設定頁。
 
 致謝:[Fairy-Stockfish](https://github.com/fairy-stockfish/Fairy-Stockfish).[Pikafish](https://github.com/official-pikafish/Pikafish)(NNUE 網路).[xqbase 中國象棋電腦應用規範](https://www.xqbase.com/protocol/cchess_intro.htm).[WXF 記譜規範](https://www.wxf-xiangqi.org/)
 
