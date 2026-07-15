@@ -201,7 +201,12 @@ export default function SettingsPage() {
             </a>
             (由 Pikafish 團隊訓練)
           </li>
-          <li>本 App 原始碼:尚未公開發布 —— 需要的話可用「回饋及建議」向作者索取</li>
+          <li>
+            本 App 原始碼:{" "}
+            <a href="https://github.com/wcoatp/xiangqi-recorder" target="_blank" rel="noreferrer">
+              github.com/wcoatp/xiangqi-recorder
+            </a>
+          </li>
           <li>
             記譜規範:
             <a href="https://www.xqbase.com/protocol/cchess_move.htm" target="_blank" rel="noreferrer">

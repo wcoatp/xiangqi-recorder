@@ -1,5 +1,7 @@
 # 象棋記譜(Xiangqi Recorder)
 
+線上版:<https://xiangqi-recorder.web.app> ·原始碼:<https://github.com/wcoatp/xiangqi-recorder> ·授權:GPL-3.0-or-later
+
 面對面實體象棋對局的**記譜 PWA**:語音/點按即時記譜、復盤播放與變着編輯、本機引擎解棋、殘局擺盤解析。iPhone / Android / 平板皆可「加入主畫面」安裝,**核心功能完全離線**,不需要任何 API Token。
 
 ## 功能
@@ -125,9 +127,10 @@ Cross-Origin-Embedder-Policy: require-corp
 SaaS 不算散布)、或自寫/改用寬鬆授權的引擎。Stockfish 團隊**會實際執法**(2021 年告 ChessBase,
 2022 年法院確認 GPL 授權可被終止,最後和解要求合規)。
 
-⚠ 合規檢查:因為部署的 PWA 就是在散布 GPL 程式,App 內必須提供對應原始碼的取得方式。
-目前設定頁已列出引擎/NNUE 的上游原始碼連結;**本 App 自身的原始碼尚未公開發布**,
-公開 repo 後要把連結補進設定頁。
+✅ 合規現況:部署的 PWA 就是在散布 GPL 程式,所以 App 內(設定 → 授權與原始碼)提供了
+對應原始碼的取得方式:本專案的 GitHub repo + 引擎/NNUE 的上游原始碼連結。
+(GPL §6(d):網路散布時原始碼必須**公開可取**,「有需要再向作者索取」不算數 —— 那是 §6(b),
+只適用於實體產品隨附的情況。)
 
 致謝:[Fairy-Stockfish](https://github.com/fairy-stockfish/Fairy-Stockfish).[Pikafish](https://github.com/official-pikafish/Pikafish)(NNUE 網路).[xqbase 中國象棋電腦應用規範](https://www.xqbase.com/protocol/cchess_intro.htm).[WXF 記譜規範](https://www.wxf-xiangqi.org/)
 
