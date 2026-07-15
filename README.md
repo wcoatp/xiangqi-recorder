@@ -43,6 +43,14 @@ npm run build      # 產出 dist/
 
 ## 部署(重要:必須 HTTPS + COOP/COEP)
 
+**線上版:<https://xiangqi-recorder.web.app>**(Firebase Hosting,專案 `xiangqi-recorder`)。手機開啟網址 → 分享/選單 →「加入主畫面」即可安裝成 App。
+
+更新部署:
+
+```bash
+npm run build && firebase deploy --only hosting
+```
+
 引擎的多執行緒需要 `SharedArrayBuffer`,瀏覽器要求整個網站送出:
 
 ```
@@ -50,7 +58,7 @@ Cross-Origin-Opener-Policy: same-origin
 Cross-Origin-Embedder-Policy: require-corp
 ```
 
-repo 內的 [`public/_headers`](public/_headers) 已含以上設定,**Netlify / Cloudflare Pages 直接部署 `dist/` 即生效**(GitHub Pages 無法自訂標頭,不建議)。部署後手機開啟網址 → 分享/選單 →「加入主畫面」即可安裝。
+[`firebase.json`](firebase.json) 已設定以上標頭(並對 sw.js/index.html 設 no-cache、wasm/nnue 設一週快取)。若改用 Netlify / Cloudflare Pages,repo 內 [`public/_headers`](public/_headers) 也已備好;GitHub Pages 無法自訂標頭,不建議。
 
 沒有這些標頭時,記譜/復盤照常運作,只有引擎分析功能會停用並提示。
 
