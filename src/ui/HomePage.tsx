@@ -3,7 +3,8 @@ import { useApp } from '../App'
 import { START_FEN } from '../core/fen'
 import { newRoot } from '../core/tree'
 import { db, playerNames, rememberPlayer, type GameRow } from '../store/db'
-import { levelName, PLAY_LEVELS } from './PlayPage'
+import FeedbackDialog from './FeedbackDialog'
+import { DEFAULT_LEVEL, engineName, levelAt, PLAY_LEVELS } from './playLevels'
 
 const RESULT_LABEL: Record<string, string> = {
   red: '紅勝',
@@ -16,6 +17,7 @@ export default function HomePage() {
   const { go } = useApp()
   const [showNew, setShowNew] = useState(false)
   const [showPlay, setShowPlay] = useState(false)
+  const [showFeedback, setShowFeedback] = useState(false)
   const [recent, setRecent] = useState<GameRow[]>([])
 
   useEffect(() => {
@@ -46,7 +48,14 @@ export default function HomePage() {
           <span className="icon">🧩</span>殘局解析<span className="sub">擺盤.引擎拆解</span>
         </button>
       </div>
-      <button onClick={() => go({ name: 'settings' })}>⚙️ 設定</button>
+      <div className="fab-row">
+        <button className="grow" onClick={() => go({ name: 'settings' })}>
+          ⚙️ 設定
+        </button>
+        <button className="grow" onClick={() => setShowFeedback(true)}>
+          💬 回饋及建議
+        </button>
+      </div>
 
       {recent.length > 0 && (
         <div className="card">
@@ -80,6 +89,7 @@ export default function HomePage() {
 
       {showNew && <NewGameDialog onClose={() => setShowNew(false)} />}
       {showPlay && <PlayDialog onClose={() => setShowPlay(false)} />}
+      {showFeedback && <FeedbackDialog onClose={() => setShowFeedback(false)} />}
     </div>
   )
 }
@@ -88,7 +98,7 @@ function PlayDialog({ onClose }: { onClose: () => void }) {
   const { go } = useApp()
   const [name, setName] = useState('我')
   const [side, setSide] = useState<'red' | 'black'>('red')
-  const [level, setLevel] = useState(2)
+  const [level, setLevel] = useState(DEFAULT_LEVEL)
   const [names, setNames] = useState<string[]>([])
 
   useEffect(() => {
@@ -99,7 +109,7 @@ function PlayDialog({ onClose }: { onClose: () => void }) {
     const playerName = name.trim() || '我'
     await rememberPlayer(playerName)
     const now = Date.now()
-    const engineLabel = levelName(level)
+    const engineLabel = engineName(level)
     const id = await db.games.add({
       redName: side === 'red' ? playerName : engineLabel,
       blackName: side === 'black' ? playerName : engineLabel,
@@ -141,13 +151,25 @@ function PlayDialog({ onClose }: { onClose: () => void }) {
           </div>
         </div>
         <div>
-          <div className="muted">難度</div>
-          <div className="seg">
-            {PLAY_LEVELS.map((l, i) => (
-              <button key={l.label} className={level === i ? 'on' : ''} onClick={() => setLevel(i)}>
-                {l.label}
-              </button>
-            ))}
+          <div className="row">
+            <span className="muted grow">難度</span>
+            <b style={{ fontSize: 17, color: 'var(--accent)' }}>{levelAt(level).label}</b>
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={PLAY_LEVELS.length - 1}
+            value={level}
+            onChange={(e) => setLevel(Number(e.target.value))}
+            style={{ width: '100%' }}
+          />
+          <div className="row muted" style={{ fontSize: 11, justifyContent: 'space-between' }}>
+            <span>10級(最弱)</span>
+            <span>1級</span>
+            <span>9段(引擎全力)</span>
+          </div>
+          <div className="muted" style={{ fontSize: 11, marginTop: 4 }}>
+            級/段只是本 App 內的相對階梯(引擎的限制棋力刻度是為西洋棋校準的),不是象棋棋力認證。
           </div>
         </div>
         <div className="muted">對弈全程自動記譜,結束後可復盤與解棋。</div>

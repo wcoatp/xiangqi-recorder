@@ -18,9 +18,13 @@ export interface AnalyzeOptions {
   movetimeMs?: number
   depth?: number
   multipv?: number
-  /** 0–20;預設 20(全力)。對弈的難度靠這個調弱;每次 go 前都會明確設定,
+  /** −20~20;預設 20(全力)。對弈的難度靠這個調弱;每次 go 前都會明確設定,
    * 所以弱棋力不會殘留污染解棋/殘局分析。 */
   skillLevel?: number
+  /** 500–2850:啟用引擎的限制棋力模式。不給 = 不限制(全力)。
+   * ⚠ 這個 Elo 刻度是 Stockfish 為西洋棋校準的,套在象棋上只保證「單調變強」,
+   * 不是象棋等級分,所以 UI 不可宣稱它等於某個段位。 */
+  elo?: number
   /** 每次 info 更新時回呼(串流顯示用) */
   onInfo?: (lines: PvLine[]) => void
 }
@@ -164,6 +168,12 @@ class EngineClient {
         this.send('stop')
         this.send(`setoption name MultiPV value ${multipv}`)
         this.send(`setoption name Skill Level value ${opts.skillLevel ?? 20}`)
+        if (opts.elo !== undefined) {
+          this.send('setoption name UCI_LimitStrength value true')
+          this.send(`setoption name UCI_Elo value ${Math.round(opts.elo)}`)
+        } else {
+          this.send('setoption name UCI_LimitStrength value false')
+        }
         this.send(`position fen ${fen}`)
         const done = this.waitLine((l) => l.startsWith('bestmove'), 120000)
         if (opts.depth) this.send(`go depth ${opts.depth}`)

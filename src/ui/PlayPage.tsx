@@ -12,23 +12,7 @@ import { engine } from "../engine/engineClient";
 import { speak } from "../speech/speech";
 import { db, type GameRow } from "../store/db";
 import Board, { type BoardArrow } from "./Board";
-
-export interface PlayLevel {
-  label: string;
-  skill: number;
-  movetimeMs: number;
-}
-
-export const PLAY_LEVELS: PlayLevel[] = [
-  { label: "入門", skill: 0, movetimeMs: 150 },
-  { label: "初級", skill: 4, movetimeMs: 250 },
-  { label: "中級", skill: 9, movetimeMs: 400 },
-  { label: "高級", skill: 14, movetimeMs: 700 },
-  { label: "特級", skill: 20, movetimeMs: 1500 },
-];
-
-export const levelName = (level: number | undefined): string =>
-  `引擎.${PLAY_LEVELS[level ?? 2]?.label ?? "中級"}`;
+import { levelAt } from "./playLevels";
 
 const SIDE_ZH: Record<Side, string> = { red: "紅", black: "黑" };
 
@@ -66,7 +50,7 @@ export default function PlayPage({ gameId }: { gameId: number }) {
 
   const playerSide: Side = game?.playerSide ?? "red";
   const engineSide: Side = opposite(playerSide);
-  const level = PLAY_LEVELS[game?.level ?? 2] ?? PLAY_LEVELS[2];
+  const level = levelAt(game?.level);
 
   const current: GameNode | null = useMemo(
     () => (game && currentId ? findNode(game.tree, currentId) : null),
@@ -139,7 +123,7 @@ export default function PlayPage({ gameId }: { gameId: number }) {
     const mySeq = ++seqRef.current;
     setThinking(true);
     void engine
-      .analyze(fen, { movetimeMs: level.movetimeMs, multipv: 1, skillLevel: level.skill })
+      .analyze(fen, { movetimeMs: level.movetimeMs, multipv: 1, elo: level.elo })
       .then((res) => {
         if (seqRef.current !== mySeq) return;
         const m = res.bestmove ? parseUciMove(res.bestmove) : null;
