@@ -51,6 +51,15 @@ export default defineConfig({
               cacheableResponse: { statuses: [0, 200] },
             },
           },
+          {
+            urlPattern: /\/models\/.*\.bin$/,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "models-v1",
+              expiration: { maxEntries: 4 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
         ],
       },
     }),

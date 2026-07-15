@@ -1,11 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useApp } from "../App";
 import { engine } from "../engine/engineClient";
 import { detectSpeechMode } from "../speech/speech";
+import { loadCnn } from "../vision/cnn";
+import { loadTemplates, saveTemplates, type PieceTemplates } from "../vision/templates";
+import CalibrateDialog from "./CalibrateDialog";
 
 export default function SettingsPage() {
   const { go, settings, updateSettings } = useApp();
   const [engineMsg, setEngineMsg] = useState("");
+  const [templates, setTemplates] = useState<PieceTemplates | null>(null);
+  const [cnnOk, setCnnOk] = useState<boolean | null>(null);
+  const [showCalibrate, setShowCalibrate] = useState(false);
+  const [calMsg, setCalMsg] = useState("");
+
+  useEffect(() => {
+    void loadTemplates().then(setTemplates);
+    void loadCnn().then((m) => setCnnOk(!!m));
+  }, []);
   const speechMode = detectSpeechMode();
 
   const preloadEngine = () => {
@@ -114,6 +126,42 @@ export default function SettingsPage() {
       </div>
 
       <div className="card">
+        <h3>拍照辨識</h3>
+        <div className="settings-row">
+          <div>
+            校準我的棋子
+            <div className="muted">
+              {templates
+                ? `已校準(${new Date(templates.createdAt).toLocaleDateString("zh-TW")},${templates.samples.red.length + templates.samples.black.length} 個範本)`
+                : "未校準:拍一張標準開局照,辨識會比對你自己的棋子,準很多"}
+            </div>
+          </div>
+          <div className="row">
+            <button onClick={() => setShowCalibrate(true)}>{templates ? "重新校準" : "校準"}</button>
+            {templates && (
+              <button
+                className="danger"
+                onClick={() => {
+                  void saveTemplates(null).then(() => setTemplates(null));
+                  setCalMsg("已清除校準");
+                }}
+              >
+                清除
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="settings-row">
+          <div>
+            內建棋子模型
+            <div className="muted">合成資料訓練的小型模型(154KB,本機執行);實拍準確度以校準範本為準</div>
+          </div>
+          <span className="muted">{cnnOk === null ? "…" : cnnOk ? "✓ 已載入" : "未載入"}</span>
+        </div>
+        {calMsg && <div className="muted">{calMsg}</div>}
+      </div>
+
+      <div className="card">
         <h3>AI 白話講解(規劃中)</h3>
         <div className="muted">
           解棋的引擎變化未來可選配用 AI 轉成白話說明。核心分析完全在手機本機引擎執行,
@@ -132,6 +180,16 @@ export default function SettingsPage() {
         <div>引擎:Fairy-Stockfish(WASM)+ xiangqi NNUE(Pikafish 團隊訓練)</div>
         <div>記譜規範:WXF / 中國象棋電腦應用規範(xqbase)</div>
       </div>
+      {showCalibrate && (
+        <CalibrateDialog
+          onClose={() => setShowCalibrate(false)}
+          onDone={(msg) => {
+            setShowCalibrate(false);
+            setCalMsg(msg);
+            void loadTemplates().then(setTemplates);
+          }}
+        />
+      )}
     </div>
   );
 }
