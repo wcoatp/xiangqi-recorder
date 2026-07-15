@@ -6,3 +6,6 @@ dev-dist
 public/engine/stockfish.js
 public/engine/stockfish.wasm
 public/engine/stockfish.worker.js
+training/data
+training/.venv
+__pycache__
