@@ -1,9 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useApp } from "../App";
 import type { Side } from "../core/board";
+import { formatDhtmlXq } from "../core/dhtmlxq";
 import { parseFen } from "../core/fen";
 import { legalMovesFrom } from "../core/movegen";
-import { exportChineseText, exportPgn, type GameMeta, type GameResult } from "../core/pgn";
+import {
+  exportChineseText,
+  exportPgn,
+  type GameMeta,
+  type GameResult,
+} from "../core/pgn";
 import {
   addMove,
   deleteSubtree,
@@ -170,15 +176,18 @@ export default function ReplayPage({
       game.reviewedAt = Date.now();
       persist();
     } catch (e) {
-      if ((e as Error).message !== "cancelled") setReviewError(`分析失敗:${(e as Error).message}`);
+      if ((e as Error).message !== "cancelled")
+        setReviewError(`分析失敗:${(e as Error).message}`);
     } finally {
       setReviewing(null);
     }
   };
 
-  if (!game || !root || !current || !pos) return <div className="page">載入中…</div>;
+  if (!game || !root || !current || !pos)
+    return <div className="page">載入中…</div>;
 
-  const currentJudgment = review?.judgments.find((j) => j.nodeId === current.id) ?? null;
+  const currentJudgment =
+    review?.judgments.find((j) => j.nodeId === current.id) ?? null;
   const startTurn = parseFen(root.fenAfter).turn;
 
   return (
@@ -186,7 +195,8 @@ export default function ReplayPage({
       <div className="topbar">
         <button onClick={() => go({ name: "home" })}>← 首頁</button>
         <div className="title">
-          <span style={{ color: "var(--red)" }}>{game.redName}</span> vs {game.blackName}
+          <span style={{ color: "var(--red)" }}>{game.redName}</span> vs{" "}
+          {game.blackName}
           <span className="result-badge" style={{ marginLeft: 6 }}>
             {RESULT_LABEL[game.result]}
           </span>
@@ -218,16 +228,26 @@ export default function ReplayPage({
         <button onClick={() => goto(idx - 1)} disabled={idx < 0}>
           ◀
         </button>
-        <button className="primary" onClick={() => setPlaying(!playing)} disabled={line.length === 0}>
+        <button
+          className="primary"
+          onClick={() => setPlaying(!playing)}
+          disabled={line.length === 0}
+        >
           {playing ? "⏸" : "▶"}
         </button>
         <button onClick={() => goto(idx + 1)} disabled={idx + 1 >= line.length}>
           ▶︎
         </button>
-        <button onClick={() => goto(line.length - 1)} disabled={idx + 1 >= line.length}>
+        <button
+          onClick={() => goto(line.length - 1)}
+          disabled={idx + 1 >= line.length}
+        >
           ⏭
         </button>
-        <select value={speedMs} onChange={(e) => setSpeedMs(Number(e.target.value))}>
+        <select
+          value={speedMs}
+          onChange={(e) => setSpeedMs(Number(e.target.value))}
+        >
           <option value={500}>快(0.5s)</option>
           <option value={1000}>中(1s)</option>
           <option value={2000}>慢(2s)</option>
@@ -246,7 +266,11 @@ export default function ReplayPage({
         <div className="chips">
           <span className="muted">下一著分支:</span>
           {current.children.map((c, i) => (
-            <button key={c.id} className="chip" onClick={() => setCurrentId(c.id)}>
+            <button
+              key={c.id}
+              className="chip"
+              onClick={() => setCurrentId(c.id)}
+            >
               {i === 0 ? "主線 " : `變${i} `}
               {c.zh}
             </button>
@@ -255,7 +279,10 @@ export default function ReplayPage({
       )}
 
       <div className="row">
-        <button className={editMode ? "primary" : ""} onClick={() => setEditMode(!editMode)}>
+        <button
+          className={editMode ? "primary" : ""}
+          onClick={() => setEditMode(!editMode)}
+        >
           {editMode ? "✓ 編輯中" : "✎ 編輯/變着"}
         </button>
         <button
@@ -268,16 +295,24 @@ export default function ReplayPage({
         >
           🔍 即時引擎
         </button>
-        <button className={showAnalysis ? "primary" : ""} onClick={() => setShowAnalysis(!showAnalysis)}>
+        <button
+          className={showAnalysis ? "primary" : ""}
+          onClick={() => setShowAnalysis(!showAnalysis)}
+        >
           💡 解棋
         </button>
       </div>
 
       {editMode && (
         <div className="card">
-          <div className="muted">編輯模式:直接在棋盤走子即可加入變着;主線之外的分支以「變」標示。</div>
+          <div className="muted">
+            編輯模式:直接在棋盤走子即可加入變着;主線之外的分支以「變」標示。
+          </div>
           <div className="row" style={{ marginTop: 8, flexWrap: "wrap" }}>
-            <button onClick={() => setCommentDraft(current.comment ?? "")} disabled={!current.move}>
+            <button
+              onClick={() => setCommentDraft(current.comment ?? "")}
+              disabled={!current.move}
+            >
               💬 註解此著
             </button>
             <button
@@ -296,7 +331,8 @@ export default function ReplayPage({
               disabled={!current.move}
               onClick={() => {
                 if (!current.move) return;
-                if (!window.confirm(`刪除「${current.zh}」及其後所有著法?`)) return;
+                if (!window.confirm(`刪除「${current.zh}」及其後所有著法?`))
+                  return;
                 const parent = findParent(root, current.id);
                 deleteSubtree(root, current.id);
                 setCurrentId(parent?.id ?? root.id);
@@ -311,7 +347,13 @@ export default function ReplayPage({
 
       {liveOn && (
         <div className="card">
-          <LiveAnalysis fen={fen} active={liveOn} multipv={2} movetimeMs={1500} onArrows={setArrows} />
+          <LiveAnalysis
+            fen={fen}
+            active={liveOn}
+            multipv={2}
+            movetimeMs={1500}
+            onArrows={setArrows}
+          />
         </div>
       )}
 
@@ -326,14 +368,20 @@ export default function ReplayPage({
               </span>
             )}
           </div>
-          {reviewError && <div style={{ color: "var(--bad)" }}>⚠ {reviewError}</div>}
+          {reviewError && (
+            <div style={{ color: "var(--bad)" }}>⚠ {reviewError}</div>
+          )}
           {reviewing ? (
             <div>
               <div className="muted">
                 分析中… {reviewing.done}/{reviewing.total} 局面
               </div>
               <div className="progressbar">
-                <div style={{ width: `${(100 * reviewing.done) / reviewing.total}%` }} />
+                <div
+                  style={{
+                    width: `${(100 * reviewing.done) / reviewing.total}%`,
+                  }}
+                />
               </div>
               <button
                 style={{ marginTop: 8 }}
@@ -356,10 +404,17 @@ export default function ReplayPage({
             <div>
               <div className="muted">
                 用手機上的引擎逐著分析整局(約{" "}
-                {Math.round(((mainline(root).length + 1) * settings.analysisMovetimeMs) / 1000)}{" "}
+                {Math.round(
+                  ((mainline(root).length + 1) * settings.analysisMovetimeMs) /
+                    1000,
+                )}{" "}
                 秒),標出錯着/漏着/敗着並給出建議著法。完全離線,不需網路。
               </div>
-              <button className="primary" style={{ marginTop: 8 }} onClick={() => void runReview()}>
+              <button
+                className="primary"
+                style={{ marginTop: 8 }}
+                onClick={() => void runReview()}
+              >
                 開始解棋
               </button>
             </div>
@@ -367,17 +422,24 @@ export default function ReplayPage({
           {currentJudgment && !reviewing && (
             <div className="card" style={{ marginTop: 8 }}>
               <div>
-                第 {currentJudgment.ply} 著 {currentJudgment.side === "red" ? "紅" : "黑"}.
+                第 {currentJudgment.ply} 著{" "}
+                {currentJudgment.side === "red" ? "紅" : "黑"}.
                 <b>{currentJudgment.zh}</b>{" "}
-                <span className={`tag ${currentJudgment.tag}`}>{TAG_LABEL[currentJudgment.tag]}</span>
+                <span className={`tag ${currentJudgment.tag}`}>
+                  {TAG_LABEL[currentJudgment.tag]}
+                </span>
                 {currentJudgment.loss >= 15 && (
-                  <span className="muted">(損失 {(currentJudgment.loss / 100).toFixed(1)})</span>
+                  <span className="muted">
+                    (損失 {(currentJudgment.loss / 100).toFixed(1)})
+                  </span>
                 )}
               </div>
               {currentJudgment.tag !== "best" && currentJudgment.bestZh && (
                 <div style={{ marginTop: 4 }}>
                   建議:<b>{currentJudgment.bestZh}</b>
-                  <div className="muted">後續:{currentJudgment.bestLineZh.join(" ")}</div>
+                  <div className="muted">
+                    後續:{currentJudgment.bestLineZh.join(" ")}
+                  </div>
                 </div>
               )}
               <div className="muted" style={{ marginTop: 4 }}>
@@ -466,10 +528,13 @@ function MoveList({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    ref.current?.querySelector(".current")?.scrollIntoView({ block: "nearest" });
+    ref.current
+      ?.querySelector(".current")
+      ?.scrollIntoView({ block: "nearest" });
   }, [currentId]);
 
-  const rows: Array<{ no: number; a: GameNode | null; b: GameNode | null }> = [];
+  const rows: Array<{ no: number; a: GameNode | null; b: GameNode | null }> =
+    [];
   let i = 0;
   let no = 1;
   if (startTurn === "black" && line.length > 0) {
@@ -482,10 +547,15 @@ function MoveList({
 
   const cell = (n: GameNode | null) =>
     n ? (
-      <button className={`mv ${n.id === currentId ? "current" : ""}`} onClick={() => onPick(n.id)}>
+      <button
+        className={`mv ${n.id === currentId ? "current" : ""}`}
+        onClick={() => onPick(n.id)}
+      >
         {n.zh}
         {tagByNode.has(n.id) && tagByNode.get(n.id) !== "good" && (
-          <span className={`tag ${tagByNode.get(n.id)}`}>{TAG_LABEL[tagByNode.get(n.id)!]}</span>
+          <span className={`tag ${tagByNode.get(n.id)}`}>
+            {TAG_LABEL[tagByNode.get(n.id)!]}
+          </span>
         )}
         {n.comment && <span title={n.comment}>💬</span>}
       </button>
@@ -524,7 +594,9 @@ function AnalysisSummary({
   onRerun: () => void;
 }) {
   const keyMoves = [...review.judgments]
-    .filter((j) => j.tag === "mistake" || j.tag === "blunder" || j.tag === "inacc")
+    .filter(
+      (j) => j.tag === "mistake" || j.tag === "blunder" || j.tag === "inacc",
+    )
     .sort((a, b) => b.loss - a.loss)
     .slice(0, 5);
 
@@ -533,7 +605,9 @@ function AnalysisSummary({
       <EvalChart review={review} currentPly={currentPly} onJump={onJump} />
       <div className="row" style={{ marginTop: 8, flexWrap: "wrap" }}>
         <div className="grow">
-          <b style={{ color: "var(--red)" }}>紅 準確度 {review.accuracy.red}%</b>
+          <b style={{ color: "var(--red)" }}>
+            紅 準確度 {review.accuracy.red}%
+          </b>
           <div className="muted">
             漏着 {review.counts.red.inacc}.錯着 {review.counts.red.mistake}.敗着{" "}
             {review.counts.red.blunder}
@@ -542,8 +616,8 @@ function AnalysisSummary({
         <div className="grow">
           <b>黑 準確度 {review.accuracy.black}%</b>
           <div className="muted">
-            漏着 {review.counts.black.inacc}.錯着 {review.counts.black.mistake}.敗着{" "}
-            {review.counts.black.blunder}
+            漏着 {review.counts.black.inacc}.錯着 {review.counts.black.mistake}
+            .敗着 {review.counts.black.blunder}
           </div>
         </div>
         <button onClick={onRerun}>重新分析</button>
@@ -553,7 +627,11 @@ function AnalysisSummary({
           <div className="muted">關鍵著法(點擊跳轉):</div>
           <div className="chips">
             {keyMoves.map((j) => (
-              <button key={j.nodeId} className="chip" onClick={() => onJump(j.ply)}>
+              <button
+                key={j.nodeId}
+                className="chip"
+                onClick={() => onJump(j.ply)}
+              >
                 #{j.ply} {j.side === "red" ? "紅" : "黑"} {j.zh}
                 <span className={`tag ${j.tag}`}>{TAG_LABEL[j.tag]}</span>
               </button>
@@ -594,11 +672,45 @@ function EvalChart({
         onJump(Math.max(0, Math.min(n - 1, i)));
       }}
     >
-      <rect x={0} y={0} width={W} height={H / 2} fill="var(--red)" opacity={0.07} />
-      <rect x={0} y={H / 2} width={W} height={H / 2} fill="#000" opacity={0.12} />
-      <line x1={0} y1={H / 2} x2={W} y2={H / 2} stroke="var(--muted)" strokeWidth={1} strokeDasharray="4 4" />
-      <polyline points={pts} fill="none" stroke="var(--accent)" strokeWidth={2.5} />
-      <line x1={x(cur)} y1={0} x2={x(cur)} y2={H} stroke="var(--good)" strokeWidth={2} />
+      <rect
+        x={0}
+        y={0}
+        width={W}
+        height={H / 2}
+        fill="var(--red)"
+        opacity={0.07}
+      />
+      <rect
+        x={0}
+        y={H / 2}
+        width={W}
+        height={H / 2}
+        fill="#000"
+        opacity={0.12}
+      />
+      <line
+        x1={0}
+        y1={H / 2}
+        x2={W}
+        y2={H / 2}
+        stroke="var(--muted)"
+        strokeWidth={1}
+        strokeDasharray="4 4"
+      />
+      <polyline
+        points={pts}
+        fill="none"
+        stroke="var(--accent)"
+        strokeWidth={2.5}
+      />
+      <line
+        x1={x(cur)}
+        y1={0}
+        x2={x(cur)}
+        y2={H}
+        stroke="var(--good)"
+        strokeWidth={2}
+      />
     </svg>
   );
 }
@@ -614,7 +726,13 @@ function download(filename: string, text: string) {
   URL.revokeObjectURL(url);
 }
 
-function ExportDialog({ game, onClose }: { game: GameRow; onClose: () => void }) {
+function ExportDialog({
+  game,
+  onClose,
+}: {
+  game: GameRow;
+  onClose: () => void;
+}) {
   const [msg, setMsg] = useState("");
   const meta: GameMeta = {
     red: game.redName,
@@ -640,14 +758,29 @@ function ExportDialog({ game, onClose }: { game: GameRow; onClose: () => void })
         >
           📋 複製中文棋譜
         </button>
-        <button onClick={() => download(`${base}.pgn`, exportPgn(meta, game.tree))}>
+        <button
+          onClick={() => download(`${base}.pgn`, exportPgn(meta, game.tree))}
+        >
           ⬇️ 下載 PGN(象棋橋/象棋巫師可讀)
         </button>
-        <button onClick={() => download(`${base}.txt`, zhText())}>⬇️ 下載中文棋譜 .txt</button>
+        <button
+          onClick={() => {
+            void navigator.clipboard
+              .writeText(formatDhtmlXq(meta, game.tree))
+              .then(() => setMsg("已複製東萍 DhtmlXQ 代碼"));
+          }}
+        >
+          📋 複製東萍 DhtmlXQ 代碼
+        </button>
+        <button onClick={() => download(`${base}.txt`, zhText())}>
+          ⬇️ 下載中文棋譜 .txt
+        </button>
         {"share" in navigator && (
           <button
             onClick={() => {
-              void navigator.share({ title: base, text: zhText() }).catch(() => {});
+              void navigator
+                .share({ title: base, text: zhText() })
+                .catch(() => {});
             }}
           >
             📲 系統分享
@@ -681,20 +814,36 @@ function InfoDialog({
         <h3>編輯對局資訊</h3>
         <label>
           <div className="muted">紅方</div>
-          <input value={red} onChange={(e) => setRed(e.target.value)} style={{ width: "100%" }} />
+          <input
+            value={red}
+            onChange={(e) => setRed(e.target.value)}
+            style={{ width: "100%" }}
+          />
         </label>
         <label>
           <div className="muted">黑方</div>
-          <input value={black} onChange={(e) => setBlack(e.target.value)} style={{ width: "100%" }} />
+          <input
+            value={black}
+            onChange={(e) => setBlack(e.target.value)}
+            style={{ width: "100%" }}
+          />
         </label>
         <div className="seg">
           {(["red", "black", "draw", "*"] as GameResult[]).map((r) => (
-            <button key={r} className={result === r ? "on" : ""} onClick={() => setResult(r)}>
+            <button
+              key={r}
+              className={result === r ? "on" : ""}
+              onClick={() => setResult(r)}
+            >
               {RESULT_LABEL[r]}
             </button>
           ))}
         </div>
-        <input placeholder="結果原因(認輸/絕殺…)" value={reason} onChange={(e) => setReason(e.target.value)} />
+        <input
+          placeholder="結果原因(認輸/絕殺…)"
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+        />
         <div className="fab-row">
           <button onClick={onClose}>取消</button>
           <button

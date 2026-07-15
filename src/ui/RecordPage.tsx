@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useApp } from "../App";
-import { findKing, positionKey, type Move, type Position, type Side } from "../core/board";
+import {
+  findKing,
+  positionKey,
+  type Move,
+  type Position,
+  type Side,
+} from "../core/board";
 import { parseFen } from "../core/fen";
 import { gameStatus, legalMovesFrom } from "../core/movegen";
 import type { GameResult } from "../core/pgn";
@@ -26,6 +32,7 @@ import {
 } from "../speech/speech";
 import { db, type GameRow } from "../store/db";
 import Board from "./Board";
+import PhotoDialog from "./PhotoDialog";
 
 const SIDE_ZH: Record<Side, string> = { red: "紅", black: "黑" };
 
@@ -44,6 +51,7 @@ export default function RecordPage({ gameId }: { gameId: number }) {
     detectSpeechMode(),
   );
   const [autoListen, setAutoListen] = useState(false);
+  const [photoFor, setPhotoFor] = useState<Side | null>(null);
   const flashTimer = useRef<number>(0);
 
   useEffect(() => {
@@ -91,19 +99,30 @@ export default function RecordPage({ gameId }: { gameId: number }) {
     flashTimer.current = window.setTimeout(() => setFlash(""), 3000);
   };
 
-  const doMove = useCallback(
-    (m: Move) => {
-      if (!game || !current || !pos) return;
-      const mover = pos.turn;
-      const { node } = addMove(current, m, Date.now() - game.startedAt);
+  /** 套用一或多著。必須整串在同一回合內走完:
+   * setState 是非同步的,若對每一著分開呼叫,第二著會拿到還沒更新的 current,
+   * 變成掛在第一著旁邊的分支(而且走子方也會算錯)。 */
+  const doMoves = useCallback(
+    (moves: Move[]) => {
+      if (!game || !current || !pos || moves.length === 0) return;
+      let node = current;
+      let p = pos;
+      const said: string[] = [];
+      let mover = p.turn;
+      for (const m of moves) {
+        mover = p.turn;
+        node = addMove(node, m, Date.now() - game.startedAt).node;
+        said.push(`${SIDE_ZH[mover]},${node.zh}`);
+        p = parseFen(node.fenAfter);
+      }
       setCurrentId(node.id);
       setSelected(null);
       setKeypadFor(null);
+      setPhotoFor(null);
       setGame({ ...game });
       persist(game);
-      const after = parseFen(node.fenAfter);
-      const st = gameStatus(after);
-      let read = `${SIDE_ZH[mover]},${node.zh}`;
+      const st = gameStatus(p);
+      let read = said.join(";");
       if (st.over) {
         const reason = st.reason === "checkmate" ? "絕殺" : "困斃";
         read += `,${reason}`;
@@ -120,6 +139,8 @@ export default function RecordPage({ gameId }: { gameId: number }) {
     },
     [game, current, pos, persist, settings, speechMode],
   );
+
+  const doMove = useCallback((m: Move) => doMoves([m]), [doMoves]);
 
   const undo = useCallback(() => {
     if (!game || !current || !current.move) return;
@@ -192,6 +213,13 @@ export default function RecordPage({ gameId }: { gameId: number }) {
             ↩
           </button>
           <button
+            onClick={() => setPhotoFor(side)}
+            disabled={!active}
+            title="拍照記譜"
+          >
+            📷
+          </button>
+          <button
             onClick={() => setKeypadFor(keypadFor === side ? null : side)}
             disabled={!active}
           >
@@ -258,6 +286,14 @@ export default function RecordPage({ gameId }: { gameId: number }) {
           結束對局
         </button>
       </div>
+
+      {photoFor && (
+        <PhotoDialog
+          pos={pos}
+          onApply={doMoves}
+          onClose={() => setPhotoFor(null)}
+        />
+      )}
 
       {endDialog && (
         <EndDialog

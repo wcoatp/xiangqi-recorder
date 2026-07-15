@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useApp } from '../App'
+import { exportBackup } from '../store/backup'
 import { db, type GameRow } from '../store/db'
+import ImportDialog from './ImportDialog'
 
 const RESULT_LABEL: Record<string, string> = {
   red: '紅勝',
@@ -13,6 +15,8 @@ export default function GamesPage({ intent }: { intent: 'replay' | 'analyze' }) 
   const { go } = useApp()
   const [games, setGames] = useState<GameRow[]>([])
   const [q, setQ] = useState('')
+  const [showImport, setShowImport] = useState(false)
+  const [flash, setFlash] = useState('')
 
   const reload = () => void db.games.orderBy('startedAt').reverse().toArray().then(setGames)
   useEffect(reload, [])
@@ -45,6 +49,11 @@ export default function GamesPage({ intent }: { intent: 'replay' | 'analyze' }) 
         onChange={(e) => setQ(e.target.value)}
         style={{ width: '100%' }}
       />
+      <div className="fab-row">
+        <button onClick={() => setShowImport(true)}>📥 匯入棋譜</button>
+        <button onClick={() => void backupAll(games.length, setFlash)}>💾 全部備份</button>
+      </div>
+      {flash && <div className="muted">{flash}</div>}
       <div className="card" style={{ padding: 0 }}>
         {filtered.length === 0 && <div className="list-item muted">沒有紀錄</div>}
         {filtered.map((g) => (
@@ -68,6 +77,32 @@ export default function GamesPage({ intent }: { intent: 'replay' | 'analyze' }) 
           </div>
         ))}
       </div>
+      {showImport && (
+        <ImportDialog
+          onClose={() => setShowImport(false)}
+          onDone={(msg) => {
+            setShowImport(false)
+            setFlash(msg)
+            reload()
+          }}
+        />
+      )}
     </div>
   )
+}
+
+async function backupAll(count: number, setFlash: (s: string) => void) {
+  if (count === 0) {
+    setFlash('沒有紀錄可備份')
+    return
+  }
+  const json = await exportBackup()
+  const blob = new Blob([json], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `象棋記譜備份_${new Date().toISOString().slice(0, 10)}.json`
+  a.click()
+  URL.revokeObjectURL(url)
+  setFlash(`已下載備份(${count} 局)`)
 }
