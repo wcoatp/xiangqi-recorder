@@ -155,7 +155,7 @@ export default function SettingsPage() {
         <div className="settings-row">
           <div>
             內建棋子模型
-            <div className="muted">合成資料訓練的小型模型(154KB,本機執行);實拍準確度以校準範本為準</div>
+            <div className="muted">合成資料訓練的小型模型(154KB,本機執行,開源字體);實拍準確度以校準範本為準</div>
           </div>
           <span className="muted">{cnnOk === null ? "…" : cnnOk ? "✓ 已載入" : "未載入"}</span>
         </div>

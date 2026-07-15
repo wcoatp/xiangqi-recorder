@@ -9,3 +9,4 @@ public/engine/stockfish.worker.js
 training/data
 training/.venv
 __pycache__
+training/fonts

@@ -53,8 +53,11 @@ App 會執行期自動偵測並降級;若未來 WebKit 修復,自動恢復即時
 1. **規則強制**:位置規則直接釘死的(九宮內唯一的子必是將/帥)不用辨識;
 2. **你的棋子範本(建議)**:在設定頁拍一張**標準開局照**校準 —— 那一刻 32 顆子的身分是定義上已知的,
    等於用你自己那副棋、你的光線建出 32 個完美標註範本;之後辨識就是旋轉搜尋 NCC 比對同一批實體物件;
-3. **內建小 CNN**:合成資料(系統字體 × 異體字 × 全角度旋轉 × 反光/模糊/雜訊)訓練的 7 類分類器
-   (154KB,純 TS 前向傳播,與 torch 輸出以 fixture 驗證一致)。
+3. **內建小 CNN**:合成資料訓練的 7 類分類器(154KB,純 TS 前向傳播,與 torch 輸出以 fixture 驗證一致)。
+   訓練字體全部是 **SIL OFL 授權的開源字體**(明體 Noto Serif TC 7 種字重 / 黑體 Noto Sans TC 7 種 /
+   楷書 霞鶩文楷 3 種,共 17 個字體檔),再疊上異體字(帥將帅将、車俥车、炮砲包…)、
+   全角度旋轉、反光/陰影浮雕/模糊/雜訊 —— 合成驗證 97.3%。
+   刻意不用 macOS 內建字體:那些不可轉散布,整條產線用 OFL 才能安心商業化。
 
 三層分數融合後做「容量 + 位置合法性」約束下的整體指派;沒把握的子亮「?」讓你點選
 (選單只列該位置合法的種類)。誠實註記:CNN 為合成資料訓練,**實拍準確度未經真實照片驗證**,
@@ -65,8 +68,10 @@ App 會執行期自動偵測並降級;若未來 WebKit 修復,自動恢復即時
 - **零後端**:React + TypeScript + Vite;IndexedDB(Dexie)本機儲存;`vite-plugin-pwa` 離線快取。
 - **規則核心**:純 TS 走法產生(perft d3 = 79666 驗證)、中文縱線/WXF/ICCS/UCI 四種記譜法互轉(依 xqbase《中國象棋電腦應用規範》,含疊子前後中、多兵跨路序數)。
 - **視覺**:純 TS,不依賴 OpenCV;測試用合成棋盤照(含透視與實體外框)驗證幾何與比對。
-- **訓練**(`training/`,開發側):PyTorch 產生合成棋子样本並訓練小 CNN,匯出自訂二進位權重;
+- **訓練**(`training/`,開發側,不影響 App 執行):
+  `./training/get_fonts.sh` 抓 OFL 字體 → `gen_data.py` 產生合成樣本 → `train.py` 訓練並匯出二進位權重;
   App 端 `src/vision/cnn.ts` 為手寫前向傳播,以 Python↔TS fixture 測試鎖定一致性。
+  字體與合成資料都不進版控(可重現)。
   備考:HuggingFace 有真實照片資料集 `vietanhdev/chessai-data`(1,747 張、18,790 框)可作日後驗證,
   但其授權未標示,故未用於訓練。
 - **引擎**:[fairy-stockfish-nnue.wasm](https://www.npmjs.com/package/fairy-stockfish-nnue.wasm)(UCI,`UCI_Variant xiangqi`)+ xiangqi NNUE 網路(Pikafish 團隊訓練,+914 Elo),在 Web Worker 內執行,遠超人類頂尖水準。

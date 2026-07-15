@@ -1,7 +1,11 @@
 # 合成棋子取樣塊(mirror src/vision/patch.ts 的墨水轉換,兩邊必須一致):
 #   darkness = 255 - min(G,B);圓盤內減中位數 → clamp≥0 → RMS 正規化(cap 8)
 # 變異:字形(每類多個異體字)、字體、大小、旋轉 0-360°、位移、
-#       墨色(黑/紅系)、棋面底色、外圈環、反光、陰影浮雕、模糊、雜訊、輕微透視。
+#       墨色(黑/紅系)、棋面底色、外圈環、反光、陰影浮雕、模糊、雜訊。
+#
+# 字體一律用 SIL OFL 授權的開源字體(training/fonts,跑 get_fonts.sh 取得):
+# 明體 Noto Serif TC / 黑體 Noto Sans TC / 楷書 霞鶩文楷。
+# 不用 macOS 內建字體 —— 那些不可轉散布,整條產線用 OFL 才能安心商業化。
 import os
 import random
 import numpy as np
@@ -19,17 +23,23 @@ GLYPHS = {
     "C": ["炮", "砲", "包"],
     "P": ["兵", "卒"],
 }
-FONT_PATHS = [
-    p
-    for p in [
-        "/System/Library/Fonts/Supplemental/Songti.ttc",
-        "/System/Library/Fonts/STHeiti Light.ttc",
-        "/System/Library/Fonts/STHeiti Medium.ttc",
-        "/System/Library/Fonts/Hiragino Sans GB.ttc",
-        "/System/Library/Fonts/PingFang.ttc",
-    ]
-    if os.path.exists(p)
-]
+FONT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fonts")
+
+
+def find_fonts() -> list[str]:
+    out: list[str] = []
+    for root, _dirs, files in os.walk(FONT_DIR):
+        for f in sorted(files):
+            if f.lower().endswith((".otf", ".ttf", ".ttc")):
+                out.append(os.path.join(root, f))
+    if not out:
+        raise SystemExit(
+            f"找不到字體:{FONT_DIR}\n請先跑 training/get_fonts.sh 下載開源字體(SIL OFL)"
+        )
+    return out
+
+
+FONT_PATHS = find_fonts()
 
 _font_cache: dict[tuple[str, int, int], ImageFont.FreeTypeFont] = {}
 
@@ -45,11 +55,13 @@ def get_font(path: str, size: int, index: int) -> ImageFont.FreeTypeFont | None:
 
 
 def rand_font(rng: random.Random, size: int) -> ImageFont.FreeTypeFont:
-    while True:
+    for _ in range(20):
         path = rng.choice(FONT_PATHS)
-        f = get_font(path, size, rng.randrange(0, 4))
+        idx = rng.randrange(0, 4) if path.lower().endswith(".ttc") else 0
+        f = get_font(path, size, idx)
         if f is not None:
             return f
+    raise RuntimeError("沒有可用的字體")
 
 
 def render_patch(rng: random.Random, cls: str) -> np.ndarray:
