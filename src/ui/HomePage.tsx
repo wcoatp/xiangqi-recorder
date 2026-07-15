@@ -3,6 +3,7 @@ import { useApp } from '../App'
 import { START_FEN } from '../core/fen'
 import { newRoot } from '../core/tree'
 import { db, playerNames, rememberPlayer, type GameRow } from '../store/db'
+import { levelName, PLAY_LEVELS } from './PlayPage'
 
 const RESULT_LABEL: Record<string, string> = {
   red: '紅勝',
@@ -14,6 +15,7 @@ const RESULT_LABEL: Record<string, string> = {
 export default function HomePage() {
   const { go } = useApp()
   const [showNew, setShowNew] = useState(false)
+  const [showPlay, setShowPlay] = useState(false)
   const [recent, setRecent] = useState<GameRow[]>([])
 
   useEffect(() => {
@@ -31,6 +33,9 @@ export default function HomePage() {
         <button className="menu-btn" onClick={() => setShowNew(true)}>
           <span className="icon">🔴</span>開始紀錄<span className="sub">語音/點按 即時記譜</span>
         </button>
+        <button className="menu-btn" onClick={() => setShowPlay(true)}>
+          <span className="icon">🤖</span>對弈<span className="sub">與引擎下棋.自動記譜</span>
+        </button>
         <button className="menu-btn" onClick={() => go({ name: 'games', intent: 'replay' })}>
           <span className="icon">📖</span>復盤紀錄<span className="sub">播放.編輯.變着</span>
         </button>
@@ -47,9 +52,20 @@ export default function HomePage() {
         <div className="card">
           <h3>最近對局</h3>
           {recent.map((g) => (
-            <div key={g.id} className="list-item" onClick={() => go({ name: 'replay', gameId: g.id })}>
+            <div
+              key={g.id}
+              className="list-item"
+              onClick={() =>
+                go(
+                  g.result === '*'
+                    ? { name: g.mode === 'play' ? 'play' : 'record', gameId: g.id }
+                    : { name: 'replay', gameId: g.id },
+                )
+              }
+            >
               <div className="grow">
                 <div>
+                  {g.mode === 'play' && '🤖 '}
                   <b style={{ color: 'var(--red)' }}>{g.redName}</b> vs <b>{g.blackName}</b>
                 </div>
                 <div className="muted">
@@ -63,6 +79,85 @@ export default function HomePage() {
       )}
 
       {showNew && <NewGameDialog onClose={() => setShowNew(false)} />}
+      {showPlay && <PlayDialog onClose={() => setShowPlay(false)} />}
+    </div>
+  )
+}
+
+function PlayDialog({ onClose }: { onClose: () => void }) {
+  const { go } = useApp()
+  const [name, setName] = useState('我')
+  const [side, setSide] = useState<'red' | 'black'>('red')
+  const [level, setLevel] = useState(2)
+  const [names, setNames] = useState<string[]>([])
+
+  useEffect(() => {
+    void playerNames().then(setNames)
+  }, [])
+
+  const start = async () => {
+    const playerName = name.trim() || '我'
+    await rememberPlayer(playerName)
+    const now = Date.now()
+    const engineLabel = levelName(level)
+    const id = await db.games.add({
+      redName: side === 'red' ? playerName : engineLabel,
+      blackName: side === 'black' ? playerName : engineLabel,
+      mode: 'play',
+      playerSide: side,
+      level,
+      startedAt: now,
+      updatedAt: now,
+      result: '*',
+      initialFen: START_FEN,
+      tree: newRoot(START_FEN),
+      moveCount: 0,
+    } as GameRow)
+    go({ name: 'play', gameId: id as number })
+  }
+
+  return (
+    <div className="overlay" onClick={onClose}>
+      <div className="dialog" onClick={(e) => e.stopPropagation()}>
+        <h3>🤖 對弈</h3>
+        <label>
+          <div className="muted">你的名字</div>
+          <input list="player-names" value={name} onChange={(e) => setName(e.target.value)} style={{ width: '100%' }} />
+        </label>
+        <datalist id="player-names">
+          {names.map((n) => (
+            <option key={n} value={n} />
+          ))}
+        </datalist>
+        <div>
+          <div className="muted">你執哪邊(紅方先行)</div>
+          <div className="seg">
+            <button className={side === 'red' ? 'on' : ''} onClick={() => setSide('red')}>
+              執紅(先手)
+            </button>
+            <button className={side === 'black' ? 'on' : ''} onClick={() => setSide('black')}>
+              執黑(後手)
+            </button>
+          </div>
+        </div>
+        <div>
+          <div className="muted">難度</div>
+          <div className="seg">
+            {PLAY_LEVELS.map((l, i) => (
+              <button key={l.label} className={level === i ? 'on' : ''} onClick={() => setLevel(i)}>
+                {l.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="muted">對弈全程自動記譜,結束後可復盤與解棋。</div>
+        <div className="fab-row">
+          <button onClick={onClose}>取消</button>
+          <button className="primary" onClick={() => void start()}>
+            開始對弈
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

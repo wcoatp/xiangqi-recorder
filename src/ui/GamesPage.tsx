@@ -63,6 +63,7 @@ export default function GamesPage({ intent }: { intent: 'replay' | 'analyze' }) 
               onClick={() => go({ name: 'replay', gameId: g.id, analyze: intent === 'analyze' })}
             >
               <div>
+                {g.mode === 'play' && '🤖 '}
                 <b style={{ color: 'var(--red)' }}>{g.redName}</b> vs <b>{g.blackName}</b>{' '}
                 <span className="result-badge">{RESULT_LABEL[g.result]}</span>
                 {g.review && <span className="result-badge">已解棋</span>}
@@ -71,6 +72,13 @@ export default function GamesPage({ intent }: { intent: 'replay' | 'analyze' }) 
                 {new Date(g.startedAt).toLocaleString('zh-TW', { hour12: false })}.{g.moveCount} 著
               </div>
             </div>
+            {g.result === '*' && (
+              <button
+                onClick={() => go({ name: g.mode === 'play' ? 'play' : 'record', gameId: g.id })}
+              >
+                {g.mode === 'play' ? '續弈' : '續記'}
+              </button>
+            )}
             <button className="danger" onClick={() => void remove(g)}>
               刪除
             </button>

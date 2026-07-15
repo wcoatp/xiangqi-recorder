@@ -3,6 +3,7 @@ import { DEFAULT_SETTINGS, loadSettings, saveSettings, type AppSettings } from '
 import EndgamePage from './ui/EndgamePage'
 import GamesPage from './ui/GamesPage'
 import HomePage from './ui/HomePage'
+import PlayPage from './ui/PlayPage'
 import RecordPage from './ui/RecordPage'
 import ReplayPage from './ui/ReplayPage'
 import SettingsPage from './ui/SettingsPage'
@@ -10,6 +11,7 @@ import SettingsPage from './ui/SettingsPage'
 export type View =
   | { name: 'home' }
   | { name: 'record'; gameId: number }
+  | { name: 'play'; gameId: number }
   | { name: 'games'; intent: 'replay' | 'analyze' }
   | { name: 'replay'; gameId: number; analyze?: boolean }
   | { name: 'endgame' }
@@ -52,6 +54,7 @@ export default function App() {
     <AppCtx.Provider value={ctx}>
       {view.name === 'home' && <HomePage />}
       {view.name === 'record' && <RecordPage gameId={view.gameId} />}
+      {view.name === 'play' && <PlayPage gameId={view.gameId} />}
       {view.name === 'games' && <GamesPage intent={view.intent} />}
       {view.name === 'replay' && <ReplayPage gameId={view.gameId} autoAnalyze={view.analyze} />}
       {view.name === 'endgame' && <EndgamePage />}

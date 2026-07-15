@@ -7,6 +7,12 @@ export interface GameRow {
   id: number
   redName: string
   blackName: string
+  /** 'record'(預設)= 實體對局記譜;'play' = 在 App 內人機對弈 */
+  mode?: 'record' | 'play'
+  /** 對弈:使用者執哪邊 */
+  playerSide?: 'red' | 'black'
+  /** 對弈:難度等級(PLAY_LEVELS 索引) */
+  level?: number
   startedAt: number
   updatedAt: number
   result: GameResult
