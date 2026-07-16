@@ -969,6 +969,312 @@ h3 {
   }
 }
 
+/* ---------- 段級校準實驗室 ---------- */
+.rank-lab-page {
+  gap: 14px;
+  background:
+    radial-gradient(circle at 90% 4%, color-mix(in srgb, var(--home-icon) 10%, transparent), transparent 30%),
+    var(--bg);
+}
+
+.rank-lock-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 13px;
+  margin: auto 0;
+  padding: 22px;
+  border: 2px solid color-mix(in srgb, var(--accent) 70%, var(--line));
+  border-radius: 22px;
+  box-shadow: 0 8px 0 color-mix(in srgb, var(--accent) 58%, #3d2413);
+}
+
+.rank-lock-mark,
+.rank-settings-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--home-icon);
+  border-radius: 50%;
+  color: var(--home-icon);
+  background: var(--home-icon-bg);
+  font-family: "Kaiti TC", "BiauKai", "KaiTi", "DFKai-SB", serif;
+  font-weight: 900;
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--home-icon) 48%, transparent);
+}
+
+.rank-lock-mark {
+  width: 62px;
+  height: 62px;
+  font-size: 30px;
+}
+
+.rank-lab-eyebrow {
+  margin-bottom: 4px;
+  color: var(--home-icon);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.rank-pin-form,
+.rank-profile-form {
+  display: grid;
+  gap: 12px;
+}
+
+.rank-pin-form label,
+.rank-profile-form label {
+  display: grid;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.rank-pin-form input,
+.rank-profile-form input,
+.rank-profile-form select,
+.rank-profile-form textarea {
+  width: 100%;
+}
+
+.rank-pin-form input {
+  padding: 11px 12px;
+  font-size: 20px;
+  letter-spacing: 0.22em;
+}
+
+.rank-security-note {
+  padding: 10px 12px;
+  border: 1px dashed color-mix(in srgb, var(--warn) 56%, var(--line));
+  border-radius: 12px;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--warn) 7%, var(--panel));
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.rank-lab-notice,
+.rank-lab-error {
+  padding: 10px 12px;
+  border-radius: 11px;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.rank-lab-notice {
+  border: 1px solid color-mix(in srgb, var(--good) 44%, var(--line));
+  color: var(--good);
+  background: color-mix(in srgb, var(--good) 8%, var(--panel));
+}
+
+.rank-lab-error {
+  border: 1px solid color-mix(in srgb, var(--bad) 46%, var(--line));
+  color: var(--bad);
+  background: color-mix(in srgb, var(--bad) 7%, var(--panel));
+}
+
+.rank-lab-intro {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  border-color: color-mix(in srgb, var(--accent) 52%, var(--line));
+  color: var(--home-primary-ink);
+  background: linear-gradient(135deg, var(--home-primary-from), var(--home-primary-to));
+}
+
+.rank-lab-intro .rank-lab-eyebrow,
+.rank-lab-intro p {
+  color: var(--home-primary-muted);
+}
+
+.rank-lab-intro p {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.rank-local-badge {
+  flex: none;
+  padding: 5px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 10px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.rank-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.rank-summary div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 12px 6px;
+  border-right: 1px solid var(--line);
+}
+
+.rank-summary div:last-child {
+  border-right: 0;
+}
+
+.rank-summary b {
+  color: var(--accent);
+  font-size: 22px;
+}
+
+.rank-summary span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.rank-section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.rank-anchor-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.rank-anchor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  padding: 10px 3px 8px;
+  border: 1px solid color-mix(in srgb, var(--accent) 34%, var(--line));
+  border-radius: 12px;
+  background: linear-gradient(155deg, var(--panel), var(--panel-soft));
+  text-align: center;
+}
+
+.rank-anchor b {
+  color: var(--accent);
+  font-size: 15px;
+}
+
+.rank-anchor span,
+.rank-anchor em {
+  overflow: hidden;
+  width: 100%;
+  color: var(--muted);
+  font-size: 9px;
+  font-style: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rank-anchor em {
+  color: var(--home-icon);
+  font-weight: 700;
+}
+
+.rank-footnote {
+  margin-top: 10px;
+  line-height: 1.45;
+}
+
+.rank-profile-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.rank-consent {
+  display: flex !important;
+  grid-template-columns: auto 1fr;
+  align-items: flex-start;
+  gap: 8px !important;
+  color: var(--muted);
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  line-height: 1.45;
+}
+
+.rank-consent input {
+  width: auto;
+  margin-top: 2px;
+}
+
+.rank-profile-list {
+  display: grid;
+  gap: 7px;
+  margin-top: 13px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.rank-profile-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--panel-soft);
+  font-size: 12px;
+}
+
+.rank-profile-list span {
+  color: var(--muted);
+  text-align: right;
+}
+
+.rank-lab-danger-zone,
+.rank-settings-entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rank-lab-danger-zone > div:first-child {
+  flex: 1;
+}
+
+.rank-settings-mark {
+  width: 42px;
+  height: 42px;
+  flex: none;
+  font-size: 21px;
+}
+
+@media (max-width: 380px) {
+  .rank-lock-card {
+    padding: 18px;
+  }
+
+  .rank-profile-pair {
+    grid-template-columns: 1fr;
+  }
+
+  .rank-lab-intro,
+  .rank-lab-danger-zone {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .rank-local-badge {
+    align-self: flex-start;
+  }
+}
+
 /* ---------- 記譜頁 ---------- */
 .record-page {
   display: flex;

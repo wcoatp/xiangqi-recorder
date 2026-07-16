@@ -1,14 +1,32 @@
 # SDD 002：本機段級校準實驗室
 
-> Status：Proposed<br>
-> Owner：TBD<br>
+> Status：Verified（Phase 1）<br>
+> Owner：專案作者<br>
 > Created：2026-07-16<br>
 > Updated：2026-07-16<br>
 > Related decisions：`D-001`, `D-004`, `D-005`, `D-006`, `D-007`<br>
-> Depends on：可協助校準的台灣象棋棋手、10 個錨點定義<br>
-> Implementation：尚未開始
+> Depends on：無（Phase 1）；可協助校準的台灣象棋棋手（Phase 3）<br>
+> Implementation：Phase 1 已於 2026-07-16 完成並驗證，待正式發布
 
-這份 SDD 把已討論的方向保存下來，但 **Proposed 不代表已核准施工**。開始寫程式前，仍要確認 Open Questions 中會影響資料模型與棋力映射的項目。
+完整校準實驗室仍採分階段施工。產品負責人已於 2026-07-16 核准 Phase 1：PIN 隱藏入口、10 個固定錨點、本機資料骨架、匿名協助者 profile 與版本化 JSON 匯出。校準對弈、人類化選著、匯入合併與公開段級映射仍未核准，不得在本階段提前啟用。
+
+### 1.1 Phase 1 已核准範圍
+
+- 以 `?rank-calibration=setup` 作為明確、可交接的本機 feature gate 啟用入口；新安裝預設完全不顯示。
+- 啟用後只在設定頁顯示「段級校準實驗室」，每次仍需 PIN。
+- PIN 使用 Web Crypto PBKDF2／SHA-256 保存 salt 與 verifier，不保存明文；重新整理與閒置 15 分鐘後上鎖。
+- 建立 Dexie v2 的協助者與校準棋局資料表，保留未來完整原始資料欄位。
+- 凍結 `A01`～`A10` 的 `2026.07-v1` 引擎設定；UI 只顯示錨點 ID 與相對順序，不顯示底層尺度。
+- 可建立匿名協助者 profile，記錄自報級／段、制度來源分類與本機同意時間。
+- 可匯出 schema v1 JSON；包含錨點、profiles、games，不含 PIN、salt、verifier 或 unlock 狀態。
+- 可關閉 feature gate 並保留資料；重新使用 setup URL 可再次開啟。
+
+### 1.2 Phase 1 明確延後
+
+- 不開始校準對弈，不把一般 `PlayPage` 棋局算入校準資料。
+- 不實作人類化選著、seed／候選紀錄或正式統計。
+- 不實作 JSON 匯入／合併；先以匯出做本機備份與格式驗證。
+- 不發布 A01～A10 對應的台灣段級，也不修改公開 `PLAY_LEVELS`。
 
 ## 1. Context
 
@@ -46,7 +64,9 @@
 | 002-D05 | 原始資料與公開映射分離。 | Accepted | 收到新棋局不立即改變一般使用者難度。 |
 | 002-D06 | 引擎加入人類化選著。 | Accepted, algorithm open | 必須版本化、記錄 seed 與候選分數，才能重播。 |
 | 002-D07 | 校準資料以匯出檔搬移。 | Accepted | 不自動同步；匯入需處理重複與 schema version。 |
-| 002-D08 | PIN 忘記時可重設門禁。 | Open | 是否同時刪除校準資料尚待確認。 |
+| 002-D08 | PIN 忘記時可重設門禁。 | Phase 1 deferred | 第一階段可關閉／重開入口但不可繞過既有 PIN；正式重設流程留待後續，且預設應保留資料。 |
+| 002-D09 | Phase 1 入口以 URL gate 明確啟用。 | Accepted | 使用 `?rank-calibration=setup`，避免首頁入口與不可交接的連點彩蛋。 |
+| 002-D10 | Phase 1 不建立校準棋局。 | Accepted | humanized policy 尚未完成前不收可能污染分析的資料。 |
 
 ## 5. User stories
 
@@ -97,12 +117,14 @@
 
 ### 7.1 入口
 
-建議從設定頁的版本資訊或其他不易誤觸位置，透過明確的管理操作顯示「段級校準實驗室」。不要使用只有開發者知道、但容易被誤觸的連點彩蛋作唯一入口；入口機制需可寫入交接文件。
+Phase 1 使用正式網址加上 `?rank-calibration=setup` 明確啟用目前 origin／browser profile 的 feature gate。啟用完成後會移除網址參數，並在設定頁顯示「段級校準實驗室」。不使用首頁入口或連點彩蛋。
 
 Feature gate 與 PIN 是兩層：
 
 1. `rankCalibrationEnabled = false`：完全不顯示入口。
 2. enabled 後：顯示入口，但每次 session 仍要 PIN 解鎖。
+
+Phase 1 PIN 規則為 4～12 位數字、PBKDF2／SHA-256、150,000 iterations、16-byte 隨機 salt；unlock flag 只存在 React memory，閒置 15 分鐘上鎖。這些參數屬門禁版本 v1，不代表強加密保證。
 
 ### 7.2 主要畫面
 
@@ -290,22 +312,24 @@ interface RankCalibrationExport {
 
 ## 11. Acceptance criteria
 
-- [ ] 新安裝與一般使用者看不到校準實驗室。
-- [ ] feature gate 開啟後，未輸入正確 PIN 仍不能進入。
-- [ ] PIN 不以明文保存、匯出或記錄。
-- [ ] refresh 與閒置逾時會上鎖。
-- [ ] 可建立帶級段與制度來源的匿名協助者 profile。
+- [x] 新安裝與一般使用者看不到校準實驗室。（Phase 1）
+- [x] feature gate 開啟後，未輸入正確 PIN 仍不能進入。（Phase 1）
+- [x] PIN 不以明文保存、匯出或記錄。（Phase 1）
+- [x] refresh 與閒置逾時會上鎖。（Phase 1）
+- [x] 可建立帶級段與制度來源的匿名協助者 profile。（Phase 1）
 - [ ] A01～A10 的 config 與 version 可在校準局中完整追溯。
 - [ ] 每一著的人類化選擇有 policy version 與 seed 紀錄。
 - [ ] 完成、和棋、認輸、中斷都能正確分類。
 - [ ] 原始棋局保存後可重建相同聚合統計。
 - [ ] 同一匯出檔重複匯入不會產生重複棋局。
 - [ ] 匯出再匯入另一個乾淨資料庫後內容一致。
-- [ ] 沒有校準資料的網路請求。
-- [ ] 新資料不會自動改變公開 `PLAY_LEVELS`。
-- [ ] UI 與協助者摘要不顯示底層西洋棋 Elo。
-- [ ] 舊 Dexie v1 使用者升級後原有 games／players／settings 完整保留。
-- [ ] `npm test` 與 `npm run build` 通過。
+- [x] 沒有校準資料的網路請求。（Phase 1）
+- [x] 新資料不會自動改變公開 `PLAY_LEVELS`。（Phase 1）
+- [x] UI 與協助者摘要不顯示底層西洋棋 Elo。（Phase 1）
+- [x] 舊 Dexie v1 使用者升級後原有 games／players／settings 完整保留。（Phase 1）
+- [x] `npm test` 與 `npm run build` 通過。（Phase 1）
+
+Phase 1 另已驗證：`A01`～`A10` 與完整 engine config 會進入 schema v1 技術匯出、匯出不含 PIN；校準局、人類化選著、統計重建與匯入去重仍屬未勾選的後續驗收項目。
 
 ## 12. Test plan
 
@@ -321,8 +345,8 @@ interface RankCalibrationExport {
 ## 13. Rollout
 
 1. **Phase 0 — 規格凍結**：回答 Open Questions，確認資料與同意界線。
-2. **Phase 1 — 本機骨架**：Dexie migration、feature gate、PIN、profile、匯出入。
-3. **Phase 2 — 10 錨點**：固定 config、humanized policy v1、校準對弈流程。
+2. **Phase 1 — 本機骨架**：Dexie migration、feature gate、PIN、profile、10 個 config registry 與 JSON 匯出。
+3. **Phase 2 — 對弈資料鏈**：humanized policy v1、校準對弈流程、seed／候選紀錄與匯入去重。
 4. **Phase 3 — 現場收集**：作者帶電腦給棋手使用，只收資料不發布段位。
 5. **Phase 4 — 分析與映射**：檢查樣本與偏差，產生候選 mapping version。
 6. **Phase 5 — 公開發布**：另行核准、更新免責文案、回歸測試與正式部署。
@@ -333,20 +357,38 @@ interface RankCalibrationExport {
 
 | 問題 | 為何會阻擋 | 決策 |
 |---|---|---|
-| 台灣採用哪套正式級／段名稱與制度來源？ | 決定 profile 欄位與 UI 選項。 | Open |
-| A01～A10 的初始引擎 config 是什麼？ | 決定第一批可重現錨點。 | Open |
+| 台灣採用哪套正式級／段名稱與制度來源？ | 決定 profile 欄位與 UI 選項。 | Phase 1 使用通用 10級～9段與四種來源分類；正式制度映射仍 Open。 |
+| A01～A10 的初始引擎 config 是什麼？ | 決定第一批可重現錨點。 | Phase 1 已凍結 `2026.07-v1`；Phase 2 加入 humanized policy 時必須建立新 config version。 |
 | humanized policy v1 如何依局面選候選？ | 直接影響棋力與可信度。 | Open |
 | 每位棋手／錨點至少要下幾局？ | 決定現場時間與發布門檻。 | Open |
-| 忘記 PIN 時，重設門禁是否保留資料？ | 影響安全說明與恢復 UX。 | Open |
-| 匯出檔是否保留制度／協會自由文字？ | 涉及個資、命名一致與資料清理。 | Open |
-| 是否允許使用真名？ | 涉及同意、隱私與未來公開資料。 | Open；建議預設匿名代號。 |
+| 忘記 PIN 時，重設門禁是否保留資料？ | 影響安全說明與恢復 UX。 | Phase 1 deferred；目前不可繞過既有 PIN，未來預設應保留資料。 |
+| 匯出檔是否保留制度／協會自由文字？ | 涉及個資、命名一致與資料清理。 | Phase 1 只存四種來源分類；備註限制 200 字。 |
+| 是否允許使用真名？ | 涉及同意、隱私與未來公開資料。 | Phase 1 不要求真名並明確建議匿名代號；未做真名偵測。 |
 | 哪些異常局可以排除，誰有權標記？ | 影響統計稽核。 | Open |
 
 ## 15. Construction record
 
-- 程式：尚未開始。
-- 測試：尚未執行。
-- Commit：無。
-- Push：無。
-- Deploy：未核准。
-- 下一步：產品負責人確認 Open Questions 中的制度名稱、錨點與 PIN 重設策略後，將 Status 改為 Accepted。
+### Phase 1 implementation
+
+- 日期：2026-07-16。
+- Dexie：新增 version 2、`rankCalibrators`、`rankCalibrationGames`，既有 tables 不改寫。
+- 門禁：`?rank-calibration=setup` 啟用 feature gate；PBKDF2／SHA-256、150,000 iterations、16-byte salt；4～12 位數字 PIN；15 分鐘閒置與離頁上鎖。
+- 錨點：`A01`～`A10`、config `2026.07-v1`；UI 不顯示底層尺度，Phase 1 不開始對弈。
+- 資料：匿名 profile、本機同意時間、schema v1 JSON 匯出；PIN gate 明確排除於匯出格式。
+- UI：設定頁條件式入口、鎖定／設定 PIN、資料摘要、錨點表、profile 表單、上鎖與隱藏入口。
+
+### Phase 1 verification
+
+- Unit：錨點 snapshot／ID、PIN 規則與 verifier、匯出格式不含 PIN。
+- `npm test`：10 個 test files、78 tests 全部通過。
+- `npm run build`：成功；只有既有 `tree.ts` 動態／靜態 import chunk 提示。
+- Browser：在真實 IndexedDB／Web Crypto 環境驗證預設隱藏、setup 啟用且移除 query、PIN 不一致阻擋、設定 PIN、refresh 重新上鎖、正確 PIN 解鎖、profile 持久化、JSON 下載、手動上鎖。
+- Responsive：320 × 568、390 × 844、640 × 900 鎖定頁無水平溢出；640px 儀表板主要區塊正常。
+- 已知限制：未等待 15 分鐘做實時 timeout 測試，但相同 timer 路徑與手動／離頁 lock 已驗證；尚未做多款實體手機測試。
+
+### Git and release
+
+- Commit：待建立。
+- Push：待執行。
+- Deploy：依 repository 預設在 implementation commit／push 後執行。
+- 正式環境驗證：待執行。

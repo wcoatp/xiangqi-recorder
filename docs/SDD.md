@@ -1,9 +1,9 @@
 # 象棋記譜 Living SDD
 
 > 文件狀態：Living（持續維護）<br>
-> 文件版本：1.2<br>
+> 文件版本：1.3<br>
 > 最後更新：2026-07-16<br>
-> 程式基準：`main` / `8de002f`<br>
+> 程式基準：`main` / SDD 002 Phase 1（implementation commit 待建立）<br>
 > 使用者文件：[README.md](../README.md)<br>
 > 施工工作包：[docs/sdd/README.md](sdd/README.md)
 
@@ -69,7 +69,8 @@
 | 殘局 | 擺盤合法性檢查、照片擺盤、MultiPV 分析、試走 | `src/ui/EndgamePage.tsx` |
 | 拍照辨識 | 棋盤偵測、透視校正、紅黑／空格判斷、合法著法比對、棋子分類 | `src/vision/` |
 | 棋子外觀校準 | 拍標準開局照，建立目前棋具的本機範本 | `src/ui/CalibrateDialog.tsx`, `src/vision/templates.ts` |
-| 設定 | 語音、面對面模式、分析強度、照片校準、授權資訊 | `src/ui/SettingsPage.tsx` |
+| 段級校準實驗室 Phase 1 | 預設隱藏、PIN 上鎖、10 個固定錨點、匿名協助者、本機 JSON 匯出；尚未開放校準對弈 | `src/calibration/`, `src/store/rankCalibration.ts`, `src/ui/RankCalibrationPage.tsx` |
+| 設定 | 語音、面對面模式、分析強度、照片校準、授權資訊；feature gate 開啟後顯示段級校準入口 | `src/ui/SettingsPage.tsx` |
 | 回饋 | 透過使用者自己的郵件 App 寄送，可附診斷資訊 | `src/ui/FeedbackDialog.tsx` |
 
 注意：「棋子外觀校準」與未來的「段級棋力校準」是兩套不同功能。命名、資料表與畫面不可混用。
@@ -158,17 +159,22 @@ flowchart LR
 | `src/speech/` | 能力偵測、一次語音辨識、TTS | 平台差異以執行期偵測處理。 |
 | `src/vision/` | 棋盤偵測、透視、分類、合法著法比對、棋子範本、CNN | 真實照片資料不足時不可誇大準確率。 |
 | `src/engine/` | Worker 引擎介面、全局排隊、逐著分析 | 每次分析都要明確重設限制棋力，避免弱棋設定污染解棋。 |
+| `src/calibration/` | 段級校準 schema、PIN KDF 與版本固定錨點 | 不可把底層尺度顯示為中國象棋段級；任何影響棋力的設定變更都要換 config version。 |
 | `src/ui/` | 頁面、對話框、棋盤互動、產品文案 | 維持台灣繁中、觸控優先、鍵盤可達與一致視覺。 |
 | `public/engine/` | Worker、WASM、NNUE | 大檔快取與 GPL 來源必須可追溯。 |
 | `training/` | 開發側 CNN 合成資料與訓練 | 產物須可重現；不得提交授權不明資料。 |
 
 ## 7. 資料模型與資料邊界
 
-### 7.1 目前 Dexie schema（version 1）
+### 7.1 目前 Dexie schema（version 2）
 
 - `games`：對局基本資料、模式、玩家、結果、初始 FEN、棋譜樹、著數與分析結果。
 - `players`：曾使用的玩家名稱。
 - `settings`：key/value 設定；包含語音、分析、面對面模式與 `pieceCalibration` 棋子範本。
+- `rankCalibrators`：匿名協助者 profile、自報級／段、制度來源與本機同意時間。
+- `rankCalibrationGames`：預留完整校準原始棋局；Phase 1 不會建立資料。
+
+version 2 只新增上述兩張表，不改寫既有 `games`、`players`、`settings`。段級校準 feature gate 與 salted PIN verifier 存在 `settings.rankCalibrationGate`；unlock flag 只存在 React memory。
 
 對局以 `GameNode` 樹保存主線與分支，不是單純的線性著法陣列。修改棋譜時要保留節點 ID、主線順序與分支語意。
 
@@ -186,7 +192,7 @@ flowchart LR
 - App settings。
 - 玩家名冊（還原對局時會重新建立相關名字）。
 - 棋子照片校準範本。
-- 未來的段級校準資料。
+- 段級校準 profiles／games（目前需從隱藏實驗室另行匯出 schema v1 JSON）。
 
 因此「完整可攜備份」仍是待補強項目。未來擴充備份格式時必須保留 schema version、向後相容與重複匯入策略。
 
@@ -213,6 +219,8 @@ flowchart LR
 4. 協會棋手先輸入自己的級／段，再像正常對弈一樣完成校準棋局。
 5. 原始棋局與統計只保存在當前電腦／瀏覽器；透過匯出檔帶回分析。
 6. 資料足夠後才版本化發布映射，逐步補齊完整段級。
+
+Phase 1 已凍結 `A01`～`A10` 的 `2026.07-v1` 設定並完成本機 PIN／profile／匯出骨架，但刻意不開放校準對弈；humanized policy、seed、候選著與匯入合併屬下一階段。
 
 詳細施工規格見 [002-local-rank-calibration-lab.md](sdd/002-local-rank-calibration-lab.md)。
 
@@ -262,7 +270,7 @@ flowchart LR
 9. 建立語意清楚的 commit 並 push 到遠端。
 10. 已確認的功能／介面施工預設在 push 後 deploy，並驗證正式 URL；當次明確說不要部署時才停在 Git。
 
-目前測試基準（2026-07-16）：7 個 test files、73 tests 全部通過。
+目前測試基準（2026-07-16）：10 個 test files、78 tests 全部通過。
 
 ## 11. 開發與發布 Runbook
 
@@ -315,8 +323,8 @@ firebase deploy --only hosting
 
 ### 下一階段候選
 
-1. 本機段級校準實驗室與 10 個固定錨點（工作包 002）。
-2. 備份 schema v2，納入 settings、棋子校準與段級校準資料。
+1. 本機段級校準實驗室 Phase 2：humanized policy v1、seed／候選紀錄、校準對弈與匯入去重（工作包 002，需另行核准）。
+2. 完整備份格式 v2，納入 settings、棋子校準與段級校準資料。
 3. 統一 App 版本來源。
 4. 對手統計、ECCO 開局分類、每著計時／棋鐘。
 5. XQF 匯入、全離線語音、選配 AI 白話講解。
@@ -337,5 +345,6 @@ firebase deploy --only hosting
 
 | 日期 | 版本 | 內容 |
 |---|---|---|
+| 2026-07-16 | 1.3 | 記錄 Dexie v2、段級校準實驗室 Phase 1、10 個固定錨點、PIN 門禁與獨立匯出資料邊界。 |
 | 2026-07-16 | 1.1 | 將已確認施工的預設收尾改為 commit、push、Firebase deploy、live verification；記錄首頁工作包正式發布。 |
 | 2026-07-16 | 1.0 | 建立 master SDD，統整產品、架構、資料邊界、難度校準方向與施工交接規範。 |

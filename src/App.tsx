@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { DEFAULT_SETTINGS, loadSettings, saveSettings, type AppSettings } from './store/db'
+import { enableRankCalibrationGate } from './store/rankCalibration'
 import EndgamePage from './ui/EndgamePage'
 import GamesPage from './ui/GamesPage'
 import HomePage from './ui/HomePage'
@@ -7,6 +8,7 @@ import PlayPage from './ui/PlayPage'
 import RecordPage from './ui/RecordPage'
 import ReplayPage from './ui/ReplayPage'
 import SettingsPage from './ui/SettingsPage'
+import RankCalibrationPage from './ui/RankCalibrationPage'
 
 export type View =
   | { name: 'home' }
@@ -16,6 +18,7 @@ export type View =
   | { name: 'replay'; gameId: number; analyze?: boolean }
   | { name: 'endgame' }
   | { name: 'settings' }
+  | { name: 'rank-calibration' }
 
 interface AppCtxValue {
   settings: AppSettings
@@ -40,6 +43,17 @@ export default function App() {
     void loadSettings().then(setSettings)
   }, [])
 
+  useEffect(() => {
+    const url = new URL(window.location.href)
+    if (url.searchParams.get('rank-calibration') !== 'setup') return
+    url.searchParams.delete('rank-calibration')
+    window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`)
+    void enableRankCalibrationGate().then(
+      () => setView({ name: 'rank-calibration' }),
+      () => setView({ name: 'rank-calibration' }),
+    )
+  }, [])
+
   const updateSettings = useCallback((p: Partial<AppSettings>) => {
     setSettings((s) => ({ ...s, ...p }))
     void saveSettings(p)
@@ -59,6 +73,7 @@ export default function App() {
       {view.name === 'replay' && <ReplayPage gameId={view.gameId} autoAnalyze={view.analyze} />}
       {view.name === 'endgame' && <EndgamePage />}
       {view.name === 'settings' && <SettingsPage />}
+      {view.name === 'rank-calibration' && <RankCalibrationPage />}
     </AppCtx.Provider>
   )
 }

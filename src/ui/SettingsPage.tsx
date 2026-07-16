@@ -3,6 +3,7 @@ import { useApp } from "../App";
 import { engine } from "../engine/engineClient";
 import { detectSpeechMode } from "../speech/speech";
 import { loadCnn } from "../vision/cnn";
+import { loadRankCalibrationGate } from "../store/rankCalibration";
 import { loadTemplates, saveTemplates, type PieceTemplates } from "../vision/templates";
 import CalibrateDialog from "./CalibrateDialog";
 import { APP_VERSION } from "./FeedbackDialog";
@@ -14,10 +15,14 @@ export default function SettingsPage() {
   const [cnnOk, setCnnOk] = useState<boolean | null>(null);
   const [showCalibrate, setShowCalibrate] = useState(false);
   const [calMsg, setCalMsg] = useState("");
+  const [rankCalibrationEnabled, setRankCalibrationEnabled] = useState(false);
 
   useEffect(() => {
     void loadTemplates().then(setTemplates);
     void loadCnn().then((m) => setCnnOk(!!m));
+    void loadRankCalibrationGate().then((gate) => setRankCalibrationEnabled(gate.enabled)).catch(() => {
+      setRankCalibrationEnabled(false);
+    });
   }, []);
   const speechMode = detectSpeechMode();
 
@@ -175,6 +180,17 @@ export default function SettingsPage() {
           style={{ width: "100%", marginTop: 8 }}
         />
       </div>
+
+      {rankCalibrationEnabled && (
+        <div className="card rank-settings-entry">
+          <div className="rank-settings-mark" aria-hidden="true">校</div>
+          <div className="grow">
+            <h3>段級校準實驗室</h3>
+            <div className="muted">本機限定・PIN 上鎖・目前為第一階段資料骨架</div>
+          </div>
+          <button onClick={() => go({ name: "rank-calibration" })}>進入</button>
+        </div>
+      )}
 
       <div className="card">
         <h3>授權與原始碼</h3>

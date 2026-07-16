@@ -2,6 +2,7 @@ import Dexie, { type EntityTable } from 'dexie'
 import type { GameResult } from '../core/pgn'
 import type { GameNode } from '../core/tree'
 import type { GameReview } from '../engine/analysis'
+import type { CalibrationGame, CalibratorProfile } from '../calibration/rankTypes'
 
 export interface GameRow {
   id: number
@@ -39,12 +40,22 @@ export const db = new Dexie('xiangqi-recorder') as Dexie & {
   games: EntityTable<GameRow, 'id'>
   players: EntityTable<PlayerRow, 'id'>
   settings: EntityTable<SettingRow, 'key'>
+  rankCalibrators: EntityTable<CalibratorProfile, 'id'>
+  rankCalibrationGames: EntityTable<CalibrationGame, 'id'>
 }
 
 db.version(1).stores({
   games: '++id, startedAt, updatedAt, redName, blackName, result',
   players: '++id, &name',
   settings: 'key',
+})
+
+db.version(2).stores({
+  games: '++id, startedAt, updatedAt, redName, blackName, result',
+  players: '++id, &name',
+  settings: 'key',
+  rankCalibrators: '&id, alias, claimedRank, createdAt',
+  rankCalibrationGames: '&id, profileId, anchorId, startedAt, result',
 })
 
 // ---------- 設定 ----------
