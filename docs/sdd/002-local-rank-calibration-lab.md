@@ -1,12 +1,12 @@
 # SDD 002：本機段級校準實驗室
 
-> Status：Verified（Phase 1）<br>
+> Status：Released（Phase 1；Phase 2+ Deferred）<br>
 > Owner：專案作者<br>
 > Created：2026-07-16<br>
 > Updated：2026-07-16<br>
 > Related decisions：`D-001`, `D-004`, `D-005`, `D-006`, `D-007`<br>
 > Depends on：無（Phase 1）；可協助校準的台灣象棋棋手（Phase 3）<br>
-> Implementation：Phase 1 已於 2026-07-16 完成並驗證，待正式發布
+> Implementation：Phase 1 已於 2026-07-16 完成、驗證並正式發布
 
 完整校準實驗室仍採分階段施工。產品負責人已於 2026-07-16 核准 Phase 1：PIN 隱藏入口、10 個固定錨點、本機資料骨架、匿名協助者 profile 與版本化 JSON 匯出。校準對弈、人類化選著、匯入合併與公開段級映射仍未核准，不得在本階段提前啟用。
 
@@ -388,7 +388,7 @@ Phase 1 另已驗證：`A01`～`A10` 與完整 engine config 會進入 schema v1
 
 ### Git and release
 
-- Commit：待建立。
-- Push：待執行。
-- Deploy：依 repository 預設在 implementation commit／push 後執行。
-- 正式環境驗證：待執行。
+- Commit：`dba28db`（`feat: add local rank calibration lab phase one`）。
+- Push：已推送 `main` 至 `origin`。
+- Deploy：2026-07-16 22:44（Asia/Taipei）部署至 Firebase Hosting；正式網址 https://xiangqi-recorder.web.app/ 。
+- 正式環境驗證：HTML 載入 `assets/index-BmV_hqit.js` 與 `assets/index-CfamfCCt.css`；回應含 `Cross-Origin-Opener-Policy: same-origin`、`Cross-Origin-Embedder-Policy: require-corp`；一般設定頁仍預設隱藏實驗室。為避免改動作者正式 origin 的 PIN／資料，setup→PIN→profile→匯出完整流程使用本機同版 production code 驗證。

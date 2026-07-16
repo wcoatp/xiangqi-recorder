@@ -3,7 +3,7 @@
 > 文件狀態：Living（持續維護）<br>
 > 文件版本：1.3<br>
 > 最後更新：2026-07-16<br>
-> 程式基準：`main` / SDD 002 Phase 1（implementation commit 待建立）<br>
+> 程式基準：`main` / `dba28db`<br>
 > 使用者文件：[README.md](../README.md)<br>
 > 施工工作包：[docs/sdd/README.md](sdd/README.md)
 
@@ -320,6 +320,8 @@ firebase deploy --only hosting
 ### 已發布
 
 - 首頁中國象棋品牌與卡片視覺整理（工作包 001，2026-07-16 發布）。
+- 首頁 3D 中國漫畫風主題（工作包 003，2026-07-16 發布）。
+- 本機段級校準實驗室 Phase 1（工作包 002，2026-07-16 發布；後續 phase 仍需另行核准）。
 
 ### 下一階段候選
 
