@@ -1,6 +1,6 @@
 # SDD 003：首頁 3D 中國漫畫風主題
 
-> Status：Verified<br>
+> Status：Released<br>
 > Owner：專案作者<br>
 > Created：2026-07-16<br>
 > Updated：2026-07-16<br>
@@ -85,7 +85,7 @@ SDD 001 已修正中國象棋品牌、三輸入入口與首頁資訊層級，但
 - [x] 深色模式與 reduced motion 有對應處理。
 - [x] `npm test` 通過。
 - [x] `npm run build` 通過，沒有新增 warning／syntax error。
-- [ ] 正式站部署並完成 live verification。
+- [x] 正式站部署並完成 live verification。
 
 ## 9. Test plan
 
@@ -123,9 +123,9 @@ SDD 001 已修正中國象棋品牌、三輸入入口與首頁資訊層級，但
 
 ### Git and release
 
-- Commit：未建立。
-- Push：未執行。
-- Deploy：待 implementation commit／push 後執行。
-- 正式環境驗證：未執行。
+- Commit：`8de002f`（`feat: add 3d Chinese comic home theme`）。
+- Push：已推送 `main` 至 `origin`。
+- Deploy：2026-07-16 21:43（Asia/Taipei）部署至 Firebase Hosting；正式網址 https://xiangqi-recorder.web.app/ 。
+- 正式環境驗證：HTML 載入 `assets/index-B1CA1VKt.css` 與 `assets/index-BslRcJwo.js`；回應含 `Cross-Origin-Opener-Policy: same-origin` 與 `Cross-Origin-Embedder-Policy: require-corp`；首頁七個入口皆可辨識，「開始紀錄」視窗可開啟與取消，正式站截圖確認為新版 3D 中國漫畫風。
 
 只有在驗證完成後才能標為 Verified；只有在正式部署並驗證後才能標為 Released。

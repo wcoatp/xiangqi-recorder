@@ -3,7 +3,7 @@
 > 文件狀態：Living（持續維護）<br>
 > 文件版本：1.2<br>
 > 最後更新：2026-07-16<br>
-> 程式基準：`main` / SDD 003（implementation commit 待建立）<br>
+> 程式基準：`main` / `8de002f`<br>
 > 使用者文件：[README.md](../README.md)<br>
 > 施工工作包：[docs/sdd/README.md](sdd/README.md)
 
