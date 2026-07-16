@@ -13,6 +13,122 @@ const RESULT_LABEL: Record<string, string> = {
   '*': '進行中',
 }
 
+type HomeIconName =
+  | 'record'
+  | 'play'
+  | 'replay'
+  | 'analyze'
+  | 'endgame'
+  | 'settings'
+  | 'feedback'
+  | 'microphone'
+  | 'camera'
+  | 'board'
+  | 'arrow'
+
+function HomeIcon({ name, size = 24, className }: { name: HomeIconName; size?: number; className?: string }) {
+  const content = (() => {
+    switch (name) {
+      case 'record':
+        return (
+          <>
+            <path d="M5 4.5h11.5v15H5z" />
+            <path d="M8 8h5M8 11.5h4" />
+            <path d="m13.5 17 1.9-.5 4.1-4.1-1.4-1.4-4.1 4.1z" />
+          </>
+        )
+      case 'play':
+        return (
+          <>
+            <circle cx="8" cy="8" r="4" />
+            <circle cx="16" cy="16" r="4" />
+            <path d="M6.5 8h3M14.5 16h3M11 6.5l2-2m0 15 2-2" />
+          </>
+        )
+      case 'replay':
+        return (
+          <>
+            <path d="M4 5.5c3.2-.8 5.9-.2 8 1.7v12c-2.1-1.9-4.8-2.5-8-1.7z" />
+            <path d="M20 5.5c-3.2-.8-5.9-.2-8 1.7v12c2.1-1.9 4.8-2.5 8-1.7zM7 9h2.5M14.5 9H17" />
+          </>
+        )
+      case 'analyze':
+        return (
+          <>
+            <path d="M4 4.5v15h16" />
+            <path d="m7 15 3.5-3.5 2.7 2.2 4.8-6" />
+            <circle cx="18" cy="7.7" r="1.2" />
+          </>
+        )
+      case 'endgame':
+        return (
+          <>
+            <rect x="4" y="4" width="16" height="16" rx="1.5" />
+            <path d="M9.3 4v16M14.7 4v16M4 9.3h16M4 14.7h16" />
+            <circle cx="9.3" cy="9.3" r="1.8" fill="currentColor" stroke="none" />
+            <circle cx="14.7" cy="14.7" r="1.8" fill="currentColor" stroke="none" />
+          </>
+        )
+      case 'settings':
+        return (
+          <>
+            <circle cx="12" cy="12" r="3.2" />
+            <path d="M12 2.8v2.1M12 19.1v2.1M2.8 12h2.1M19.1 12h2.1M5.5 5.5 7 7M17 17l1.5 1.5M18.5 5.5 17 7M7 17l-1.5 1.5" />
+          </>
+        )
+      case 'feedback':
+        return (
+          <>
+            <path d="M5 5.5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-7l-4.5 3v-3H5a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" />
+            <path d="M7.5 9.5h9M7.5 13h6" />
+          </>
+        )
+      case 'microphone':
+        return (
+          <>
+            <rect x="8.5" y="3" width="7" height="12" rx="3.5" />
+            <path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6" />
+          </>
+        )
+      case 'camera':
+        return (
+          <>
+            <path d="M4 7.5h3l1.5-2h7l1.5 2h3v11H4z" />
+            <circle cx="12" cy="13" r="3.2" />
+          </>
+        )
+      case 'board':
+        return (
+          <>
+            <rect x="4" y="3" width="16" height="18" rx="1.5" />
+            <path d="M9.3 3v18M14.7 3v18M4 9h16M4 15h16" />
+            <circle cx="14.7" cy="9" r="1.5" fill="currentColor" stroke="none" />
+          </>
+        )
+      case 'arrow':
+        return <path d="m9 5 7 7-7 7" />
+    }
+  })()
+
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      {content}
+    </svg>
+  )
+}
+
 export default function HomePage() {
   const { go } = useApp()
   const [showNew, setShowNew] = useState(false)
@@ -25,66 +141,126 @@ export default function HomePage() {
   }, [])
 
   return (
-    <div className="page">
-      <div className="home-hero">
-        <div className="logo">♟️</div>
-        <h1>象棋記譜</h1>
-        <div className="muted">面對面對局.語音記譜.引擎復盤</div>
-      </div>
-      <div className="menu-grid">
-        <button className="menu-btn" onClick={() => setShowNew(true)}>
-          <span className="icon">🔴</span>開始紀錄<span className="sub">語音/點按 即時記譜</span>
+    <div className="page home-page">
+      <header className="home-hero">
+        <img className="home-logo" src="/icons/icon.svg" alt="" width="76" height="76" />
+        <div className="home-brand">
+          <span className="home-kicker">實體對局好幫手</span>
+          <h1>象棋記譜</h1>
+          <p>面對面對局・即時記譜・引擎復盤</p>
+        </div>
+      </header>
+
+      <section className="menu-grid" aria-label="主要功能">
+        <button className="menu-btn menu-btn-primary" type="button" onClick={() => setShowNew(true)}>
+          <span className="menu-btn-head">
+            <span className="menu-icon menu-icon-primary">
+              <HomeIcon name="record" size={27} />
+            </span>
+            <span className="menu-copy">
+              <span className="menu-title">開始紀錄</span>
+              <span className="sub">建立一場面對面對局</span>
+            </span>
+            <HomeIcon name="arrow" size={19} className="menu-arrow" />
+          </span>
+          <span className="input-methods" aria-label="可使用語音、拍照或點棋盤輸入">
+            <span className="input-method">
+              <HomeIcon name="microphone" size={16} />語音
+            </span>
+            <span className="input-method">
+              <HomeIcon name="camera" size={16} />拍照
+            </span>
+            <span className="input-method">
+              <HomeIcon name="board" size={16} />點棋盤
+            </span>
+          </span>
         </button>
-        <button className="menu-btn" onClick={() => setShowPlay(true)}>
-          <span className="icon">🤖</span>對弈<span className="sub">與引擎下棋.自動記譜</span>
+        <button className="menu-btn" type="button" onClick={() => setShowPlay(true)}>
+          <span className="menu-icon">
+            <HomeIcon name="play" />
+          </span>
+          <span className="menu-title">對弈</span>
+          <span className="sub">與引擎下棋・自動記譜</span>
+          <HomeIcon name="arrow" size={17} className="menu-arrow" />
         </button>
-        <button className="menu-btn" onClick={() => go({ name: 'games', intent: 'replay' })}>
-          <span className="icon">📖</span>復盤紀錄<span className="sub">播放.編輯.變着</span>
+        <button className="menu-btn" type="button" onClick={() => go({ name: 'games', intent: 'replay' })}>
+          <span className="menu-icon">
+            <HomeIcon name="replay" />
+          </span>
+          <span className="menu-title">復盤紀錄</span>
+          <span className="sub">播放・編輯・變著</span>
+          <HomeIcon name="arrow" size={17} className="menu-arrow" />
         </button>
-        <button className="menu-btn" onClick={() => go({ name: 'games', intent: 'analyze' })}>
-          <span className="icon">💡</span>解棋<span className="sub">引擎評分.關鍵著法</span>
+        <button className="menu-btn" type="button" onClick={() => go({ name: 'games', intent: 'analyze' })}>
+          <span className="menu-icon">
+            <HomeIcon name="analyze" />
+          </span>
+          <span className="menu-title">解棋</span>
+          <span className="sub">引擎評分・關鍵著法</span>
+          <HomeIcon name="arrow" size={17} className="menu-arrow" />
         </button>
-        <button className="menu-btn" onClick={() => go({ name: 'endgame' })}>
-          <span className="icon">🧩</span>殘局解析<span className="sub">擺盤.引擎拆解</span>
+        <button className="menu-btn" type="button" onClick={() => go({ name: 'endgame' })}>
+          <span className="menu-icon">
+            <HomeIcon name="endgame" />
+          </span>
+          <span className="menu-title">殘局解析</span>
+          <span className="sub">擺盤・引擎拆解</span>
+          <HomeIcon name="arrow" size={17} className="menu-arrow" />
         </button>
-      </div>
-      <div className="fab-row">
-        <button className="grow" onClick={() => go({ name: 'settings' })}>
-          ⚙️ 設定
+      </section>
+
+      <nav className="home-actions" aria-label="其他功能">
+        <button type="button" onClick={() => go({ name: 'settings' })}>
+          <HomeIcon name="settings" size={19} />
+          <span>設定</span>
         </button>
-        <button className="grow" onClick={() => setShowFeedback(true)}>
-          💬 回饋及建議
+        <button type="button" onClick={() => setShowFeedback(true)}>
+          <HomeIcon name="feedback" size={19} />
+          <span>回饋及建議</span>
         </button>
-      </div>
+      </nav>
 
       {recent.length > 0 && (
-        <div className="card">
-          <h3>最近對局</h3>
-          {recent.map((g) => (
-            <div
-              key={g.id}
-              className="list-item"
-              onClick={() =>
-                go(
-                  g.result === '*'
-                    ? { name: g.mode === 'play' ? 'play' : 'record', gameId: g.id }
-                    : { name: 'replay', gameId: g.id },
-                )
-              }
-            >
-              <div className="grow">
-                <div>
-                  {g.mode === 'play' && '🤖 '}
-                  <b style={{ color: 'var(--red)' }}>{g.redName}</b> vs <b>{g.blackName}</b>
-                </div>
-                <div className="muted">
-                  {new Date(g.startedAt).toLocaleString('zh-TW', { hour12: false })}.{g.moveCount} 著
-                </div>
-              </div>
-              <span className="result-badge">{RESULT_LABEL[g.result]}</span>
-            </div>
-          ))}
-        </div>
+        <section className="card recent-card" aria-labelledby="recent-title">
+          <div className="recent-heading">
+            <span className="recent-eyebrow">棋局足跡</span>
+            <h2 id="recent-title">最近對局</h2>
+          </div>
+          <div className="recent-list">
+            {recent.map((g) => (
+              <button
+                key={g.id}
+                className="recent-game"
+                type="button"
+                onClick={() =>
+                  go(
+                    g.result === '*'
+                      ? { name: g.mode === 'play' ? 'play' : 'record', gameId: g.id }
+                      : { name: 'replay', gameId: g.id },
+                  )
+                }
+              >
+                {g.mode === 'play' && (
+                  <span className="recent-mode" aria-label="人機對弈">
+                    <HomeIcon name="play" size={16} />
+                  </span>
+                )}
+                <span className="recent-main">
+                  <span className="recent-players">
+                    <b>{g.redName}</b>
+                    <span>對</span>
+                    <strong>{g.blackName}</strong>
+                  </span>
+                  <span className="recent-meta">
+                    {new Date(g.startedAt).toLocaleString('zh-TW', { hour12: false })}・{g.moveCount} 著
+                  </span>
+                </span>
+                <span className="result-badge">{RESULT_LABEL[g.result]}</span>
+                <HomeIcon name="arrow" size={15} className="recent-arrow" />
+              </button>
+            ))}
+          </div>
+        </section>
       )}
 
       {showNew && <NewGameDialog onClose={() => setShowNew(false)} />}
@@ -129,7 +305,12 @@ function PlayDialog({ onClose }: { onClose: () => void }) {
   return (
     <div className="overlay" onClick={onClose}>
       <div className="dialog" onClick={(e) => e.stopPropagation()}>
-        <h3>🤖 對弈</h3>
+        <h3 className="dialog-title">
+          <span className="dialog-title-icon">
+            <HomeIcon name="play" size={19} />
+          </span>
+          對弈
+        </h3>
         <label>
           <div className="muted">你的名字</div>
           <input list="player-names" value={name} onChange={(e) => setName(e.target.value)} style={{ width: '100%' }} />
@@ -140,13 +321,13 @@ function PlayDialog({ onClose }: { onClose: () => void }) {
           ))}
         </datalist>
         <div>
-          <div className="muted">你執哪邊(紅方先行)</div>
+          <div className="muted">你執哪邊（紅方先行）</div>
           <div className="seg">
             <button className={side === 'red' ? 'on' : ''} onClick={() => setSide('red')}>
-              執紅(先手)
+              執紅（先手）
             </button>
             <button className={side === 'black' ? 'on' : ''} onClick={() => setSide('black')}>
-              執黑(後手)
+              執黑（後手）
             </button>
           </div>
         </div>
@@ -164,15 +345,15 @@ function PlayDialog({ onClose }: { onClose: () => void }) {
             style={{ width: '100%' }}
           />
           <div className="row muted" style={{ fontSize: 11, justifyContent: 'space-between' }}>
-            <span>10級(最弱)</span>
-            <span>1級</span>
-            <span>9段(引擎全力)</span>
+            <span>10 級（最弱）</span>
+            <span>1 級</span>
+            <span>9 段（引擎全力）</span>
           </div>
           <div className="muted" style={{ fontSize: 11, marginTop: 4 }}>
-            級/段只是本 App 內的相對階梯(引擎的限制棋力刻度是為西洋棋校準的),不是象棋棋力認證。
+            級／段為本 App 目前的相對棋力階梯，尚未經象棋協會認證。
           </div>
         </div>
-        <div className="muted">對弈全程自動記譜,結束後可復盤與解棋。</div>
+        <div className="muted">對弈全程自動記譜，結束後可復盤與解棋。</div>
         <div className="fab-row">
           <button onClick={onClose}>取消</button>
           <button className="primary" onClick={() => void start()}>
@@ -243,11 +424,11 @@ function NewGameDialog({ onClose }: { onClose: () => void }) {
             </button>
           </div>
         </div>
-        <div className="muted">開始時間:{new Date().toLocaleString('zh-TW', { hour12: false })}(自動記錄)</div>
+        <div className="muted">開始時間：{new Date().toLocaleString('zh-TW', { hour12: false })}（自動記錄）</div>
         <div className="fab-row">
           <button onClick={onClose}>取消</button>
           <button className="primary" onClick={() => void start()}>
-            開始
+            開始紀錄
           </button>
         </div>
       </div>
