@@ -1,9 +1,9 @@
 # 象棋記譜 Living SDD
 
 > 文件狀態：Living（持續維護）<br>
-> 文件版本：1.1<br>
+> 文件版本：1.2<br>
 > 最後更新：2026-07-16<br>
-> 程式基準：`main` / `1bf5e21`<br>
+> 程式基準：`main` / SDD 003（implementation commit 待建立）<br>
 > 使用者文件：[README.md](../README.md)<br>
 > 施工工作包：[docs/sdd/README.md](sdd/README.md)
 
@@ -60,7 +60,7 @@
 
 | 區域 | 現況 | 主要入口／檔案 |
 |---|---|---|
-| 首頁 | 「帥」品牌、主功能卡片、三種輸入提示、最近對局 | `src/ui/HomePage.tsx` |
+| 首頁 | 「帥」品牌、3D 中國漫畫風卡片、山景祥雲背景、三種輸入提示、最近對局 | `src/ui/HomePage.tsx`, `src/styles.css` |
 | 實體記譜 | 姓名、先手、面對面模式、語音／WXF／棋盤點按／照片、合法著法、悔棋 | `src/ui/RecordPage.tsx` |
 | 人機對弈 | 執紅／執黑、級段階梯、提示、悔棋、認輸、自動記譜 | `src/ui/PlayPage.tsx`, `src/ui/playLevels.ts` |
 | 對局清單 | 依復盤或分析意圖選局 | `src/ui/GamesPage.tsx` |

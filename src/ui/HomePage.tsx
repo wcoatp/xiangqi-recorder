@@ -142,6 +142,19 @@ export default function HomePage() {
 
   return (
     <div className="page home-page">
+      <div className="home-scenery" aria-hidden="true">
+        <span className="home-sun" />
+        <span className="home-mountain home-mountain-back" />
+        <span className="home-mountain home-mountain-front" />
+        <svg className="home-cloud home-cloud-one" viewBox="0 0 180 58" fill="none">
+          <path d="M5 42h106c12 0 16-14 6-20-3-13-21-16-29-5-8-18-39-15-40 8-14-8-31 1-29 17" />
+          <path d="M90 42h66c12 0 19-9 19-18M126 29c9-10 26-2 20 10M13 50h84" />
+        </svg>
+        <svg className="home-cloud home-cloud-two" viewBox="0 0 180 58" fill="none">
+          <path d="M5 42h106c12 0 16-14 6-20-3-13-21-16-29-5-8-18-39-15-40 8-14-8-31 1-29 17" />
+          <path d="M90 42h66c12 0 19-9 19-18M126 29c9-10 26-2 20 10M13 50h84" />
+        </svg>
+      </div>
       <header className="home-hero">
         <img className="home-logo" src="/icons/icon.svg" alt="" width="76" height="76" />
         <div className="home-brand">
