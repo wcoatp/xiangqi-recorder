@@ -10,7 +10,7 @@
 - [施工工作包索引](docs/sdd/README.md):每一項功能的狀態、規格、驗證、commit 與部署紀錄。
 - [新施工 SDD 模板](docs/sdd/TEMPLATE.md):後續施工先複製模板,完工後更新驗證證據並 commit、push。
 
-新接手者先讀 Living SDD,再開對應工作包;Git push 與正式部署是兩個分開步驟,沒有明確核准不自動部署。
+新接手者先讀 Living SDD,再開對應工作包;已確認的功能/介面施工完成後,預設會 commit、push、Firebase deploy 並驗證線上版,當次明確說不要時才略過部署。
 
 ## 功能
 

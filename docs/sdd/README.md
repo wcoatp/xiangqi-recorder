@@ -19,7 +19,7 @@
 
 | ID | 文件 | 狀態 | 程式 commit | 正式部署 | 摘要 |
 |---|---|---|---|---|---|
-| 001 | [首頁品牌與視覺整理](001-home-visual-refresh.md) | Verified | `1bf5e21` | 尚未 | 換成「帥」品牌、統一 SVG、三輸入等權、響應式與無障礙整理。 |
+| 001 | [首頁品牌與視覺整理](001-home-visual-refresh.md) | Released | `1bf5e21` | 2026-07-16 / [正式站](https://xiangqi-recorder.web.app/) | 換成「帥」品牌、統一 SVG、三輸入等權、響應式與無障礙整理。 |
 | 002 | [本機段級校準實驗室](002-local-rank-calibration-lab.md) | Proposed | — | — | PIN 隱藏入口、10 個固定錨點、人類棋手對弈收集、版本化匯出。 |
 
 新增工作包請複製 [TEMPLATE.md](TEMPLATE.md)，檔名使用 `NNN-kebab-case.md`。ID 一旦使用就不要重編，避免舊 commit 與討論失去指向。
@@ -33,7 +33,7 @@
 5. **驗證**：跑相關測試、完整 `npm test`、`npm run build`，並做與風險相稱的實際操作檢查。
 6. **記錄證據**：在工作包填入測試結果、已知限制與未執行項目。
 7. **收尾 Git**：只 stage 本次檔案，commit 並 push；把 commit hash 寫回後續交接紀錄。
-8. **分開發布**：只有明確獲准才 deploy。部署成功後才把狀態改為 Released。
+8. **預設發布**：已確認的功能／介面施工在 commit、push 後直接 deploy 並驗證正式站；當次明確要求不部署時才略過。成功後把狀態改為 Released。
 
 ## 交接最低資訊
 

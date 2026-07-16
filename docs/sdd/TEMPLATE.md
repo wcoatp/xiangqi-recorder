@@ -118,7 +118,7 @@
 
 - Commit：未建立。
 - Push：未執行。
-- Deploy：未核准／未執行。
+- Deploy：依 repository 預設在 implementation commit／push 後執行；尚未執行。
 - 正式環境驗證：未執行。
 
 只有在驗證完成後才能標為 Verified；只有在正式部署並驗證後才能標為 Released。

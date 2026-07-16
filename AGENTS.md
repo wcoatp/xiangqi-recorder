@@ -16,7 +16,7 @@ These instructions apply to the whole repository.
 - User-facing copy is Taiwan Traditional Chinese; Chinese Xiangqi branding must not use Western-chess symbols as the product mark.
 - Rank labels are Taiwan-style relative levels. Do not expose internal Western-chess Elo or imply association certification.
 - Rank calibration is local-only, hidden, and PIN-gated until a later SDD explicitly changes that decision.
-- Push and production deployment are separate. Never deploy without an explicit user request.
+- Completed authorized implementation is deployed after commit and push by default. Skip deployment only when the user explicitly says not to deploy, or when deployment is blocked or unsafe.
 
 ## Definition of done for authorized construction
 
@@ -25,6 +25,7 @@ These instructions apply to the whole repository.
 3. Inspect `git diff`, `git diff --check`, and `git status --short`; include only the intended scope.
 4. Record verification evidence and remaining limitations in the work-package SDD.
 5. Commit completed construction with a clear message and push the current branch to its configured remote, as requested by the repository owner.
-6. If commit or push cannot complete, report the exact blocker and leave the working tree in a safe, reviewable state.
+6. Deploy the verified production build to Firebase Hosting and verify the live URL, headers, and changed user flow. A release-record-only documentation commit does not require another identical deployment.
+7. If commit, push, deployment, or live verification cannot complete, report the exact blocker and leave the working tree in a safe, reviewable state.
 
 Advice, diagnosis, planning, and review-only requests do not authorize code changes, commits, pushes, or deployment.

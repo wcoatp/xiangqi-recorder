@@ -1,10 +1,10 @@
 # SDD 001：首頁品牌與視覺整理
 
-> Status：Verified<br>
+> Status：Released<br>
 > Created：2026-07-16<br>
 > Updated：2026-07-16<br>
 > Implementation commit：`1bf5e21`<br>
-> Deploy：尚未執行<br>
+> Deploy：2026-07-16 21:10（Asia/Taipei）／https://xiangqi-recorder.web.app/<br>
 > Related decisions：`D-002`, `D-003`, `D-008`
 
 ## 1. Context
@@ -24,7 +24,7 @@
 - 不修改引擎難度演算法。
 - 不新增段級校準功能。
 - 不修改 Dexie schema 或既有對局資料。
-- 不部署 Firebase 正式站。
+- 不修改 Firebase 專案與 Hosting 架構；發布沿用既有設定。
 - 不全面重做記譜、復盤、設定等其他頁面。
 
 ## 4. Requirements
@@ -64,6 +64,9 @@
 - 640 × 900：主要卡片 608px，次要卡片維持兩欄各 298px。
 - 「開始紀錄」與「對弈」對話框已實際開啟與關閉。
 - 自動化瀏覽器不提供 IndexedDB，因此出現 Dexie 測試環境警示；這不是本工作包新增的資料層錯誤，真實資料功能仍須在支援 IndexedDB 的瀏覽器驗證。
+- Firebase Hosting deploy 成功；正式 HTML 載入 `assets/index-D7tcMw0h.js`。
+- 正式 bundle 已確認包含「實體對局好幫手」、語音、拍照、點棋盤，且不含西洋棋 `♟️` 品牌字元。
+- 正式站回應包含 `Cross-Origin-Opener-Policy: same-origin` 與 `Cross-Origin-Embedder-Policy: require-corp`。
 
 ## 8. Rollback
 
@@ -71,6 +74,6 @@
 
 ## 9. Handoff
 
-- 狀態是 Verified，不是 Released；線上站仍可能顯示舊首頁。
+- 狀態是 Released；若裝置仍顯示舊首頁，先重新整理或重新開啟 PWA，讓 Service Worker 取得新版 shell。
 - 若後續全面整理其他頁面，請另開 SDD，不要把全 App 重構塞回本工作包。
 - 首頁 icon component 目前放在 `HomePage.tsx`；只有第二個頁面也需要同一套 icon 時，再抽成共用元件。

@@ -1,7 +1,7 @@
 # 象棋記譜 Living SDD
 
 > 文件狀態：Living（持續維護）<br>
-> 文件版本：1.0<br>
+> 文件版本：1.1<br>
 > 最後更新：2026-07-16<br>
 > 程式基準：`main` / `1bf5e21`<br>
 > 使用者文件：[README.md](../README.md)<br>
@@ -41,7 +41,7 @@
 - 不建立帳號、雲端後端或跨裝置即時同步。
 - 不宣稱 App 的級／段等同協會認證棋力。
 - 不把使用者的棋譜、照片、校準資料自動上傳。
-- 不在沒有明確核准時自動部署正式站。
+- 不把純討論、規劃或尚未驗收的施工部署到正式站；已確認且驗證完成的功能／介面施工預設直接部署。
 
 ## 2. 已確認的產品決策
 
@@ -54,7 +54,7 @@
 | D-005 | 先建立 10 個固定校準錨點 | 錨點設定須可版本化，之後才能逐步補齊完整段級。 |
 | D-006 | 段級校準先在本機收集 | 校準資料不自動跨裝置；需要透過版本化匯出／匯入搬移或合併。 |
 | D-007 | 校準實驗室預設隱藏並以 PIN 開啟 | PIN 只防止誤入，不可宣稱是強加密或真正權限系統。 |
-| D-008 | 完成施工後必須留下 Git 紀錄 | 通過驗證後 commit 並 push；正式部署是另一個需要明確核准的步驟。 |
+| D-008 | 完成施工後預設 commit、push、deploy | 通過驗證後依序提交、推送、Firebase 部署並驗證正式站；當次明確要求不部署時才略過。 |
 
 ## 3. 現行功能基準
 
@@ -87,7 +87,7 @@
 | FR-RANK-001 | 對弈難度顯示台灣棋友可理解的級／段。 | UI 不顯示內部 Elo，且不暗示協會認證。 |
 | FR-CAL-001 | 未來段級校準資料預設只在本機累積。 | 無網路請求；不同瀏覽器／裝置不會自動共享。 |
 | FR-PRIVACY-001 | 棋譜、照片、校準結果不得在未告知下離開裝置。 | 任何新增上傳／分析服務都要另開 SDD 並取得明確同意。 |
-| FR-RELEASE-001 | 每次施工可重現、可追查。 | SDD 更新、測試、build、commit、push 都有紀錄；deploy 另行核准。 |
+| FR-RELEASE-001 | 每次施工可重現、可追查、可直接檢視。 | SDD、測試、build、commit、push、Firebase deploy 與 live verification 都有紀錄。 |
 
 ## 5. 使用者流程與導航
 
@@ -260,7 +260,7 @@ flowchart LR
 7. 更新 master SDD、工作包狀態與 README（若使用方式改變）。
 8. 檢查 `git diff`，只提交本次範圍。
 9. 建立語意清楚的 commit 並 push 到遠端。
-10. 只有使用者明確要求時才 deploy；push 不等於 deploy。
+10. 已確認的功能／介面施工預設在 push 後 deploy，並驗證正式 URL；當次明確說不要部署時才停在 Git。
 
 目前測試基準（2026-07-16）：7 個 test files、73 tests 全部通過。
 
@@ -283,14 +283,14 @@ git commit -m "<type>: <清楚摘要>"
 git push origin <目前分支>
 ```
 
-正式部署（只有取得明確核准後）：
+正式部署（已確認施工完成後的預設步驟）：
 
 ```bash
 npm run build
 firebase deploy --only hosting
 ```
 
-部署後還要驗證首頁、Service Worker 更新、`crossOriginIsolated` 與引擎載入。不要因為 Git push 成功就宣稱線上版已更新。
+部署後還要驗證首頁、Service Worker 更新、`crossOriginIsolated` 與引擎載入。不要因為 Git push 或 Firebase CLI 回報成功，就跳過正式網址檢查。
 
 ## 12. 已知風險與技術債
 
@@ -309,9 +309,9 @@ firebase deploy --only hosting
 
 ## 13. 路線圖
 
-### 已驗證、尚未發布
+### 已發布
 
-- 首頁中國象棋品牌與卡片視覺整理（工作包 001）。
+- 首頁中國象棋品牌與卡片視覺整理（工作包 001，2026-07-16 發布）。
 
 ### 下一階段候選
 
@@ -331,10 +331,11 @@ firebase deploy --only hosting
 4. 執行 `npm test` 與 `npm run build` 建立乾淨基準。
 5. 確認不會把本機 IndexedDB、密鑰、照片或個資帶進 commit。
 6. 施工中同步更新 SDD，不要等到最後憑記憶補寫。
-7. 完工後 commit、push；deploy 必須另有明確指令。
+7. 完工後 commit、push、Firebase deploy 並驗證正式站；若當次不要部署，產品負責人會明確說明。
 
 ## 15. 文件變更紀錄
 
 | 日期 | 版本 | 內容 |
 |---|---|---|
+| 2026-07-16 | 1.1 | 將已確認施工的預設收尾改為 commit、push、Firebase deploy、live verification；記錄首頁工作包正式發布。 |
 | 2026-07-16 | 1.0 | 建立 master SDD，統整產品、架構、資料邊界、難度校準方向與施工交接規範。 |
