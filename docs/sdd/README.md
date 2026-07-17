@@ -31,6 +31,7 @@
 | 010 | [段級校準資料 v2、安全匯入與版本隔離統計](010-calibration-schema-v2-import-stats.md) | Released | `2324d7e` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 拆開 gate/archive versions、self-contained v2 games、standalone/full backup v1/v2 原子匯入與不混版描述性統計；23 test files／179 tests 與 production build 通過，不開放對弈。 |
 | 011 | [PIN 內現場校準對弈控制器](011-calibration-match-controller.md) | Released | `5b6391c`, `dac8872` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | fixed-nodes／seeded MultiPV 現場局、偶紅奇黑、逐著 CAS、中斷續存、跨版本保護與人工規則裁定；25 test files／196 tests 與 production build 通過。 |
 | 012 | [人機對弈設定獨立頁](012-play-setup-page-navigation.md) | Released | `82deda1`, `6040d3e` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 首頁、drawer 與功能指南共用獨立 `play-setup` view，不再把建局表單附加在首頁最下方；25 個 test files／196 tests、320／390／640 px、正式根網址 no-cache 與 live flow 通過。 |
+| 013 | [iPad 全視窗響應式版面](013-ipad-full-viewport-layout.md) | Verified | — | 待發布 | App shell 於 320～1366px 使用完整 viewport，iPad 首頁四欄、內容局部限寬且 manifest 不鎖方向；25 個 test files／196 tests、build、九組 viewport 與主要導覽流程通過。 |
 
 新增工作包請複製 [TEMPLATE.md](TEMPLATE.md)，檔名使用 `NNN-kebab-case.md`。ID 一旦使用就不要重編，避免舊 commit 與討論失去指向。
 

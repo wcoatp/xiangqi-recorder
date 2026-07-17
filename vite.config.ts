@@ -24,7 +24,6 @@ export default defineConfig({
         id: "/",
         scope: "/",
         display: "standalone",
-        orientation: "portrait",
         start_url: "/",
         categories: ["games", "education", "utilities"],
         theme_color: "#7c4a21",
