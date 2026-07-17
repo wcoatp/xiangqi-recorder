@@ -16,7 +16,7 @@ import {
   listCalibratorProfiles,
   loadRankCalibrationGate,
 } from '../store/rankCalibration'
-import { APP_VERSION } from './FeedbackDialog'
+import { APP_VERSION } from '../version'
 import RankCalibrationUnlock from './RankCalibrationUnlock'
 
 export default function RankCalibrationPage() {

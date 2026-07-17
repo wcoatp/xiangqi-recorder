@@ -1,8 +1,8 @@
 {
   "name": "xiangqi-recorder",
   "private": true,
-  "version": "0.1.0",
-  "description": "象棋記譜 — 面對面實體對局的語音/點按記譜 PWA,含本地引擎復盤與殘局解析",
+  "version": "0.3.0",
+  "description": "象棋記譜 — 面對面實體對局的語音、拍照、點棋盤記譜 PWA，含本機引擎復盤與殘局解析",
   "license": "GPL-3.0-or-later",
   "type": "module",
   "scripts": {

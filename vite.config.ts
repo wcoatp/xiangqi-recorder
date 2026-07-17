@@ -19,11 +19,14 @@ export default defineConfig({
         name: "象棋記譜",
         short_name: "象棋記譜",
         description:
-          "面對面實體象棋對局的語音/點按記譜工具,含本地引擎復盤與殘局解析(離線可用)",
+          "面對面實體象棋對局的語音、拍照、點棋盤記譜工具，含本機引擎復盤與殘局解析（離線可用）",
         lang: "zh-TW",
+        id: "/",
+        scope: "/",
         display: "standalone",
         orientation: "portrait",
         start_url: "/",
+        categories: ["games", "education", "utilities"],
         theme_color: "#7c4a21",
         background_color: "#f5e9d3",
         icons: [

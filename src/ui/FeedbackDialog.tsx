@@ -5,11 +5,10 @@ import { useEffect, useState } from 'react'
 import { db } from '../store/db'
 import { detectSpeechMode, isIOS, isStandalonePwa } from '../speech/speech'
 import { loadTemplates } from '../vision/templates'
+import { APP_VERSION } from '../version'
 
 // 位址拆開組合:公開原始碼與 JS bundle 會被爬信箱,這擋得掉最粗糙的爬蟲(擋不掉認真的)
 const FEEDBACK_TO = ['wcoatp', '@', 'gmail', '.', 'com'].join('')
-
-export const APP_VERSION = '0.3.0'
 
 type Kind = '建議' | '問題回報' | '其他'
 const KINDS: Kind[] = ['建議', '問題回報', '其他']

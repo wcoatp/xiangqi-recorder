@@ -5,8 +5,8 @@ import { detectSpeechMode } from "../speech/speech";
 import { loadCnn } from "../vision/cnn";
 import { loadRankCalibrationGate } from "../store/rankCalibration";
 import { loadTemplates, saveTemplates, type PieceTemplates } from "../vision/templates";
+import { APP_VERSION } from "../version";
 import CalibrateDialog from "./CalibrateDialog";
-import { APP_VERSION } from "./FeedbackDialog";
 
 export default function SettingsPage() {
   const { go, settings, updateSettings } = useApp();
