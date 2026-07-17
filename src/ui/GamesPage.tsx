@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useApp } from '../App'
-import { exportBackup } from '../store/backup'
+import { exportBackup, RankBackupAccessError } from '../store/backup'
 import { db, type GameRow } from '../store/db'
 import ImportDialog from './ImportDialog'
 
@@ -16,6 +16,7 @@ export default function GamesPage({ intent }: { intent: 'replay' | 'analyze' }) 
   const [games, setGames] = useState<GameRow[]>([])
   const [q, setQ] = useState('')
   const [showImport, setShowImport] = useState(false)
+  const [showBackupPin, setShowBackupPin] = useState(false)
   const [flash, setFlash] = useState('')
 
   const reload = () => void db.games.orderBy('startedAt').reverse().toArray().then(setGames)
@@ -51,7 +52,21 @@ export default function GamesPage({ intent }: { intent: 'replay' | 'analyze' }) 
       />
       <div className="fab-row">
         <button onClick={() => setShowImport(true)}>📥 匯入棋譜</button>
-        <button onClick={() => void backupAll(games.length, setFlash)}>💾 全部備份</button>
+        <button
+          onClick={() => void downloadBackup(undefined, setFlash).catch((error: unknown) => {
+            if (error instanceof RankBackupAccessError && error.code === 'pin-required') {
+              setFlash('備份含段級校準資料，請先驗證本機 PIN。')
+              setShowBackupPin(true)
+            } else {
+              setFlash(`備份失敗：${errorMessage(error)}`)
+            }
+          })}
+        >
+          💾 完整備份
+        </button>
+      </div>
+      <div className="muted backup-privacy-note">
+        完整備份可在換電腦時搬移棋局、棋手名冊、一般偏好與本機校準資料。JSON 未加密，可能含姓名、自報級段與校準備註，請妥善保管；不含 API Token、段級 PIN 或門禁驗證資料。
       </div>
       {flash && <div className="muted">{flash}</div>}
       <div className="card" style={{ padding: 0 }}>
@@ -96,22 +111,118 @@ export default function GamesPage({ intent }: { intent: 'replay' | 'analyze' }) 
           }}
         />
       )}
+      {showBackupPin && (
+        <BackupPinDialog
+          onClose={() => setShowBackupPin(false)}
+          onConfirm={async (pin) => {
+            try {
+              await downloadBackup(pin, setFlash)
+              return null
+            } catch (error) {
+              const message = errorMessage(error)
+              setFlash(`備份未下載：${message}`)
+              return message
+            }
+          }}
+        />
+      )}
     </div>
   )
 }
 
-async function backupAll(count: number, setFlash: (s: string) => void) {
-  if (count === 0) {
-    setFlash('沒有紀錄可備份')
-    return
-  }
-  const json = await exportBackup()
-  const blob = new Blob([json], { type: 'application/json' })
+async function downloadBackup(rankPin: string | undefined, setFlash: (s: string) => void) {
+  setFlash('正在整理完整本機備份…')
+  const result = await exportBackup(rankPin)
+  const blob = new Blob([result.json], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `象棋記譜備份_${new Date().toISOString().slice(0, 10)}.json`
+  a.download = `象棋記譜完整備份_${new Date().toISOString().slice(0, 10)}.json`
   a.click()
-  URL.revokeObjectURL(url)
-  setFlash(`已下載備份(${count} 局)`)
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+  const s = result.summary
+  const reviewNotice = s.omittedStaleReviewCount > 0
+    ? `；已略過 ${s.omittedStaleReviewCount} 份與目前主線不一致的舊分析，可重新解棋建立新分析`
+    : ''
+  setFlash(
+    `已下載完整備份：${s.gameCount} 局、${s.playerCount} 位棋手、${s.profileCount} 位段級協助者、${s.calibrationGameCount} 局校準資料${s.hasPieceCalibration ? '，含棋子範本' : ''}${reviewNotice}`,
+  )
+}
+
+function BackupPinDialog({
+  onClose,
+  onConfirm,
+}: {
+  onClose: () => void
+  onConfirm: (pin: string) => Promise<string | null>
+}) {
+  const [pin, setPin] = useState('')
+  const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !busy) onClose()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [busy, onClose])
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault()
+    if (!/^\d{4,12}$/.test(pin) || busy) {
+      setError('PIN 必須是 4～12 位數字')
+      return
+    }
+    setBusy(true)
+    setError('')
+    const issue = await onConfirm(pin)
+    setBusy(false)
+    if (issue) {
+      setPin('')
+      setError(issue)
+    } else {
+      onClose()
+    }
+  }
+
+  return (
+    <div className="overlay" onClick={busy ? undefined : onClose}>
+      <div className="dialog backup-pin-dialog" role="dialog" aria-modal="true" aria-labelledby="backup-pin-title" onClick={(event) => event.stopPropagation()}>
+        <h3 id="backup-pin-title">🔒 段級資料需要 PIN</h3>
+        <p className="muted">
+          這份完整備份包含協助者或校準對局。請輸入這個瀏覽器的段級實驗室 PIN；PIN 不會保存，也不會寫入備份檔。
+        </p>
+        <form className="rank-pin-form" onSubmit={(event) => void submit(event)}>
+          <label>
+            <span>本機段級 PIN</span>
+            <input
+              type="password"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              autoComplete="current-password"
+              minLength={4}
+              maxLength={12}
+              value={pin}
+              disabled={busy}
+              autoFocus
+              onChange={(event) => setPin(event.target.value.replace(/\D/g, '').slice(0, 12))}
+            />
+          </label>
+          {error && <div className="rank-lab-error" role="alert">{error}</div>}
+          <div className="fab-row">
+            <button type="button" disabled={busy} onClick={onClose}>取消</button>
+            <button className="primary" type="submit" disabled={busy}>
+              {busy ? '驗證中…' : '驗證並下載'}
+            </button>
+          </div>
+        </form>
+        <div className="rank-security-note">若這台電腦尚未設定 PIN，請先由段級實驗室 setup 入口建立。</div>
+      </div>
+    </div>
+  )
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : '無法讀取本機資料'
 }

@@ -11,6 +11,7 @@ import { addMove, findNode, findParent, mainline, type GameNode } from "../core/
 import { engine } from "../engine/engineClient";
 import { speak } from "../speech/speech";
 import { db, type GameRow } from "../store/db";
+import { invalidateGameReview } from "../store/gameReview";
 import Board, { type BoardArrow } from "./Board";
 import { levelAt } from "./playLevels";
 
@@ -94,6 +95,7 @@ export default function PlayPage({ gameId }: { gameId: number }) {
       setCurrentId(node.id);
       setSelected(null);
       setHint(null);
+      invalidateGameReview(game);
       setGame({ ...game });
       persist(game);
       const after = parseFen(node.fenAfter);
@@ -183,6 +185,7 @@ export default function PlayPage({ gameId }: { gameId: number }) {
       game.result = "*";
       game.resultReason = undefined;
     }
+    invalidateGameReview(game);
     setGame({ ...game });
     persist(game);
     showFlash(`已悔棋 ${removed} 著`);

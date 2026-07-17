@@ -99,10 +99,31 @@ export const DEFAULT_SETTINGS: AppSettings = {
   llmToken: '',
 }
 
+const APP_SETTING_KEYS = Object.keys(DEFAULT_SETTINGS) as Array<keyof AppSettings>
+
+/** 只接受 App 公開定義的設定 key 與型別；PIN gate／棋子範本等 settings rows 不會混進 React context。 */
+export function normalizeAppSettings(stored: Record<string, unknown>): AppSettings {
+  return {
+    voiceLang: stored.voiceLang === 'zh-CN' || stored.voiceLang === 'zh-TW' ? stored.voiceLang : DEFAULT_SETTINGS.voiceLang,
+    ttsReadback: typeof stored.ttsReadback === 'boolean' ? stored.ttsReadback : DEFAULT_SETTINGS.ttsReadback,
+    autoRelisten: typeof stored.autoRelisten === 'boolean' ? stored.autoRelisten : DEFAULT_SETTINGS.autoRelisten,
+    analysisMovetimeMs:
+      typeof stored.analysisMovetimeMs === 'number' &&
+      [500, 1_000, 2_000].includes(stored.analysisMovetimeMs)
+        ? stored.analysisMovetimeMs
+        : DEFAULT_SETTINGS.analysisMovetimeMs,
+    tabletop: typeof stored.tabletop === 'boolean' ? stored.tabletop : DEFAULT_SETTINGS.tabletop,
+    llmToken: typeof stored.llmToken === 'string' ? stored.llmToken : DEFAULT_SETTINGS.llmToken,
+  }
+}
+
 export async function loadSettings(): Promise<AppSettings> {
-  const rows = await db.settings.toArray()
-  const stored = Object.fromEntries(rows.map((r) => [r.key, r.value]))
-  return { ...DEFAULT_SETTINGS, ...stored } as AppSettings
+  const rows = await db.settings.bulkGet(APP_SETTING_KEYS)
+  const stored: Record<string, unknown> = {}
+  rows.forEach((row, index) => {
+    if (row) stored[APP_SETTING_KEYS[index]] = row.value
+  })
+  return normalizeAppSettings(stored)
 }
 
 export async function saveSettings(patch: Partial<AppSettings>): Promise<void> {

@@ -115,7 +115,7 @@
 
 | 問題 | 決策者 | 截止／阻擋點 | 結果 |
 |---|---|---|---|
-| 下一次何時升版、採 semver 或 release build number？ | 產品負責人 | 第一個需要升版的後續 release | 本工作包不先假定 |
+| 下一次何時升版、採 semver 或 release build number？ | 產品負責人 | 第一個需要升版的後續 release | 工作包 008 將可攜資料契約功能以 semver minor 升為 `0.4.0`；後續功能沿用 semver。 |
 
 ## 12. Construction record
 

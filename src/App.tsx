@@ -33,12 +33,14 @@ export type View =
 interface AppCtxValue {
   settings: AppSettings
   updateSettings: (p: Partial<AppSettings>) => void
+  reloadSettings: () => Promise<void>
   go: (v: View) => void
 }
 
 const AppCtx = createContext<AppCtxValue>({
   settings: DEFAULT_SETTINGS,
   updateSettings: () => {},
+  reloadSettings: async () => {},
   go: () => {},
 })
 
@@ -49,9 +51,13 @@ export default function App() {
   const [view, setView] = useState<View>({ name: 'home' })
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS)
 
-  useEffect(() => {
-    void loadSettings().then(setSettings)
+  const reloadSettings = useCallback(async () => {
+    setSettings(await loadSettings())
   }, [])
+
+  useEffect(() => {
+    void reloadSettings()
+  }, [reloadSettings])
 
   useEffect(() => {
     const url = new URL(window.location.href)
@@ -70,8 +76,8 @@ export default function App() {
   }, [])
 
   const ctx = useMemo<AppCtxValue>(
-    () => ({ settings, updateSettings, go: setView }),
-    [settings, updateSettings],
+    () => ({ settings, updateSettings, reloadSettings, go: setView }),
+    [reloadSettings, settings, updateSettings],
   )
 
   return (

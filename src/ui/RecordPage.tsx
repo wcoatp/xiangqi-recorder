@@ -34,6 +34,7 @@ import {
   type SpeechMode,
 } from "../speech/speech";
 import { db, type GameRow } from "../store/db";
+import { invalidateGameReview } from "../store/gameReview";
 import Board from "./Board";
 import PhotoDialog from "./PhotoDialog";
 
@@ -123,6 +124,7 @@ export default function RecordPage({ gameId }: { gameId: number }) {
       setSelected(null);
       setKeypadFor(null);
       setPhotoFor(null);
+      invalidateGameReview(game);
       setGame({ ...game });
       persist(game);
       const st = gameStatus(p);
@@ -153,6 +155,7 @@ export default function RecordPage({ gameId }: { gameId: number }) {
     parent.children = parent.children.filter((c) => c.id !== current.id);
     setCurrentId(parent.id);
     setSelected(null);
+    invalidateGameReview(game);
     setGame({ ...game });
     persist(game);
     showFlash("已悔棋一著");

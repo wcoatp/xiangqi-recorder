@@ -30,6 +30,7 @@ import {
 } from "../engine/analysis";
 import { engine } from "../engine/engineClient";
 import { db, type GameRow } from "../store/db";
+import { invalidateGameReview } from "../store/gameReview";
 import Board, { type BoardArrow } from "./Board";
 import ContinueFromReplayDialog from "./ContinueFromReplayDialog";
 import LiveAnalysis, { scoreLabel } from "./LiveAnalysis";
@@ -118,8 +119,11 @@ export default function ReplayPage({
     return () => window.clearInterval(t);
   }, [playing, speedMs, idx, line.length, goto]);
 
-  const persist = useCallback(() => {
+  const persist = useCallback((mainlineChanged = false) => {
     if (!game) return;
+    if (mainlineChanged && invalidateGameReview(game)) {
+      setReviewError("主線已變更，舊分析已清除；需要時請重新解棋。");
+    }
     game.updatedAt = Date.now();
     game.moveCount = mainline(game.tree).length;
     void db.games.put(game);
@@ -137,7 +141,7 @@ export default function ReplayPage({
           const { node, created } = addMove(current, { from: selected, to: s });
           setCurrentId(node.id);
           setSelected(null);
-          if (created) persist();
+          if (created) persist(mainline(game.tree).some((entry) => entry.id === node.id));
           return;
         }
       }
@@ -359,7 +363,7 @@ export default function ReplayPage({
               onClick={() => {
                 if (isOnVariation) {
                   promoteToMainline(root, current.id);
-                  persist();
+                  persist(true);
                 }
               }}
               disabled={!isOnVariation}
@@ -373,10 +377,11 @@ export default function ReplayPage({
                 if (!current.move) return;
                 if (!window.confirm(`刪除「${current.zh}」及其後所有著法?`))
                   return;
+                const mainlineChanged = mainline(root).some((entry) => entry.id === current.id);
                 const parent = findParent(root, current.id);
                 deleteSubtree(root, current.id);
                 setCurrentId(parent?.id ?? root.id);
-                persist();
+                persist(mainlineChanged);
               }}
             >
               🗑 刪除此著起
