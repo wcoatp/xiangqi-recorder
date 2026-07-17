@@ -1,6 +1,6 @@
 # SDD 002：本機段級校準實驗室
 
-> Status：Released（Phase 1、Phase 2A 工程核心、Phase 2B 資料鏈）；Phase 2C 由工作包 011 Verified／待發布；其餘 Phase 3+ Deferred<br>
+> Status：Released（Phase 1、Phase 2A 工程核心、Phase 2B 資料鏈、Phase 2C 現場對弈）；其餘 Phase 3+ Deferred<br>
 > Owner：專案作者<br>
 > Created：2026-07-16<br>
 > Updated：2026-07-17<br>
@@ -8,7 +8,7 @@
 > Depends on：無（Phase 1）；可協助校準的台灣象棋棋手（Phase 3）<br>
 > Implementation：Phase 1 已於 2026-07-16 完成、驗證並正式發布
 
-完整校準實驗室仍採分階段施工。產品負責人已於 2026-07-16 核准並發布 Phase 1；2026-07-17 以「繼續完成後續所有施工」授權並發布 Phase 2A 工作包 009 與 Phase 2B 工作包 010，建立可重播的選著／引擎搜尋協定，以及 schema v2 安全匯入與版本隔離統計。Phase 2C 工作包 011 的現場對弈已完成本機驗證、待正式發布；公開段級映射仍須依後續獨立工作包驗收，不得把未審查資料直接改寫公開難度。
+完整校準實驗室仍採分階段施工。產品負責人已於 2026-07-16 核准並發布 Phase 1；2026-07-17 以「繼續完成後續所有施工」授權並發布 Phase 2A 工作包 009、Phase 2B 工作包 010 與 Phase 2C 工作包 011，建立可重播的選著／引擎搜尋協定、schema v2 安全匯入與版本隔離統計，以及 PIN 內現場對弈。公開段級映射仍須依後續獨立工作包驗收，不得把未審查資料直接改寫公開難度。
 
 ### 1.1 Phase 1 已核准範圍
 
@@ -26,7 +26,7 @@
 - 不開始校準對弈，不把一般 `PlayPage` 棋局算入校準資料。
 - 工作包 009：只實作 `seeded-multipv-v1` 工程核心、seed／候選 decision 與專用 fixed-nodes 引擎 API；保持 inactive，不接 UI／DB。
 - 工作包 010（已發布）：校準 schema v2、JSON 匯入／合併與版本隔離純統計。
-- 工作包 011（已驗證、待發布）：獨立現場校準 match controller；一般 `PlayPage` 棋局仍不可算入校準資料。
+- 工作包 011（已發布）：獨立現場校準 match controller；一般 `PlayPage` 棋局仍不可算入校準資料。
 - 不發布 A01～A10 對應的台灣段級，也不修改公開 `PLAY_LEVELS`。
 
 ## 1. Context
@@ -349,7 +349,7 @@ Phase 1 另已驗證：`A01`～`A10` 與完整 engine config 會進入 schema v1
 2. **Phase 1 — 本機骨架**：Dexie migration、feature gate、PIN、profile、10 個 config registry 與 JSON 匯出。
 3. **Phase 2A／工作包 009 — 可重現選著核心**：fixed nodes、單執行緒、fresh hash、資產 snapshot、seed／候選 decision；inactive，不接 UI／DB。
 4. **Phase 2B／工作包 010 — 資料鏈（已發布）**：schema v2、版本化匯入／去重、原始資料與純統計重建。
-5. **Phase 2C／工作包 011 — 現場對弈（已驗證、待發布）**：獨立 match controller、紅黑平衡、中斷續存與結果分類。
+5. **Phase 2C／工作包 011 — 現場對弈（已發布）**：獨立 match controller、紅黑平衡、中斷續存與結果分類。
 6. **Phase 3 — 現場收集**：作者帶電腦給棋手使用，只收資料不發布段位。
 7. **Phase 4 — 分析與映射**：檢查樣本與偏差，產生候選 mapping version。
 8. **Phase 5 — 公開發布**：另行核准、更新免責文案、回歸測試與正式部署。

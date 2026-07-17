@@ -1,9 +1,9 @@
 # 象棋記譜 Living SDD
 
 > 文件狀態：Living（持續維護）<br>
-> 文件版本：1.15<br>
+> 文件版本：1.16<br>
 > 最後更新：2026-07-17<br>
-> 程式基準：`main` 工作目錄 / 工作包 011 Verified、待發布<br>
+> 程式基準：`main` / `dac8872` / 工作包 011 Released<br>
 > 使用者文件：[README.md](../README.md)<br>
 > 施工工作包：[docs/sdd/README.md](sdd/README.md)
 
@@ -325,7 +325,7 @@ Phase 1 已凍結 `A01`～`A10` 的 `2026.07-v1` 設定並完成本機 PIN／pro
 9. 建立語意清楚的 commit 並 push 到遠端。
 10. 已確認的功能／介面施工預設在 push 後 deploy，並驗證正式 URL；當次明確說不要部署時才停在 Git。
 
-目前施工驗證基準（2026-07-17）：25 個 test files、196 tests 全部通過。
+目前已發布驗證基準（2026-07-17）：25 個 test files、196 tests 全部通過。
 
 ## 11. 開發與發布 Runbook
 
@@ -385,14 +385,11 @@ firebase deploy --only hosting
 - 完整本機備份 v2 與安全還原（工作包 008，2026-07-17 發布）。
 - 可重現的實驗性校準選著協定 v1（工作包 009，2026-07-17 發布；inactive core，不開 UI、不寫正式校準資料）。
 - 段級校準資料 v2、安全匯入與版本隔離統計（工作包 010，2026-07-17 發布；23 個 test files／179 tests，不開放對弈、不產生正式 v2 棋局）。
+- PIN 內現場校準對弈 controller、紅黑平衡、固定節點引擎著與中斷續存（工作包 011，2026-07-17 發布；v0.7.0，25 個 test files／196 tests）。
 
 ### 施工中
 
 - 無。
-
-### 已驗證、待發布
-
-- PIN 內現場校準對弈 controller、紅黑平衡、固定節點引擎著與中斷續存（工作包 011；v0.7.0，25 個 test files／196 tests 與 production build 通過）。
 
 ### 下一階段候選
 
@@ -416,6 +413,7 @@ firebase deploy --only hosting
 
 | 日期 | 版本 | 內容 |
 |---|---|---|
+| 2026-07-17 | 1.16 | 記錄工作包 011 commits `5b6391c`／`dac8872`、v0.7.0 Firebase 正式發布、HTTP／COOP／COEP、正式資產、fresh Chrome 設定文案、PIN 門禁與 Fairy-Stockfish NNUE 就緒驗證。 |
 | 2026-07-17 | 1.15 | 驗證工作包 011：PIN 內 fixed-nodes 現場校準對弈、紅黑交替、逐著 CAS、中斷續局、結果分類與 v0.7.0 跨版本保護；公開段級映射仍維持關閉。 |
 | 2026-07-17 | 1.14 | 記錄工作包 010 implementation commit `2324d7e`、v0.6.0 Firebase 正式發布、HTTP／COOP／COEP、正式資產、Chrome 版本與 Fairy-Stockfish NNUE 就緒驗證。 |
 | 2026-07-17 | 1.13 | 授權工作包 010：拆開 gate/archive/game versions，建立 self-contained v2 raw games、standalone/full backup v1/v2 原子匯入與版本隔離統計；維持隱藏且不開對弈。 |
