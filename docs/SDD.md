@@ -1,9 +1,9 @@
 # 象棋記譜 Living SDD
 
 > 文件狀態：Living（持續維護）<br>
-> 文件版本：1.21<br>
+> 文件版本：1.22<br>
 > 最後更新：2026-07-17<br>
-> 程式基準：`main` / `99938ff` / 工作包 013 Verified（待發布）<br>
+> 程式基準：`main` / `30e72d8` / 工作包 013 Released<br>
 > 使用者文件：[README.md](../README.md)<br>
 > 施工工作包：[docs/sdd/README.md](sdd/README.md)
 
@@ -391,10 +391,11 @@ firebase deploy --only hosting
 - 段級校準資料 v2、安全匯入與版本隔離統計（工作包 010，2026-07-17 發布；23 個 test files／179 tests，不開放對弈、不產生正式 v2 棋局）。
 - PIN 內現場校準對弈 controller、紅黑平衡、固定節點引擎著與中斷續存（工作包 011，2026-07-17 發布；v0.7.0，25 個 test files／196 tests）。
 - 人機對弈獨立設定頁與正式根網址 no-cache（工作包 012，2026-07-17 發布；版本維持 v0.7.0）。
+- iPad 全視窗響應式版面（工作包 013，2026-07-17 發布；版本維持 v0.7.0）。
 
 ### 施工中
 
-- iPad 全視窗響應式版面（工作包 013，已驗證、待發布）。
+- 無。
 
 ### 下一階段候選
 
@@ -418,6 +419,7 @@ firebase deploy --only hosting
 
 | 日期 | 版本 | 內容 |
 |---|---|---|
+| 2026-07-17 | 1.22 | 記錄工作包 013 commit `30e72d8`、Firebase 正式發布、根網址／`sw.js` no-cache、COOP／COEP、新 CSS／manifest，以及 live 1024×1366／1366×1024 滿版四欄與 overflow 0 驗證。 |
 | 2026-07-17 | 1.21 | 驗證工作包 013：25 個 test files／196 tests、production build 與 320～1366px 九組 viewport 通過；root／header 滿寬、水平 overflow 為 0、iPad 首頁四欄、內容局部限寬且 manifest 不鎖方向。 |
 | 2026-07-17 | 1.20 | 授權工作包 013：移除 App shell 全域 640px 上限與 PWA portrait 鎖定，支援 iPad 直向／橫向／分割視窗滿版，同時以各頁局部寬度維持可讀性。 |
 | 2026-07-17 | 1.19 | 記錄工作包 012 commits `82deda1`／`6040d3e`、Firebase 正式發布、根網址與 `sw.js` no-cache、COOP／COEP、正式資產與不帶 query 的首頁對弈獨立頁驗證。 |

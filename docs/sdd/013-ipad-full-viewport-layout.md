@@ -1,6 +1,6 @@
 # SDD 013：iPad 全視窗響應式版面
 
-> Status：Verified<br>
+> Status：Released<br>
 > Owner：Codex／產品負責人<br>
 > Created：2026-07-17<br>
 > Updated：2026-07-17<br>
@@ -98,7 +98,7 @@ App 啟動後直接使用目前 PWA 視窗：
 - [x] 不破壞 Master SDD 的本機優先、三輸入、象棋品牌與段級門禁界線。
 - [x] `npm test` 通過。
 - [x] `npm run build` 通過，沒有新增 warning／syntax error。
-- [ ] 正式站完成 headers、資產與 changed flow 驗證。
+- [x] 正式站完成 headers、資產與 changed flow 驗證。
 
 ## 9. Test plan
 
@@ -140,9 +140,9 @@ App 啟動後直接使用目前 PWA 視窗：
 
 ### Git and release
 
-- Commit：未建立。
-- Push：未執行。
-- Deploy：依 repository 預設在 implementation commit／push 後執行；尚未執行。
-- 正式環境驗證：未執行。
+- Commit：`30e72d8 feat: support full viewport iPad layouts`。
+- Push：已推送 `main` 至 `origin/main`（`99938ff..30e72d8`）。
+- Deploy：2026-07-17 已完成 `firebase deploy --only hosting`，18 個 dist files 發布至 [正式站](https://xiangqi-recorder.web.app/)。
+- 正式環境驗證：根網址與 `sw.js` 回 200、`Cache-Control: no-cache, no-store, must-revalidate`、`Cross-Origin-Opener-Policy: same-origin`、`Cross-Origin-Embedder-Policy: require-corp`；新 CSS `/assets/index-CBUV-4_L.css` 回 200，manifest 不含 orientation。內建瀏覽器於 1024×1366 與 1366×1024 量得 root／header／page 等於 viewport、`max-width: none`、四欄首頁、水平 overflow 0。
 
 只有在驗證完成後才能標為 Verified；只有在正式部署並驗證後才能標為 Released。
