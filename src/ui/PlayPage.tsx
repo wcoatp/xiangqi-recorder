@@ -229,6 +229,7 @@ export default function PlayPage({ gameId }: { gameId: number }) {
       initialFen: game.initialFen,
       tree: newRoot(game.initialFen),
       moveCount: 0,
+      continuedFrom: game.continuedFrom ? { ...game.continuedFrom } : undefined,
     } as GameRow);
     go({ name: "play", gameId: id as number });
   };
@@ -249,6 +250,7 @@ export default function PlayPage({ gameId }: { gameId: number }) {
           <span className="muted" style={{ fontWeight: 400 }}>
             .{playerName} 執{SIDE_ZH[playerSide]}
           </span>
+          {game.continuedFrom && <span className="result-badge continuation-badge">接續局</span>}
         </div>
       </div>
 

@@ -4,6 +4,20 @@ import type { GameNode } from '../core/tree'
 import type { GameReview } from '../engine/analysis'
 import type { CalibrationGame, CalibratorProfile } from '../calibration/rankTypes'
 
+export interface GameContinuationSource {
+  schemaVersion: 1
+  /** 建立當下的本機 Dexie ID，只供稽核提示，不可當跨裝置永久外鍵。 */
+  sourceGameIdAtCreation: number
+  sourceRootId: string
+  sourceNodeId: string
+  sourcePly: number
+  sourceStartedAt: number
+  sourceRedName: string
+  sourceBlackName: string
+  sourceFen: string
+  sourceNodeLabel?: string
+}
+
 export interface GameRow {
   id: number
   redName: string
@@ -21,6 +35,8 @@ export interface GameRow {
   initialFen: string
   tree: GameNode
   moveCount: number
+  /** 從復盤某局面另開新局時保存的自含來源快照。 */
+  continuedFrom?: GameContinuationSource
   review?: GameReview | null
   reviewedAt?: number
 }
@@ -102,6 +118,8 @@ export async function rememberPlayer(name: string): Promise<void> {
 }
 
 export async function playerNames(): Promise<string[]> {
-  const rows = await db.players.orderBy('createdAt').reverse().toArray()
+  // createdAt 不是 IndexedDB index；先讀出再排序，避免 Dexie SchemaError。
+  const rows = await db.players.toArray()
+  rows.sort((a, b) => b.createdAt - a.createdAt)
   return rows.map((r) => r.name)
 }

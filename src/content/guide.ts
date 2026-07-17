@@ -28,7 +28,7 @@ export const PUBLIC_MENU_ITEMS: PublicMenuItem[] = [
   { target: 'home', group: '開始使用', seal: '首', label: '首頁', description: '總覽與最近對局' },
   { target: 'record', group: '開始使用', seal: '錄', label: '開始紀錄', description: '語音、拍照或點棋盤記譜' },
   { target: 'play', group: '開始使用', seal: '弈', label: '人機對弈', description: '選擇相對段級與本機引擎下棋' },
-  { target: 'replay', group: '棋譜工具', seal: '譜', label: '復盤紀錄', description: '播放、編輯、變著與匯出' },
+  { target: 'replay', group: '棋譜工具', seal: '譜', label: '復盤紀錄', description: '播放、接續、變著與匯出' },
   { target: 'analyze', group: '棋譜工具', seal: '解', label: '解棋', description: '引擎評分、關鍵著法與建議線' },
   { target: 'endgame', group: '棋譜工具', seal: '殘', label: '殘局解析', description: '擺盤、拍照建局與試走分析' },
   { target: 'rules', group: '學習與支援', seal: '規', label: '比賽棋規', description: '勝負和、限著與循環判決' },
@@ -67,7 +67,11 @@ export const FEATURE_GUIDES: FeatureGuide[] = [
     seal: '譜',
     title: '復盤紀錄',
     summary: '逐著播放既有棋局，整理主線、變著、註解及棋局資訊。',
-    points: ['支援匯入、中文棋譜／PGN 等格式匯出。', '進行中的實體記譜或人機棋局可從清單續記、續弈。'],
+    points: [
+      '支援匯入、中文棋譜／PGN 等格式匯出。',
+      '停在開局、主線或變著局面，可另開獨立的實體記譜或人機對弈局；原棋譜不會改動。',
+      '接續局從選中盤面重新計著，重複局面與自然限著統計也會重新開始。',
+    ],
   },
   {
     seal: '解',

@@ -3007,6 +3007,195 @@ h3 {
   white-space: nowrap;
 }
 
+/* ---------- 復盤局面接續 ---------- */
+.replay-tools-row {
+  flex-wrap: wrap;
+}
+
+.replay-tools-row > button {
+  min-width: 118px;
+  flex: 1 1 auto;
+}
+
+.continuation-badge {
+  color: color-mix(in srgb, var(--accent) 78%, #4c2414);
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--line));
+  background: color-mix(in srgb, var(--accent) 14%, var(--panel-soft));
+  font-weight: 800;
+}
+
+.continuation-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line));
+  border-radius: 12px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 10%, var(--panel)), var(--panel-soft));
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.continuation-terminal-note {
+  text-align: center;
+}
+
+.continue-dialog {
+  max-width: 500px;
+  border: 2px solid color-mix(in srgb, var(--accent) 48%, var(--line));
+  border-radius: 22px;
+  box-shadow: 0 18px 52px rgba(49, 25, 14, 0.28);
+}
+
+.continue-dialog-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.continue-dialog-heading h3 {
+  margin: 2px 0 0;
+  color: var(--text);
+  font-family: "Kaiti TC", "DFKai-SB", "BiauKai", serif;
+  font-size: 22px;
+}
+
+.continue-dialog-heading > button {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.continue-kicker {
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.continue-context {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  color: var(--text);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 15%, var(--panel-soft)), var(--panel-soft));
+}
+
+.continue-context b {
+  grid-row: 1 / span 2;
+  align-self: center;
+  color: var(--accent);
+  font-size: 17px;
+}
+
+.continue-context span {
+  font-weight: 700;
+}
+
+.continue-context small {
+  overflow: hidden;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.continue-warning {
+  padding: 10px 12px;
+  border-left: 4px solid #c98a2a;
+  border-radius: 8px;
+  color: color-mix(in srgb, var(--text) 86%, #7c4a15);
+  background: color-mix(in srgb, #f0b34d 14%, var(--panel-soft));
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.continue-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.continue-dialog label {
+  display: grid;
+  gap: 4px;
+}
+
+.continue-dialog input:not([type="range"]) {
+  width: 100%;
+}
+
+.continue-dialog input[type="range"] {
+  width: 100%;
+}
+
+.continue-first-move,
+.continue-rank-note {
+  margin-top: 5px;
+  font-size: 11px;
+}
+
+.continue-level {
+  color: var(--accent);
+  font-size: 17px;
+}
+
+.continue-level-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+}
+
+.continue-error {
+  padding: 9px 11px;
+  border: 1px solid color-mix(in srgb, var(--bad) 45%, var(--line));
+  border-radius: 9px;
+  color: var(--bad);
+  background: color-mix(in srgb, var(--bad) 8%, var(--panel));
+  font-size: 12px;
+  font-weight: 700;
+}
+
+@media (max-width: 520px) {
+  .continue-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .continue-context {
+    grid-template-columns: 1fr;
+  }
+
+  .continue-context b {
+    grid-row: auto;
+  }
+
+  .continue-context small {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 380px) {
+  .continue-dialog {
+    padding: 15px;
+  }
+
+  .continue-dialog .fab-row {
+    flex-direction: column-reverse;
+  }
+
+  .continuation-note {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
 .fab-row {
   display: flex;
   gap: 8px;

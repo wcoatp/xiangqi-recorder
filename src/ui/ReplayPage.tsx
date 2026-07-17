@@ -3,7 +3,7 @@ import { useApp } from "../App";
 import type { Side } from "../core/board";
 import { formatDhtmlXq } from "../core/dhtmlxq";
 import { parseFen } from "../core/fen";
-import { legalMovesFrom } from "../core/movegen";
+import { gameStatus, legalMovesFrom } from "../core/movegen";
 import {
   exportChineseText,
   exportPgn,
@@ -31,6 +31,7 @@ import {
 import { engine } from "../engine/engineClient";
 import { db, type GameRow } from "../store/db";
 import Board, { type BoardArrow } from "./Board";
+import ContinueFromReplayDialog from "./ContinueFromReplayDialog";
 import LiveAnalysis, { scoreLabel } from "./LiveAnalysis";
 
 const RESULT_LABEL: Record<string, string> = {
@@ -62,7 +63,14 @@ export default function ReplayPage({
   const [reviewError, setReviewError] = useState("");
   const [liveOn, setLiveOn] = useState(false);
   const [arrows, setArrows] = useState<BoardArrow[]>([]);
+  const [showContinue, setShowContinue] = useState(false);
   const cancelRef = useRef<CancelToken>({ cancelled: false });
+  const continueButtonRef = useRef<HTMLButtonElement>(null);
+
+  const closeContinue = useCallback(() => {
+    setShowContinue(false);
+    window.requestAnimationFrame(() => continueButtonRef.current?.focus());
+  }, []);
 
   useEffect(() => {
     void db.games.get(gameId).then((g) => {
@@ -88,6 +96,7 @@ export default function ReplayPage({
   const idx = path.length - 1; // -1 = 開局前
   const fen = current?.fenAfter ?? "";
   const pos = useMemo(() => (fen ? parseFen(fen) : null), [fen]);
+  const currentStatus = useMemo(() => (pos ? gameStatus(pos) : null), [pos]);
 
   const goto = useCallback(
     (i: number) => {
@@ -205,6 +214,19 @@ export default function ReplayPage({
         <button onClick={() => setShowExport(true)}>📤</button>
       </div>
 
+      {game.continuedFrom && (
+        <div className="continuation-note">
+          <span className="continuation-badge">接續局</span>
+          <span>
+            從「{game.continuedFrom.sourceRedName} 對 {game.continuedFrom.sourceBlackName}」
+            {game.continuedFrom.sourcePly === 0
+              ? "開局局面"
+              : `第 ${game.continuedFrom.sourcePly} 著後局面`}
+            開始
+          </span>
+        </div>
+      )}
+
       <div className="board-wrap" style={{ maxHeight: "52vh" }}>
         <Board
           fen={fen}
@@ -278,7 +300,7 @@ export default function ReplayPage({
         </div>
       )}
 
-      <div className="row">
+      <div className="row replay-tools-row">
         <button
           className={editMode ? "primary" : ""}
           onClick={() => setEditMode(!editMode)}
@@ -301,7 +323,25 @@ export default function ReplayPage({
         >
           💡 解棋
         </button>
+        <button
+          ref={continueButtonRef}
+          type="button"
+          onClick={() => {
+            setPlaying(false);
+            setShowContinue(true);
+          }}
+          disabled={!!reviewing || !!currentStatus?.over}
+          title={currentStatus?.over ? "此局面已終局，不能再接續走棋" : undefined}
+        >
+          ↗ 從此局面開新局
+        </button>
       </div>
+
+      {currentStatus?.over && (
+        <div className="muted continuation-terminal-note">
+          此局面已{currentStatus.reason === "checkmate" ? "絕殺" : "困斃"}，不能建立接續局。
+        </div>
+      )}
 
       {editMode && (
         <div className="card">
@@ -480,6 +520,14 @@ export default function ReplayPage({
             setShowInfo(false);
             persist();
           }}
+        />
+      )}
+      {showContinue && (
+        <ContinueFromReplayDialog
+          source={game}
+          node={current}
+          sourcePly={path.length}
+          onClose={closeContinue}
         />
       )}
       {commentDraft !== null && (
