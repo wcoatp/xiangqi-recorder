@@ -1,6 +1,6 @@
 # SDD 005：全站導覽與台灣象棋資源中心
 
-> Status：Implemented<br>
+> Status：Released<br>
 > Owner：專案作者<br>
 > Created：2026-07-17<br>
 > Updated：2026-07-17<br>
@@ -120,8 +120,8 @@ interface ScheduleItem {
 
 ## 8. Acceptance criteria
 
-- [ ] 任一頁都可開啟／關閉全站抽屜並前往全部公開功能。
-- [ ] 開始紀錄、對弈及回饋從抽屜可直接開啟既有流程。
+- [x] 任一頁都可開啟／關閉全站抽屜並前往全部公開功能。
+- [x] 開始紀錄、對弈及回饋從抽屜可直接開啟既有流程。
 - [x] 功能與資源中心可離線閱讀完整 App 使用說明。
 - [x] 教學、棋規、活動與報名連結皆指向已查核的台灣官方頁面。
 - [x] 近期賽程與 2026-07-17 官方資料相符，且不被描述為即時同步。
@@ -129,7 +129,7 @@ interface ScheduleItem {
 - [x] 不新增 schema、runtime fetch、遙測或資料上傳。
 - [x] `npm test` 通過。
 - [x] `npm run build` 通過，沒有新增 warning／syntax error。
-- [ ] 320、390、640 px 與鍵盤操作完成實際瀏覽器檢查。
+- [x] 320、390、640 px 與鍵盤操作完成實際瀏覽器檢查。
 - [x] Master SDD、工作包索引與 README 同步更新。
 
 ## 9. Test plan
@@ -165,20 +165,24 @@ interface ScheduleItem {
 ### Implementation
 
 - 開始日期：2026-07-17。
-- 完成日期：2026-07-17（程式完成；正式站瀏覽器驗證待部署後執行）。
+- 完成日期：2026-07-17；正式站已部署並完成瀏覽器驗證。
 - 實際變更檔案：`src/App.tsx`、`src/ui/AppMenu.tsx`、`src/ui/GuidePage.tsx`、`src/ui/HomePage.tsx`、`src/content/guide.ts`、`src/content/guide.test.ts`、`src/styles.css`、`README.md`、`docs/SDD.md`、`docs/sdd/README.md`、本文件與 TypeScript build info。
-- 與原規格的差異：本機 `127.0.0.1` 頁面被內建瀏覽器安全政策阻擋，故響應式與逐頁點擊改至部署後在正式 HTTPS 站完成；功能範圍不變。
+- 與原規格的差異：本機 `127.0.0.1` 頁面被內建瀏覽器安全政策阻擋，響應式與逐頁點擊因此改在正式 HTTPS 站完成；實際驗證時另外修正資源頁 sticky 跳轉列露出上一區塊，以及窄螢幕賽程日期換行不自然，功能範圍不變。
 
 ### Verification evidence
 
 - `npm test`：通過；12 個 test files、94 tests，新增 4 個公開功能／官方資源／賽程快照測試。
-- `npm run build`：通過；產出 `assets/index-DVSRN7RG.js`、`assets/index-DBmsiZkg.css`。只有既有 `tree.ts` 動態／靜態 import chunk warning，未新增錯誤。
-- 手動／實機檢查：本機 Vite 成功啟動，但內建瀏覽器依安全政策拒絕操作 `http://127.0.0.1:5173/`；未改用繞過方式。正式 HTTPS 部署後待驗證 drawer、Escape／焦點、全部入口及 320／390／640 px。
+- `npm run build`：通過；正式版本產出 `assets/index-BA5mVrlO.js`、`assets/index-Bdmwj7Fm.css`。只有既有 `tree.ts` 動態／靜態 import chunk warning，未新增錯誤。
+- 正式站 drawer：首頁與抽屜視覺通過；DOM 中共有 10 個公開入口且沒有段級校準。Escape 能關閉抽屜、背景 dialog 數為 0，焦點回到「開啟功能選單」。
+- 正式站導覽：首頁、開始紀錄、對弈、復盤、解棋、殘局、棋規、功能與資源、設定、回饋皆完成實際入口檢查；開始紀錄、對弈、回饋會開啟既有 dialog，關閉後回首頁。
+- 正式站響應式：320、390、640 px 的 document、root 與頁面 `clientWidth === scrollWidth`，無水平溢出；drawer 在 320 px 為 300 px、390 px 為 350 px，資源卡與賽程在窄版改為單欄。
+- 正式站外連：15 個外部連結皆使用新分頁、`rel="noreferrer"`，且 host 為 `www.cccs.org.tw`。最終頁面瀏覽器 console 無錯誤。
+- PWA 更新：首次正式站載入若仍由舊 Service Worker 提供上一版 shell，重新整理一次後即載入上述正式 JS／CSS 資源。
 - 已知限制：賽程為 2026-07-17 人工查核快照，不是即時同步；外部頁面離線時不可開啟；沒有後端自動汰除已過期活動。
 
 ### Git and release
 
-- Commit：未建立。
-- Push：未執行。
-- Deploy：依 repository 預設在 implementation commit／push 後執行；尚未執行。
-- 正式環境驗證：未執行。
+- Commit：`405cdb2 feat: add global menu and Taiwan xiangqi resources`；正式站檢查後的版面修正為 `bbe76df fix: polish resource navigation and schedule layout`。
+- Push：兩個程式 commit 均已推送至 `origin/main`。
+- Deploy：2026-07-17 10:55（Asia/Taipei）完成 Firebase Hosting 部署，網址為 <https://xiangqi-recorder.web.app/>。
+- 正式環境驗證：HTTP 200；`Cross-Origin-Opener-Policy: same-origin`、`Cross-Origin-Embedder-Policy: require-corp`；HTML 指向 `index-BA5mVrlO.js` 與 `index-Bdmwj7Fm.css`，並完成上述全站、鍵盤、響應式及外連流程檢查。
