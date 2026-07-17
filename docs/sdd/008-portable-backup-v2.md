@@ -3,7 +3,7 @@
 > Status：Released<br>
 > Owner：Codex<br>
 > Created：2026-07-17<br>
-> Updated：2026-07-17<br>
+> Updated：2026-07-17（工作包 010 延伸 nested rank schema v1/v2 相容）<br>
 > Target branch：`main`<br>
 > Related decisions：`D-001`, `D-006`, `D-008`, `D-012`, `D-013`<br>
 > Depends on：工作包 007 已發布<br>
@@ -32,7 +32,7 @@
 - 不加密備份檔，也不宣稱 JSON 是安全保管庫；UI 必須提醒檔案未加密。
 - 不備份 `llmToken`、`rankCalibrationGate`、PIN、salt／verifier、unlock 狀態或原始照片。
 - 不清空目的端資料、不提供「整庫覆蓋」或刪除式還原。
-- 不完成 SDD 002 Phase 2 的獨立校準 JSON 匯入 UI，也不提高 `RANK_CALIBRATION_SCHEMA_VERSION`。
+- 本工作包本身不完成 SDD 002 Phase 2 的獨立校準 JSON 匯入 UI；後續工作包 010 以拆開 gate/archive/game versions 的方式延伸，不改動既有 gate v1。
 - 不改 Dexie schema version、表 index 或棋局建立流程。
 - 不在本工作包處理不同棋子範本間的人工選擇；目的端已有不同範本時保留本機版本並回報。
 
@@ -44,7 +44,7 @@
 | 008-D02 | 棋局 stable ID 使用 `record.tree.id`，匯出欄位另存 `stableId` 並驗證兩者相等 | root ID 已被所有現行建立、編輯與 v1 備份流程保存，不需 migration 或改動五種建立路徑 | Accepted |
 | 008-D03 | 還原採 merge、永不刪除；同 stable ID 同內容略過，不同內容整包中止 | 無法安全猜測哪份棋譜／校準原始資料才是正確版本 | Accepted |
 | 008-D04 | 五項偏好由備份值覆蓋；`pieceCalibration:null` 不刪除目的端，不同範本保留目的端 | 偏好是明確可攜設定；照片範本與棋具／裝置相關，非破壞性優先 | Accepted |
-| 008-D05 | v2 內嵌現有校準 schema v1 匯出快照，但只還原 profiles／games | 保留錨點技術語意，不把 PIN gate 混入原始研究資料，也不誤稱完成 Phase 2 匯入功能 | Accepted |
+| 008-D05 | v2 起初內嵌校準 schema v1；工作包 010 後 nested rank 依自身版本接受 v1／v2，仍只還原 profiles／games | 保留歷史與新協定語意，不把 PIN gate 混入原始研究資料；full backup 外層不必因子格式升版 | Accepted／Extended by SDD 010 |
 | 008-D06 | 新增 `fake-indexeddb` 6.2.5 僅供測試 | 資料安全工作包需要自動驗證真 Dexie transaction rollback；套件無 runtime dependency | Accepted |
 | 008-D07 | 本功能版本升為 `0.4.0` | 完整備份是新的可攜資料能力，匯出 `appVersion` 必須能與工作包 007 的 `0.3.0` 區分 | Accepted |
 | 008-D08 | 只要 archive 含 profiles 或 calibration games，匯出與還原都必須驗證目的 origin 現有段級 PIN | 完整備份入口是公開功能，若不驗證會繞過使用者要求的隱藏／PIN gate；PIN 不保存、不進檔案，新電腦先由 setup 入口建立本機 PIN | Accepted |
@@ -140,7 +140,7 @@ interface BackupFileV2 {
 - `GameNode` 驗證 root move null、child move 0–89、完整象棋合法著法、單樹 node ID 唯一、同 parent 不重複 move、FEN turn token、parent move 後 board＋turn 與 child FEN 一致；children order 原樣保存。
 - `moveCount` 必須等於主線長度；continuedFrom 依 schema 重建已知欄位。GameReview 先嚴格驗證結構，再驗 plies／FEN、judgment node／side／score、主變與 counts 對應目前主線；歷史 stale review 只略過可重新產生的 review／reviewedAt 並回報數量，棋局本體仍可匯出或還原。
 - 棋子範本使用 `float32-le-base64`；每 sample 2304 floats／9216 bytes、值有限且在 `0..INK_CAP`，每側分布固定 K1/A2/B2/N2/R2/C2/P5。解碼必須建立真正 `Float32Array`。
-- rank export 維持 schema version 1；PIN gate 使用同一常數的現況不變，不可因 backup v2 調高。
+- 發布當時 rank export 維持 schema 1。工作包 010 將 gate version 永久固定為 v1，另以 nested dispatcher 接受 rank export/game v1／v2；不可再用同一常數同時控制 PIN 與 archive。
 - deterministic normalized DTO 直接 `JSON.stringify` 比對；不使用有碰撞風險且需要 async digest 的 hash。
 - export 與 import 共用同一個 UTF-8 50 MiB byte-limit 檢查；匯出不得產生 App 自己無法還原的超限檔。
 
@@ -181,7 +181,7 @@ interface BackupFileV2 {
 
 | 層級 | 測試 | 預期 |
 |---|---|---|
-| Unit | v1/v2 parse、tree/review/rank validator、future/corrupt cases | 正確 normalized 或 path 錯誤，無 DB 寫入 |
+| Unit | backup v1/v2 parse、tree/review/rank v1/v2 dispatcher、future/corrupt cases | 正確 normalized 或 path 錯誤，無 DB 寫入 |
 | Unit | Float32 LE base64 round trip、錯長度／NaN／錯棋種分布 | bit-preserving Float32Array；壞資料拒絕 |
 | Integration | 完整 DB v2 round trip、v1、兩次匯入、非空 merge | 內容一致、added/skipped 正確 |
 | Integration | sentinel Token／PIN gate 與 forced late write failure | secret 永不匯出／覆寫；五表 rollback |

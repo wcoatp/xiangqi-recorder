@@ -1,6 +1,6 @@
 // 完整本機備份／非破壞還原。所有外部資料先由 backupSchema 完整驗證，再進 Dexie transaction。
-import type { CalibrationGame, CalibratorProfile } from '../calibration/rankTypes'
 import { verifyCalibrationPin } from '../calibration/pin'
+import { planRankCalibrationMerge } from '../calibration/rankArchive'
 import type { PieceTemplates } from '../vision/templates'
 import { APP_VERSION } from '../version'
 import { buildRankCalibrationExport, loadRankCalibrationGate } from './rankCalibration'
@@ -11,8 +11,6 @@ import {
   buildBackupFileV2,
   canonicalJson,
   inspectBackup,
-  normalizeCalibrationGame,
-  normalizeCalibratorProfile,
   normalizeGameRecordForArchive,
   normalizePieceTemplates,
   normalizePlayerRecord,
@@ -159,12 +157,6 @@ export async function restoreBackup(text: string, rankPin?: string): Promise<Res
     await requireRankBackupAccess(rankPin)
   }
   const incomingGames = new Map(parsed.games.map((entry) => [entry.stableId, canonicalJson(entry.record)]))
-  const incomingProfiles = new Map(
-    (parsed.rankCalibration?.profiles ?? []).map((profile) => [profile.id, canonicalJson(profile)]),
-  )
-  const incomingCalibrationGames = new Map(
-    (parsed.rankCalibration?.games ?? []).map((game) => [game.id, canonicalJson(game)]),
-  )
 
   return db.transaction(
     'rw',
@@ -221,35 +213,9 @@ export async function restoreBackup(text: string, rankPin?: string): Promise<Res
       const playersToAdd = [...playerCandidates.values()].filter((player) => !localPlayerNames.has(player.name))
       const playersSkipped = playerCandidates.size - playersToAdd.length
 
-      const localProfileMap = normalizedMap(
-        localProfiles,
-        (value, index) => normalizeCalibratorProfile(value, `本機 rankCalibrators[${index}]`),
-        (value) => value.id,
-        '本機段級協助者',
-      )
-      const profilesToAdd: CalibratorProfile[] = []
-      let profilesSkipped = 0
-      for (const profile of parsed.rankCalibration?.profiles ?? []) {
-        const local = localProfileMap.get(profile.id)
-        if (local === undefined) profilesToAdd.push(profile)
-        else if (local === incomingProfiles.get(profile.id)) profilesSkipped++
-        else throw new Error(`段級協助者識別 ${profile.id} 在本機與備份內容不同；整份備份未還原`)
-      }
-
-      const localCalibrationGameMap = normalizedMap(
-        localCalibrationGames,
-        (value, index) => normalizeCalibrationGame(value, `本機 rankCalibrationGames[${index}]`),
-        (value) => value.id,
-        '本機段級校準對局',
-      )
-      const calibrationGamesToAdd: CalibrationGame[] = []
-      let calibrationGamesSkipped = 0
-      for (const game of parsed.rankCalibration?.games ?? []) {
-        const local = localCalibrationGameMap.get(game.id)
-        if (local === undefined) calibrationGamesToAdd.push(game)
-        else if (local === incomingCalibrationGames.get(game.id)) calibrationGamesSkipped++
-        else throw new Error(`段級校準對局識別 ${game.id} 在本機與備份內容不同；整份備份未還原`)
-      }
+      const rankPlan = parsed.rankCalibration
+        ? planRankCalibrationMerge(localProfiles, localCalibrationGames, parsed.rankCalibration)
+        : { profilesToAdd: [], gamesToAdd: [], profilesSkipped: 0, gamesSkipped: 0 }
 
       let pieceCalibration: RestoreResult['pieceCalibration'] = 'not-in-backup'
       let pieceToRestore: PieceTemplates | null = null
@@ -274,15 +240,15 @@ export async function restoreBackup(text: string, rankPin?: string): Promise<Res
         await db.settings.bulkPut(Object.entries(preferences).map(([key, value]) => ({ key, value })))
       }
       if (pieceToRestore) await db.settings.put({ key: PIECE_CALIBRATION_KEY, value: pieceToRestore })
-      if (profilesToAdd.length) await db.rankCalibrators.bulkAdd(profilesToAdd)
-      if (calibrationGamesToAdd.length) await db.rankCalibrationGames.bulkAdd(calibrationGamesToAdd)
+      if (rankPlan.profilesToAdd.length) await db.rankCalibrators.bulkAdd(rankPlan.profilesToAdd)
+      if (rankPlan.gamesToAdd.length) await db.rankCalibrationGames.bulkAdd(rankPlan.gamesToAdd)
 
       return {
         sourceVersion: parsed.version,
         games: { added: gamesToAdd.length, skipped: gamesSkipped },
         players: { added: playersToAdd.length, skipped: playersSkipped },
-        profiles: { added: profilesToAdd.length, skipped: profilesSkipped },
-        calibrationGames: { added: calibrationGamesToAdd.length, skipped: calibrationGamesSkipped },
+        profiles: { added: rankPlan.profilesToAdd.length, skipped: rankPlan.profilesSkipped },
+        calibrationGames: { added: rankPlan.gamesToAdd.length, skipped: rankPlan.gamesSkipped },
         preferencesRestored: parsed.preferences !== null,
         pieceCalibration,
         omittedStaleReviewCount: parsed.omittedStaleReviewCount,
@@ -305,22 +271,6 @@ async function requireRankBackupAccess(pin: string | undefined): Promise<void> {
   if (!(await verifyCalibrationPin(gate, pin))) {
     throw new RankBackupAccessError('pin-invalid', '本機段級 PIN 錯誤，未存取校準資料')
   }
-}
-
-function normalizedMap<T>(
-  values: T[],
-  normalize: (value: T, index: number) => T,
-  identity: (value: T) => string,
-  label: string,
-): Map<string, string> {
-  const result = new Map<string, string>()
-  values.forEach((value, index) => {
-    const normalized = normalize(value, index)
-    const id = identity(normalized)
-    if (result.has(id)) throw new Error(`${label}有重複識別 ${id}`)
-    result.set(id, canonicalJson(normalized))
-  })
-  return result
 }
 
 function withoutGameId(row: GameRow): Omit<GameRow, 'id'> {

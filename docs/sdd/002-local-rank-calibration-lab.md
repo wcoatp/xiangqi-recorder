@@ -1,6 +1,6 @@
 # SDD 002：本機段級校準實驗室
 
-> Status：Released（Phase 1、Phase 2A 工程核心）；其餘 Phase 2+ Deferred<br>
+> Status：Released（Phase 1、Phase 2A 工程核心）；Phase 2B 由工作包 010 Verified／待發布；其餘 Phase 2+ Deferred<br>
 > Owner：專案作者<br>
 > Created：2026-07-16<br>
 > Updated：2026-07-17<br>
@@ -25,7 +25,7 @@
 
 - 不開始校準對弈，不把一般 `PlayPage` 棋局算入校準資料。
 - 工作包 009：只實作 `seeded-multipv-v1` 工程核心、seed／候選 decision 與專用 fixed-nodes 引擎 API；保持 inactive，不接 UI／DB。
-- 預計工作包 010：校準 schema v2、JSON 匯入／合併與純統計。
+- 工作包 010（已驗證、待發布）：校準 schema v2、JSON 匯入／合併與版本隔離純統計。
 - 預計工作包 011：獨立現場校準 match controller；一般 `PlayPage` 棋局仍不可算入校準資料。
 - 不發布 A01～A10 對應的台灣段級，也不修改公開 `PLAY_LEVELS`。
 
@@ -105,7 +105,7 @@
 | 002-FR05 | 協助者需填自報級段與制度來源。 | Must | 每場校準局可追溯到 profile revision。 |
 | 002-FR06 | 10 個錨點有 stable ID 與 immutable config version。 | Must | 同版本 `A01` 的引擎設定完全一致。 |
 | 002-FR07 | 人類化選著記錄 policy version、seed、候選與實際選擇。 | Must | 給定相同局面與紀錄可解釋實際著法。 |
-| 002-FR08 | 紅黑方需平衡或明確記錄分派原因。 | Must | 統計可拆分先後手，避免混淆。 |
+| 002-FR08 | 紅黑方需平衡或明確記錄分派原因；Phase 2B 起 `balanced-alternation-v1` 以同 profile revision＋anchor config＋collection protocol 收集序號偶紅奇黑。 | Must | validator 核對分派序號唯一及 playerSide，統計拆分先後手。 |
 | 002-FR09 | 原始校準棋局不可被聚合結果覆蓋。 | Must | 聚合資料可由原始棋局重新建立。 |
 | 002-FR10 | 完成一局後本機統計立即更新。 | Must | 同一瀏覽器重新進入可看到新增棋局。 |
 | 002-FR11 | 不同電腦不會自動更新彼此資料。 | Must | 無後端網路請求；文件與 UI 明確說明。 |

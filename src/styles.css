@@ -1408,7 +1408,7 @@ h3 {
 
 .rank-summary {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 15px;
@@ -1537,6 +1537,146 @@ h3 {
   text-align: right;
 }
 
+.rank-transfer-stack,
+.rank-stats-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.rank-transfer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.rank-import-file {
+  min-width: 0;
+  max-width: 100%;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.rank-import-file::file-selector-button {
+  margin-right: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--ink);
+  background: var(--panel-soft);
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.rank-import-preview {
+  min-width: 0;
+  overflow: hidden;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--accent) 42%, var(--line));
+  border-radius: 13px;
+  background: var(--panel-soft);
+}
+
+.rank-import-preview h4,
+.rank-stat-group h4 {
+  margin: 0;
+}
+
+.rank-import-preview h4,
+.rank-import-preview .muted {
+  overflow-wrap: anywhere;
+}
+
+.rank-preview-grid,
+.rank-stat-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.rank-preview-grid div,
+.rank-stat-metrics div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 8px 6px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  text-align: center;
+}
+
+.rank-preview-grid b,
+.rank-stat-metrics b {
+  color: var(--accent);
+  font-size: 17px;
+}
+
+.rank-preview-grid span,
+.rank-stat-metrics span {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.rank-preview-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 11px;
+}
+
+.rank-stat-group {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(155deg, var(--panel), var(--panel-soft));
+}
+
+.rank-stat-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rank-stat-title span {
+  flex: none;
+  padding: 4px 7px;
+  border-radius: 999px;
+  color: var(--home-icon);
+  background: var(--home-icon-bg);
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.rank-stat-meta {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.rank-stat-footnote,
+.rank-stat-empty {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.rank-stat-empty {
+  padding: 12px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: var(--panel-soft);
+}
+
 .rank-lab-danger-zone,
 .rank-settings-entry {
   display: flex;
@@ -1572,6 +1712,24 @@ h3 {
 
   .rank-local-badge {
     align-self: flex-start;
+  }
+
+  .rank-transfer-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .rank-import-file {
+    width: 100%;
+  }
+
+  .rank-preview-grid,
+  .rank-stat-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .rank-preview-actions button {
+    flex: 1 1 120px;
   }
 }
 

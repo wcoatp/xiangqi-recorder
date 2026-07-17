@@ -15,9 +15,11 @@ describe('段級校準匯出格式', () => {
     }
     const payload = buildRankCalibrationExport([profile], [], 200, '0.3.0')
     expect(payload.format).toBe('xiangqi-recorder-rank-calibration')
-    expect(payload.schemaVersion).toBe(1)
+    expect(payload.schemaVersion).toBe(2)
     expect(payload.anchorSetVersion).toBe('2026.07-v1')
     expect(payload.anchors).toHaveLength(10)
+    expect(payload.phase2ConfigVersion).toBe('2026.07-phase2-v1')
+    expect(payload.phase2Anchors).toHaveLength(10)
     expect(payload.profiles).toEqual([profile])
     expect(payload.games).toEqual([])
     const json = JSON.stringify(payload)

@@ -1,13 +1,24 @@
 import { ANCHOR_SET_VERSION, RANK_ANCHORS } from '../calibration/anchors'
+import { PHASE2_ANCHORS, PHASE2_CONFIG_VERSION } from '../calibration/phase2Protocol'
 import { PIN_KDF } from '../calibration/pin'
 import {
+  inspectRankCalibrationExport,
+  normalizeCalibrationGame,
+  normalizeCalibratorProfile,
+  normalizeRankCalibrationExport,
+  parseRankCalibrationExport,
+  planRankCalibrationMerge,
+  serializeRankCalibrationExport,
+} from '../calibration/rankArchive'
+import {
   RANK_CALIBRATION_FORMAT,
-  RANK_CALIBRATION_SCHEMA_VERSION,
+  RANK_CALIBRATION_EXPORT_SCHEMA_V2,
+  RANK_CALIBRATION_GATE_SCHEMA_VERSION,
   RANK_SYSTEM_OPTIONS,
   TAIWAN_RANK_OPTIONS,
   type CalibrationGame,
   type CalibratorProfile,
-  type RankCalibrationExport,
+  type RankCalibrationExportV2,
   type RankCalibrationGate,
 } from '../calibration/rankTypes'
 import { db } from './db'
@@ -15,7 +26,7 @@ import { db } from './db'
 const GATE_KEY = 'rankCalibrationGate'
 
 export const defaultRankCalibrationGate = (): RankCalibrationGate => ({
-  schemaVersion: RANK_CALIBRATION_SCHEMA_VERSION,
+  schemaVersion: RANK_CALIBRATION_GATE_SCHEMA_VERSION,
   enabled: false,
   kdf: PIN_KDF,
   autoLockMinutes: 15,
@@ -26,7 +37,7 @@ function isGate(value: unknown): value is RankCalibrationGate {
   if (!value || typeof value !== 'object') return false
   const gate = value as Partial<RankCalibrationGate>
   return (
-    gate.schemaVersion === RANK_CALIBRATION_SCHEMA_VERSION &&
+    gate.schemaVersion === RANK_CALIBRATION_GATE_SCHEMA_VERSION &&
     typeof gate.enabled === 'boolean' &&
     typeof gate.autoLockMinutes === 'number' &&
     gate.autoLockMinutes > 0 &&
@@ -99,11 +110,13 @@ export async function createCalibratorProfile(input: CreateCalibratorInput): Pro
 }
 
 export async function listCalibratorProfiles(): Promise<CalibratorProfile[]> {
-  return db.rankCalibrators.orderBy('createdAt').reverse().toArray()
+  const rows = await db.rankCalibrators.orderBy('createdAt').reverse().toArray()
+  return rows.map((row, index) => normalizeCalibratorProfile(row, `本機 rankCalibrators[${index}]`))
 }
 
 export async function listCalibrationGames(): Promise<CalibrationGame[]> {
-  return db.rankCalibrationGames.orderBy('startedAt').toArray()
+  const rows = await db.rankCalibrationGames.orderBy('startedAt').toArray()
+  return rows.map((row, index) => normalizeCalibrationGame(row, `本機 rankCalibrationGames[${index}]`))
 }
 
 export function buildRankCalibrationExport(
@@ -111,17 +124,24 @@ export function buildRankCalibrationExport(
   games: CalibrationGame[],
   exportedAt: number,
   appVersion: string,
-): RankCalibrationExport {
-  return {
+): RankCalibrationExportV2 {
+  return normalizeRankCalibrationExport({
     format: RANK_CALIBRATION_FORMAT,
-    schemaVersion: RANK_CALIBRATION_SCHEMA_VERSION,
+    schemaVersion: RANK_CALIBRATION_EXPORT_SCHEMA_V2,
     exportedAt,
     appVersion,
     anchorSetVersion: ANCHOR_SET_VERSION,
     anchors: RANK_ANCHORS.map((entry) => ({ ...entry, engineConfig: { ...entry.engineConfig } })),
+    phase2ConfigVersion: PHASE2_CONFIG_VERSION,
+    phase2Anchors: PHASE2_ANCHORS.map((entry) => ({
+      ...entry,
+      engine: { ...entry.engine },
+      search: { ...entry.search },
+      policy: { ...entry.policy },
+    })),
     profiles,
     games,
-  }
+  }, 'rankCalibration') as RankCalibrationExportV2
 }
 
 export async function exportRankCalibration(appVersion: string): Promise<{
@@ -132,8 +152,47 @@ export async function exportRankCalibration(appVersion: string): Promise<{
   const [profiles, games] = await Promise.all([listCalibratorProfiles(), listCalibrationGames()])
   const payload = buildRankCalibrationExport(profiles, games, Date.now(), appVersion)
   return {
-    json: JSON.stringify(payload, null, 2),
+    json: serializeRankCalibrationExport(payload),
     profileCount: profiles.length,
     gameCount: games.length,
   }
+}
+
+export const inspectRankCalibrationImport = inspectRankCalibrationExport
+
+export interface ImportRankCalibrationResult {
+  sourceVersion: 1 | 2
+  profiles: { added: number; skipped: number }
+  games: { added: number; skipped: number }
+}
+
+/**
+ * Validates the whole file before entering Dexie, then plans both tables again against the
+ * transaction snapshot. No write starts until every duplicate and content conflict is resolved.
+ */
+export async function importRankCalibration(text: string): Promise<ImportRankCalibrationResult> {
+  const incoming = parseRankCalibrationExport(text)
+
+  return db.transaction('rw', db.rankCalibrators, db.rankCalibrationGames, async () => {
+    const [localProfiles, localGames] = await Promise.all([
+      db.rankCalibrators.toArray(),
+      db.rankCalibrationGames.toArray(),
+    ])
+    const plan = planRankCalibrationMerge(localProfiles, localGames, incoming)
+
+    if (plan.profilesToAdd.length > 0) await db.rankCalibrators.bulkAdd(plan.profilesToAdd)
+    if (plan.gamesToAdd.length > 0) await db.rankCalibrationGames.bulkAdd(plan.gamesToAdd)
+
+    return {
+      sourceVersion: incoming.schemaVersion,
+      profiles: {
+        added: plan.profilesToAdd.length,
+        skipped: plan.profilesSkipped,
+      },
+      games: {
+        added: plan.gamesToAdd.length,
+        skipped: plan.gamesSkipped,
+      },
+    }
+  })
 }

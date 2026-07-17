@@ -1,9 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import { RANK_ANCHORS, ANCHOR_SET_VERSION } from '../calibration/anchors'
+import { PHASE2_ANCHORS, PHASE2_CONFIG_VERSION } from '../calibration/phase2Protocol'
 import {
+  CALIBRATION_COLLECTION_PROTOCOL_V1,
+  RANK_CALIBRATION_EXPORT_SCHEMA_V1,
+  RANK_CALIBRATION_EXPORT_SCHEMA_V2,
   RANK_CALIBRATION_FORMAT,
-  RANK_CALIBRATION_SCHEMA_VERSION,
+  type CalibrationGameV1,
+  type CalibrationGameV2,
+  type CalibratorProfile,
   type RankCalibrationExport,
+  type RankCalibrationExportV1,
+  type RankCalibrationExportV2,
 } from '../calibration/rankTypes'
 import { applyMove } from '../core/board'
 import { formatFen, parseFen, START_FEN } from '../core/fen'
@@ -120,41 +128,100 @@ function gameRecord(): Omit<GameRow, 'id'> {
   }
 }
 
-function rankExport(): RankCalibrationExport {
+function rankProfile(): CalibratorProfile {
+  return {
+    id: 'profile-1',
+    revision: 2,
+    alias: '測試者',
+    claimedRank: '3段',
+    rankSystem: '棋友自評',
+    consentedAt: now,
+    createdAt: now,
+    notes: '只存在本機',
+  }
+}
+
+function legacyCalibrationGame(owner = rankProfile()): CalibrationGameV1 {
+  const anchor = RANK_ANCHORS[0]
+  return {
+    id: 'cal-game-1',
+    schemaVersion: 1,
+    profileId: owner.id,
+    profileRevision: 1,
+    anchorId: anchor.id,
+    anchorConfigVersion: anchor.configVersion,
+    movePolicyVersion: anchor.movePolicyVersion,
+    randomSeed: 'seed-1',
+    playerSide: 'red',
+    result: 'draw',
+    startedAt: now,
+    endedAt: now + 1000,
+    gameSnapshot: { id: 'cal-root', move: null, fenAfter: START_FEN, children: [] },
+    appVersion: '0.3.0',
+    engineVersion: 'test-engine',
+  }
+}
+
+function rankExportV1(): RankCalibrationExportV1 {
+  const owner = rankProfile()
   return {
     format: RANK_CALIBRATION_FORMAT,
-    schemaVersion: RANK_CALIBRATION_SCHEMA_VERSION,
+    schemaVersion: RANK_CALIBRATION_EXPORT_SCHEMA_V1,
     exportedAt: now,
     appVersion: '0.3.0',
     anchorSetVersion: ANCHOR_SET_VERSION,
     anchors: RANK_ANCHORS.map((anchor) => ({ ...anchor, engineConfig: { ...anchor.engineConfig } })),
-    profiles: [{
-      id: 'profile-1',
-      revision: 2,
-      alias: '測試者',
-      claimedRank: '3段',
-      rankSystem: '棋友自評',
-      consentedAt: now,
-      createdAt: now,
-      notes: '只存在本機',
-    }],
-    games: [{
-      id: 'cal-game-1',
-      schemaVersion: RANK_CALIBRATION_SCHEMA_VERSION,
-      profileId: 'profile-1',
-      profileRevision: 1,
-      anchorId: 'A01',
-      anchorConfigVersion: 'historical-config',
-      movePolicyVersion: 'historical-policy',
-      randomSeed: 'seed-1',
-      playerSide: 'red',
-      result: 'draw',
-      startedAt: now,
-      endedAt: now + 1000,
-      gameSnapshot: { id: 'cal-root', move: null, fenAfter: START_FEN, children: [] },
-      appVersion: '0.3.0',
-      engineVersion: 'test-engine',
-    }],
+    profiles: [owner],
+    games: [legacyCalibrationGame(owner)],
+  }
+}
+
+function calibrationGameV2(owner = rankProfile()): CalibrationGameV2 {
+  const anchor = PHASE2_ANCHORS[4]
+  return {
+    id: 'v2-cal-game',
+    schemaVersion: 2,
+    sessionId: 'session-1',
+    collectionProtocolVersion: CALIBRATION_COLLECTION_PROTOCOL_V1,
+    profileId: owner.id,
+    profileRevision: owner.revision,
+    profileSnapshot: { ...owner },
+    anchorId: anchor.id,
+    anchorConfigVersion: anchor.configVersion,
+    movePolicyVersion: anchor.policy.version,
+    anchorSnapshot: structuredClone(anchor),
+    randomSeed: 'v2-seed',
+    playerSide: 'red',
+    sideAssignment: { version: 'balanced-alternation-v1', sequenceIndex: 0 },
+    status: 'in-progress',
+    startedAt: now + 2_000,
+    updatedAt: now + 2_000,
+    initialFen: START_FEN,
+    currentPly: 0,
+    gameSnapshot: { id: 'v2-cal-root', move: null, fenAfter: START_FEN, children: [] },
+    engineMoves: [],
+    appVersion: '0.6.0',
+  }
+}
+
+function rankExportV2(): RankCalibrationExportV2 {
+  const owner = rankProfile()
+  return {
+    format: RANK_CALIBRATION_FORMAT,
+    schemaVersion: RANK_CALIBRATION_EXPORT_SCHEMA_V2,
+    exportedAt: now,
+    appVersion: '0.6.0',
+    anchorSetVersion: ANCHOR_SET_VERSION,
+    anchors: RANK_ANCHORS.map((anchor) => ({ ...anchor, engineConfig: { ...anchor.engineConfig } })),
+    phase2ConfigVersion: PHASE2_CONFIG_VERSION,
+    phase2Anchors: PHASE2_ANCHORS.map((anchor) => ({
+      ...anchor,
+      engine: { ...anchor.engine },
+      search: { ...anchor.search },
+      policy: { ...anchor.policy },
+    })),
+    profiles: [owner],
+    games: [legacyCalibrationGame(owner), calibrationGameV2(owner)],
   }
 }
 
@@ -175,7 +242,10 @@ function pieceTemplates(): PieceTemplates {
   }
 }
 
-function v2File(pieceCalibration: PieceTemplates | null = null) {
+function v2File(
+  pieceCalibration: PieceTemplates | null = null,
+  rankCalibration: RankCalibrationExport = rankExportV2(),
+) {
   return buildBackupFileV2({
     exportedAt: now,
     appVersion: '0.3.0',
@@ -189,7 +259,7 @@ function v2File(pieceCalibration: PieceTemplates | null = null) {
       tabletop: true,
     },
     pieceCalibration,
-    rankCalibration: rankExport(),
+    rankCalibration,
   })
 }
 
@@ -232,7 +302,22 @@ describe('backup schema v1/v2', () => {
     expect(parsed.games[0].record.tree).toEqual(stale.tree)
   })
 
-  it('builds and parses v2 while preserving tree order, review and continuation metadata', () => {
+  it('outer backup v2 keeps the nested rank schema v1 reader', () => {
+    const file = v2File(null, rankExportV1())
+    const parsed = parseBackup(JSON.stringify(file))
+    expect(parsed.version).toBe(2)
+    expect(parsed.rankCalibration).toMatchObject({
+      schemaVersion: 1,
+      appVersion: '0.3.0',
+    })
+    expect(parsed.rankCalibration?.games).toHaveLength(1)
+    expect(parsed.rankCalibration?.games[0]).toMatchObject({
+      schemaVersion: 1,
+      anchorConfigVersion: RANK_ANCHORS[0].configVersion,
+    })
+  })
+
+  it('builds and parses outer v2 with nested rank v2 mixed games', () => {
     const file = v2File()
     const parsed = parseBackup(JSON.stringify(file))
     expect(file.version).toBe(BACKUP_VERSION)
@@ -240,14 +325,16 @@ describe('backup schema v1/v2', () => {
     expect(parsed.games[0].record.continuedFrom?.sourceNodeLabel).toBe('第 12 著')
     expect(parsed.games[0].record.review?.judgments[0].tag).toBe('best')
     expect(parsed.players.map((player) => player.name)).toEqual(['紅方', '黑方'])
-    expect(parsed.rankCalibration?.games[0].anchorConfigVersion).toBe('historical-config')
+    expect(parsed.rankCalibration?.schemaVersion).toBe(2)
+    expect(parsed.rankCalibration?.games.map((game) => game.schemaVersion)).toEqual([1, 2])
+    expect(parsed.rankCalibration?.games[0].anchorConfigVersion).toBe(RANK_ANCHORS[0].configVersion)
     expect(inspectBackup(JSON.stringify(file))).toMatchObject({
       version: 2,
       appVersion: '0.3.0',
       gameCount: 1,
       playerCount: 2,
       profileCount: 1,
-      calibrationGameCount: 1,
+      calibrationGameCount: 2,
       hasPreferences: true,
       isLegacyV1: false,
     })

@@ -1,13 +1,8 @@
 import {
-  RANK_CALIBRATION_FORMAT,
-  RANK_CALIBRATION_SCHEMA_VERSION,
-  RANK_SYSTEM_OPTIONS,
-  TAIWAN_RANK_OPTIONS,
-  type AnchorDefinition,
-  type CalibrationGame,
-  type CalibratorProfile,
   type RankCalibrationExport,
 } from '../calibration/rankTypes'
+import { normalizeRankCalibrationExport } from '../calibration/rankArchive'
+export { normalizeCalibrationGame, normalizeCalibratorProfile } from '../calibration/rankArchive'
 import { applyMove, type Move, type PieceType, type Position, type Side } from '../core/board'
 import { parseFen } from '../core/fen'
 import { legalMovesFrom } from '../core/movegen'
@@ -29,7 +24,6 @@ const PIECE_FLOAT_COUNT = PATCH * PATCH
 const PIECE_BYTE_LENGTH = PIECE_FLOAT_COUNT * Float32Array.BYTES_PER_ELEMENT
 const PIECE_TYPES = ['K', 'A', 'B', 'N', 'R', 'C', 'P'] as const satisfies readonly PieceType[]
 const SIDES = ['red', 'black'] as const satisfies readonly Side[]
-const ANCHOR_IDS = ['A01', 'A02', 'A03', 'A04', 'A05', 'A06', 'A07', 'A08', 'A09', 'A10'] as const
 const PIECE_HISTOGRAM: Readonly<Record<PieceType, number>> = {
   K: 1,
   A: 2,
@@ -726,127 +720,6 @@ export function decodePieceTemplates(value: unknown, path = 'pieceCalibration'):
   return result
 }
 
-export function normalizeCalibratorProfile(value: unknown, path = 'profile'): CalibratorProfile {
-  const profile = objectAt(value, path)
-  exactKeys(profile, ['id', 'revision', 'alias', 'claimedRank', 'rankSystem', 'consentedAt', 'createdAt', 'notes'], path)
-  const result: CalibratorProfile = {
-    id: stringAt(profile.id, `${path}.id`, { empty: false, max: 256 }),
-    revision: integerAt(profile.revision, `${path}.revision`, { min: 1 }),
-    alias: trimmedStringAt(profile.alias, `${path}.alias`, 32),
-    claimedRank: enumAt(profile.claimedRank, TAIWAN_RANK_OPTIONS, `${path}.claimedRank`),
-    rankSystem: enumAt(profile.rankSystem, RANK_SYSTEM_OPTIONS, `${path}.rankSystem`),
-    consentedAt: timestampAt(profile.consentedAt, `${path}.consentedAt`),
-    createdAt: timestampAt(profile.createdAt, `${path}.createdAt`),
-  }
-  const notes = optionalString(profile.notes, `${path}.notes`, 200)
-  if (notes !== undefined) result.notes = notes
-  return result
-}
-
-export function normalizeCalibrationGame(value: unknown, path = 'calibrationGame'): CalibrationGame {
-  const game = objectAt(value, path)
-  exactKeys(game, [
-    'id', 'schemaVersion', 'profileId', 'profileRevision', 'anchorId', 'anchorConfigVersion', 'movePolicyVersion',
-    'randomSeed', 'playerSide', 'result', 'resultReason', 'startedAt', 'endedAt', 'gameSnapshot', 'appVersion',
-    'engineVersion',
-  ], path)
-  if (game.schemaVersion !== RANK_CALIBRATION_SCHEMA_VERSION) {
-    fail(`${path}.schemaVersion`, `只支援校準 schema ${RANK_CALIBRATION_SCHEMA_VERSION}`)
-  }
-  const result: CalibrationGame = {
-    id: stringAt(game.id, `${path}.id`, { empty: false, max: 256 }),
-    schemaVersion: RANK_CALIBRATION_SCHEMA_VERSION,
-    profileId: stringAt(game.profileId, `${path}.profileId`, { empty: false, max: 256 }),
-    profileRevision: integerAt(game.profileRevision, `${path}.profileRevision`, { min: 1 }),
-    anchorId: enumAt(game.anchorId, ANCHOR_IDS, `${path}.anchorId`),
-    anchorConfigVersion: stringAt(game.anchorConfigVersion, `${path}.anchorConfigVersion`, { empty: false, max: 256 }),
-    movePolicyVersion: stringAt(game.movePolicyVersion, `${path}.movePolicyVersion`, { empty: false, max: 256 }),
-    randomSeed: stringAt(game.randomSeed, `${path}.randomSeed`, { empty: false, max: 1_024 }),
-    playerSide: enumAt(game.playerSide, SIDES, `${path}.playerSide`),
-    result: enumAt(game.result, ['red', 'black', 'draw', 'aborted'] as const, `${path}.result`),
-    startedAt: timestampAt(game.startedAt, `${path}.startedAt`),
-    gameSnapshot: normalizeTree(game.gameSnapshot, `${path}.gameSnapshot`).root,
-    appVersion: stringAt(game.appVersion, `${path}.appVersion`, { empty: false, max: 256 }),
-    engineVersion: stringAt(game.engineVersion, `${path}.engineVersion`, { empty: false, max: 256 }),
-  }
-  const reason = optionalString(game.resultReason, `${path}.resultReason`)
-  if (reason !== undefined) result.resultReason = reason
-  if (game.endedAt !== undefined) {
-    result.endedAt = timestampAt(game.endedAt, `${path}.endedAt`)
-    if (result.endedAt < result.startedAt) fail(`${path}.endedAt`, '不可早於 startedAt')
-  }
-  return result
-}
-
-function normalizeAnchor(value: unknown, path: string): AnchorDefinition {
-  const anchor = objectAt(value, path)
-  exactKeys(anchor, ['id', 'configVersion', 'order', 'engineConfig', 'movePolicyVersion'], path)
-  const engine = objectAt(anchor.engineConfig, `${path}.engineConfig`)
-  exactKeys(engine, ['limitStrength', 'uciElo', 'skillLevel', 'movetimeMs', 'multiPv'], `${path}.engineConfig`)
-  const config: AnchorDefinition['engineConfig'] = {
-    limitStrength: booleanAt(engine.limitStrength, `${path}.engineConfig.limitStrength`),
-    skillLevel: integerAt(engine.skillLevel, `${path}.engineConfig.skillLevel`, { min: 0, max: 100 }),
-    movetimeMs: integerAt(engine.movetimeMs, `${path}.engineConfig.movetimeMs`, { min: 1, max: 3_600_000 }),
-    multiPv: integerAt(engine.multiPv, `${path}.engineConfig.multiPv`, { min: 1, max: 256 }),
-  }
-  if (engine.uciElo !== undefined) config.uciElo = integerAt(engine.uciElo, `${path}.engineConfig.uciElo`, { min: 0, max: 10_000 })
-  return {
-    id: enumAt(anchor.id, ANCHOR_IDS, `${path}.id`),
-    configVersion: stringAt(anchor.configVersion, `${path}.configVersion`, { empty: false, max: 256 }),
-    order: integerAt(anchor.order, `${path}.order`, { min: 1, max: 10 }),
-    engineConfig: config,
-    movePolicyVersion: stringAt(anchor.movePolicyVersion, `${path}.movePolicyVersion`, { empty: false, max: 256 }),
-  }
-}
-
-function normalizeRankCalibration(value: unknown, path: string): RankCalibrationExport {
-  const rank = objectAt(value, path)
-  exactKeys(rank, ['format', 'schemaVersion', 'exportedAt', 'appVersion', 'anchorSetVersion', 'anchors', 'profiles', 'games'], path)
-  if (rank.format !== RANK_CALIBRATION_FORMAT) fail(`${path}.format`, '不是本 App 的段級校準資料')
-  if (rank.schemaVersion !== RANK_CALIBRATION_SCHEMA_VERSION) {
-    fail(`${path}.schemaVersion`, `只支援校準 schema ${RANK_CALIBRATION_SCHEMA_VERSION}`)
-  }
-  const anchors = arrayAt(rank.anchors, `${path}.anchors`, 10).map((entry, index) => normalizeAnchor(entry, `${path}.anchors[${index}]`))
-  if (anchors.length !== 10) fail(`${path}.anchors`, '必須包含 10 個固定錨點')
-  const anchorIds = new Set<string>()
-  const anchorOrders = new Set<number>()
-  anchors.forEach((anchor, index) => {
-    if (anchorIds.has(anchor.id)) fail(`${path}.anchors[${index}].id`, '錨點 ID 重複')
-    if (anchorOrders.has(anchor.order)) fail(`${path}.anchors[${index}].order`, '錨點順序重複')
-    anchorIds.add(anchor.id)
-    anchorOrders.add(anchor.order)
-  })
-  const profiles = arrayAt(rank.profiles, `${path}.profiles`).map((entry, index) => normalizeCalibratorProfile(entry, `${path}.profiles[${index}]`))
-  const profileById = new Map<string, CalibratorProfile>()
-  profiles.forEach((profile, index) => {
-    if (profileById.has(profile.id)) fail(`${path}.profiles[${index}].id`, '協助者 ID 重複')
-    profileById.set(profile.id, profile)
-  })
-  const games = arrayAt(rank.games, `${path}.games`).map((entry, index) => normalizeCalibrationGame(entry, `${path}.games[${index}]`))
-  const gameIds = new Set<string>()
-  games.forEach((game, index) => {
-    if (gameIds.has(game.id)) fail(`${path}.games[${index}].id`, '校準對局 ID 重複')
-    gameIds.add(game.id)
-    const profile = profileById.get(game.profileId)
-    if (!profile) fail(`${path}.games[${index}].profileId`, '找不到對應協助者')
-    if (game.profileRevision > profile.revision) {
-      fail(`${path}.games[${index}].profileRevision`, '不可高於協助者目前 revision')
-    }
-    const anchor = anchors.find((entry) => entry.id === game.anchorId)
-    if (!anchor) fail(`${path}.games[${index}].anchorId`, '找不到對應錨點')
-  })
-  return {
-    format: RANK_CALIBRATION_FORMAT,
-    schemaVersion: RANK_CALIBRATION_SCHEMA_VERSION,
-    exportedAt: timestampAt(rank.exportedAt, `${path}.exportedAt`),
-    appVersion: stringAt(rank.appVersion, `${path}.appVersion`, { empty: false, max: 256 }),
-    anchorSetVersion: stringAt(rank.anchorSetVersion, `${path}.anchorSetVersion`, { empty: false, max: 256 }),
-    anchors,
-    profiles,
-    games,
-  }
-}
-
 function normalizePreferences(value: unknown, path: string): BackupPreferencesV1 {
   const preferences = objectAt(value, path)
   exactKeys(preferences, ['schemaVersion', 'voiceLang', 'ttsReadback', 'autoRelisten', 'analysisMovetimeMs', 'tabletop'], path)
@@ -968,7 +841,7 @@ function normalizeV2(value: JsonObject): ParsedBackup {
     pieceCalibration: value.pieceCalibration === null
       ? null
       : decodePieceTemplates(value.pieceCalibration, 'backup.pieceCalibration'),
-    rankCalibration: normalizeRankCalibration(value.rankCalibration, 'backup.rankCalibration'),
+    rankCalibration: normalizeRankCalibrationExport(value.rankCalibration, 'backup.rankCalibration'),
     omittedStaleReviewCount: normalizedGames.omittedStaleReviewCount,
   }
 }
@@ -1028,7 +901,7 @@ export function buildBackupFileV2(input: BuildBackupFileV2Input): BackupFileV2 {
     players,
     preferences,
     pieceCalibration: input.pieceCalibration === null ? null : encodePieceTemplates(input.pieceCalibration, 'backup.pieceCalibration'),
-    rankCalibration: normalizeRankCalibration(input.rankCalibration, 'backup.rankCalibration'),
+    rankCalibration: normalizeRankCalibrationExport(input.rankCalibration, 'backup.rankCalibration'),
   }
   return result
 }

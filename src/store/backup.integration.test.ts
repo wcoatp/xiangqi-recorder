@@ -1,8 +1,14 @@
 import 'fake-indexeddb/auto'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { RANK_ANCHORS } from '../calibration/anchors'
+import { PHASE2_ANCHORS } from '../calibration/phase2Protocol'
 import { setCalibrationPin } from '../calibration/pin'
-import type { CalibrationGame, CalibratorProfile } from '../calibration/rankTypes'
+import {
+  CALIBRATION_COLLECTION_PROTOCOL_V1,
+  type CalibrationGame,
+  type CalibrationGameV2,
+  type CalibratorProfile,
+} from '../calibration/rankTypes'
 import { parseFen, START_FEN } from '../core/fen'
 import { legalMoves } from '../core/movegen'
 import { addMove, newRoot, type GameNode } from '../core/tree'
@@ -35,8 +41,13 @@ describe.sequential('完整備份 Dexie transaction', () => {
     expect(exported.summary.version).toBe(2)
     expect(exported.summary.gameCount).toBe(1)
     expect(exported.summary.profileCount).toBe(1)
-    expect(exported.summary.calibrationGameCount).toBe(1)
+    expect(exported.summary.calibrationGameCount).toBe(2)
     expect(exported.summary.hasPieceCalibration).toBe(true)
+    const exportedPayload = JSON.parse(exported.json) as {
+      rankCalibration: { schemaVersion: number; games: Array<{ schemaVersion: number }> }
+    }
+    expect(exportedPayload.rankCalibration.schemaVersion).toBe(2)
+    expect(exportedPayload.rankCalibration.games.map((game) => game.schemaVersion)).toEqual([1, 2])
     expect(exported.json).not.toContain('llmToken')
     expect(exported.json).not.toContain('rankCalibrationGate')
     expect(exported.json).not.toContain('SOURCE_TOKEN_SENTINEL')
@@ -56,7 +67,7 @@ describe.sequential('完整備份 Dexie transaction', () => {
       games: { added: 1, skipped: 0 },
       players: { added: 2, skipped: 0 },
       profiles: { added: 1, skipped: 0 },
-      calibrationGames: { added: 1, skipped: 0 },
+      calibrationGames: { added: 2, skipped: 0 },
       preferencesRestored: true,
       pieceCalibration: 'restored',
     })
@@ -77,9 +88,39 @@ describe.sequential('完整備份 Dexie transaction', () => {
     expect(second.games).toEqual({ added: 0, skipped: 1 })
     expect(second.players).toEqual({ added: 0, skipped: 2 })
     expect(second.profiles).toEqual({ added: 0, skipped: 1 })
-    expect(second.calibrationGames).toEqual({ added: 0, skipped: 1 })
+    expect(second.calibrationGames).toEqual({ added: 0, skipped: 2 })
     expect(second.pieceCalibration).toBe('skipped-same')
     expect(await db.games.count()).toBe(1)
+  })
+
+  it('outer schema v2 可還原 nested rank schema v1 並重複略過', async () => {
+    const source = makeCompleteFixture()
+    await seedCompleteFixture(source)
+    const payload = JSON.parse((await exportBackup(SOURCE_PIN)).json) as any
+    const rankV2 = payload.rankCalibration
+    payload.rankCalibration = {
+      format: rankV2.format,
+      schemaVersion: 1,
+      exportedAt: rankV2.exportedAt,
+      appVersion: rankV2.appVersion,
+      anchorSetVersion: rankV2.anchorSetVersion,
+      anchors: rankV2.anchors,
+      profiles: rankV2.profiles,
+      games: rankV2.games.filter((game: { schemaVersion: number }) => game.schemaVersion === 1),
+    }
+
+    await resetDatabase()
+    const destinationGate = await makeGate(DESTINATION_PIN)
+    await db.settings.put({ key: 'rankCalibrationGate', value: destinationGate })
+    const first = await restoreBackup(JSON.stringify(payload), DESTINATION_PIN)
+    expect(first.profiles).toEqual({ added: 1, skipped: 0 })
+    expect(first.calibrationGames).toEqual({ added: 1, skipped: 0 })
+    expect((await db.rankCalibrationGames.toArray()).map((game) => game.schemaVersion)).toEqual([1])
+
+    const repeat = await restoreBackup(JSON.stringify(payload), DESTINATION_PIN)
+    expect(repeat.profiles).toEqual({ added: 0, skipped: 1 })
+    expect(repeat.calibrationGames).toEqual({ added: 0, skipped: 1 })
+    expect(await db.settings.get('rankCalibrationGate')).toEqual({ key: 'rankCalibrationGate', value: destinationGate })
   })
 
   it('v1 只合併棋局與姓名，不改設定、棋子或段級資料', async () => {
@@ -247,21 +288,56 @@ describe.sequential('完整備份 Dexie transaction', () => {
     })
   })
 
-  it('段級 profile 同 ID 異內容時在第一筆 write 前整包中止', async () => {
+  it('rank conflict 在第一筆 write 前讓 games／players／preferences／piece／rank 兩表零變更', async () => {
     const source = makeCompleteFixture()
     await seedCompleteFixture(source)
     const json = (await exportBackup(SOURCE_PIN)).json
     await resetDatabase()
     const destinationGate = await makeGate(DESTINATION_PIN)
     const conflictingProfile = { ...source.profile, alias: '目的端不同內容' }
-    await db.settings.put({ key: 'rankCalibrationGate', value: destinationGate })
+    const localTemplates = makePieceTemplates(8_888)
+    await db.settings.bulkPut([
+      { key: 'rankCalibrationGate', value: destinationGate },
+      { key: 'voiceLang', value: 'zh-TW' },
+      { key: 'tabletop', value: true },
+      { key: 'pieceCalibration', value: localTemplates },
+    ])
     await db.rankCalibrators.add(conflictingProfile)
 
     await expect(restoreBackup(json, DESTINATION_PIN)).rejects.toThrow(/段級協助者識別.*內容不同/)
     expect(await db.games.count()).toBe(0)
     expect(await db.players.count()).toBe(0)
+    expect((await db.settings.get('voiceLang'))?.value).toBe('zh-TW')
+    expect((await db.settings.get('tabletop'))?.value).toBe(true)
+    expect((await db.settings.get('pieceCalibration'))?.value).toEqual(localTemplates)
     expect(await db.rankCalibrators.toArray()).toEqual([conflictingProfile])
-    expect(await db.settings.toArray()).toEqual([{ key: 'rankCalibrationGate', value: destinationGate }])
+    expect(await db.rankCalibrationGames.count()).toBe(0)
+    expect(await db.settings.get('rankCalibrationGate')).toEqual({ key: 'rankCalibrationGate', value: destinationGate })
+  })
+
+  it('校準對局同 ID 異內容也由共用 planner 在所有 writes 前拒絕', async () => {
+    const source = makeCompleteFixture()
+    await seedCompleteFixture(source)
+    const json = (await exportBackup(SOURCE_PIN)).json
+    await resetDatabase()
+    const destinationGate = await makeGate(DESTINATION_PIN)
+    const conflictingGame = {
+      ...structuredClone(source.calibrationGames[0]),
+      resultReason: '目的端保留的不同中止原因',
+    }
+    await db.settings.bulkPut([
+      { key: 'rankCalibrationGate', value: destinationGate },
+      { key: 'voiceLang', value: 'zh-TW' },
+    ])
+    await db.rankCalibrators.add(source.profile)
+    await db.rankCalibrationGames.add(conflictingGame)
+
+    await expect(restoreBackup(json, DESTINATION_PIN)).rejects.toThrow(/段級校準對局識別.*內容不同/)
+    expect(await db.games.count()).toBe(0)
+    expect(await db.players.count()).toBe(0)
+    expect((await db.settings.get('voiceLang'))?.value).toBe('zh-TW')
+    expect(await db.rankCalibrators.toArray()).toEqual([source.profile])
+    expect(await db.rankCalibrationGames.toArray()).toEqual([conflictingGame])
   })
 })
 
@@ -274,8 +350,11 @@ async function resetDatabase() {
 function makeCompleteFixture() {
   const profile = makeProfile('profile-round-trip')
   const game = makeGame('round-trip-root')
-  const calibrationGame = makeCalibrationGame(profile, 'cal-game-round-trip')
-  return { profile, game, calibrationGame, templates: makePieceTemplates(1_000) }
+  const calibrationGames = [
+    makeCalibrationGame(profile, 'cal-game-round-trip'),
+    makeCalibrationGameV2(profile, 'v2-cal-game-round-trip'),
+  ]
+  return { profile, game, calibrationGames, templates: makePieceTemplates(1_000) }
 }
 
 async function seedCompleteFixture(fixture: ReturnType<typeof makeCompleteFixture>) {
@@ -307,7 +386,7 @@ async function seedCompleteFixture(fixture: ReturnType<typeof makeCompleteFixtur
         { key: 'pieceCalibration', value: fixture.templates },
       ])
       await db.rankCalibrators.add(fixture.profile)
-      await db.rankCalibrationGames.add(fixture.calibrationGame)
+      await db.rankCalibrationGames.bulkAdd(fixture.calibrationGames)
     },
   )
 }
@@ -422,6 +501,36 @@ function makeCalibrationGame(profile: CalibratorProfile, id: string): Calibratio
     gameSnapshot: snapshot,
     appVersion: APP_VERSION,
     engineVersion: 'test-engine',
+  }
+}
+
+function makeCalibrationGameV2(profile: CalibratorProfile, id: string): CalibrationGameV2 {
+  const anchor = PHASE2_ANCHORS[4]
+  const snapshot = newRoot(START_FEN)
+  snapshot.id = `${id}-root`
+  return {
+    id,
+    schemaVersion: 2,
+    sessionId: `${id}-session`,
+    collectionProtocolVersion: CALIBRATION_COLLECTION_PROTOCOL_V1,
+    profileId: profile.id,
+    profileRevision: profile.revision,
+    profileSnapshot: { ...profile },
+    anchorId: anchor.id,
+    anchorConfigVersion: anchor.configVersion,
+    movePolicyVersion: anchor.policy.version,
+    anchorSnapshot: structuredClone(anchor),
+    randomSeed: `${id}-seed`,
+    playerSide: 'red',
+    sideAssignment: { version: 'balanced-alternation-v1', sequenceIndex: 0 },
+    status: 'in-progress',
+    startedAt: 3_300,
+    updatedAt: 3_300,
+    initialFen: START_FEN,
+    currentPly: 0,
+    gameSnapshot: snapshot,
+    engineMoves: [],
+    appVersion: APP_VERSION,
   }
 }
 

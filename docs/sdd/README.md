@@ -28,6 +28,7 @@
 | 007 | [單一 App 版本來源與 PWA 三輸入描述](007-app-version-and-pwa-metadata.md) | Released | `b35bb57` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 由 package 版本在 build 時封裝為 runtime 常數，並讓安裝資訊完整描述語音、拍照、點棋盤。 |
 | 008 | [完整本機備份 v2 與安全還原](008-portable-backup-v2.md) | Released | `4756056` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | v2 安全 allowlist、v1 相容、段級 PIN 門禁、legacy stale-review recovery 與五表原子非破壞合併；17 test files／123 tests、桌面及 320／390／640 px 響應式與正式站流程通過。 |
 | 009 | [可重現的實驗性校準選著協定 v1](009-reproducible-calibration-move-policy.md) | Released | `66dad94` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 固定 nodes／單執行緒／fresh hash 的校準搜尋與 seeded MultiPV 選著核心；20 test files／154 tests、真實 WASM 重播與正式引擎載入通過，保持 inactive。 |
+| 010 | [段級校準資料 v2、安全匯入與版本隔離統計](010-calibration-schema-v2-import-stats.md) | Verified | 待建立 | 待部署 | 拆開 gate/archive versions、self-contained v2 games、standalone/full backup v1/v2 原子匯入與不混版描述性統計；23 test files／179 tests 與 production build 通過，不開放對弈。 |
 
 新增工作包請複製 [TEMPLATE.md](TEMPLATE.md)，檔名使用 `NNN-kebab-case.md`。ID 一旦使用就不要重編，避免舊 commit 與討論失去指向。
 
