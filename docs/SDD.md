@@ -1,9 +1,9 @@
 # 象棋記譜 Living SDD
 
 > 文件狀態：Living（持續維護）<br>
-> 文件版本：1.22<br>
+> 文件版本：1.24<br>
 > 最後更新：2026-07-17<br>
-> 程式基準：`main` / `30e72d8` / 工作包 013 Released<br>
+> 程式基準：`main` / `b28d0aa` / 工作包 014 Verified（待提交與發布）<br>
 > 使用者文件：[README.md](../README.md)<br>
 > 施工工作包：[docs/sdd/README.md](sdd/README.md)
 
@@ -64,6 +64,7 @@
 | D-015 | 段級 gate v1 與 archive/game versions 分離；v2 採自含快照、嚴格原子匯入與版本隔離統計 | 既有 PIN 不得因資料升版失效；同 ID 異內容整包拒絕，不同 protocol／engine／search／rank／side／App version 不可混成同一勝率。 |
 | D-016 | 一般人機對弈先進入獨立設定 view | 首頁、漢堡選單與功能指南共用同一入口；姓名、紅黑方與相對級段設定不得再附加在首頁內容最下方。 |
 | D-017 | App shell 使用完整可用視窗，內容寬度由各頁局部控制 | iPad、橫向與分割視窗不得再受全域 640px 上限或 portrait 鎖定；滿版不代表隱藏 iPadOS 系統區域，也不把文字與棋盤無限制拉寬。 |
+| D-018 | 互動棋盤以內容容器的實際可用空間決定尺寸 | 不以 viewport 高度百分比作為人機對弈棋盤的主要限制；SVG 必須有明確內在尺寸與等比例契約，避免 iPadOS standalone 首次排版依賴旋轉重算。 |
 
 ## 3. 現行功能基準
 
@@ -106,6 +107,7 @@
 | FR-PRIVACY-001 | 棋譜、照片、校準結果不得在未告知下離開裝置。 | 任何新增上傳／分析服務都要另開 SDD 並取得明確同意。 |
 | FR-RELEASE-001 | 每次施工可重現、可追查、可直接檢視。 | SDD、測試、build、commit、push、Firebase deploy 與 live verification 都有紀錄。 |
 | FR-VIEWPORT-001 | App 在手機、平板、直向、橫向與分割視窗使用系統實際分配的完整畫布。 | root／header 不受 640px 上限；無水平 overflow；safe-area 保留，長文與棋盤以局部最大寬度維持可讀性。 |
+| FR-VIEWPORT-002 | 人機對弈棋盤首次進入與旋轉後都以實際內容空間穩定排版。 | 不依賴 `vh` 限高；SVG 有固定比例，棋盤、狀態與操作列在 iPad 直／橫向可用範圍內。 |
 
 ## 5. 使用者流程與導航
 
@@ -305,6 +307,7 @@ Phase 1 已凍結 `A01`～`A10` 的 `2026.07-v1` 設定並完成本機 PIN／pro
 - 互動元素需有可辨識名稱與 `focus-visible` 狀態。
 - 支援窄螢幕、safe-area、深色模式與 `prefers-reduced-motion`。
 - App shell 支援完整可用 viewport、iPad 直向／橫向與分割視窗；內容區依用途局部限制寬度，不以全域手機上限裁切畫布。
+- 人機對弈棋盤由 page flex container 的剩餘空間配置，SVG 明確保留 9:10 比例；不得要求 iPad 使用者先旋轉才能取得正確滿版。
 - 文案使用台灣繁體中文與全形中文標點。
 
 ### 9.4 部署條件
@@ -373,6 +376,7 @@ firebase deploy --only hosting
 | CNN 主要由合成資料訓練 | 真實棋具泛化能力未知。 | 以使用者棋子範本為主，累積合法且有授權的實拍驗證集。 |
 | Web Speech 平台差異 | iOS PWA 與部分瀏覽器無即時辨識。 | 保留鍵盤聽寫與手動輸入降級。 |
 | 引擎依賴 COOP／COEP | 錯誤部署會讓分析失效。 | 部署後檢查標頭與 `crossOriginIsolated`。 |
+| iPadOS standalone 首次 viewport 與 SVG 排版時序 | 自動化代表尺寸可能正常，但實體裝置首次直向進對弈仍裁切，旋轉後才恢復。 | 工作包 014 移除對弈棋盤 `vh` 依賴並固定 SVG 比例；正式發布後以同一台 iPad Air 冷啟補驗。 |
 | GPL 商業限制 | iOS App Store／閉源散布有風險。 | 商業決策前做正式法律與架構評估。 |
 
 ## 13. 路線圖
@@ -395,7 +399,7 @@ firebase deploy --only hosting
 
 ### 施工中
 
-- 無。
+- iPad 對弈棋盤首次直向排版穩定化（工作包 014 Verified；25 個 test files／196 tests、build、320～1180px 冷進／旋轉／點棋通過，待 commit、push、deploy 與 iPad Air 補測）。
 
 ### 下一階段候選
 
@@ -419,6 +423,8 @@ firebase deploy --only hosting
 
 | 日期 | 版本 | 內容 |
 |---|---|---|
+| 2026-07-17 | 1.24 | 驗證工作包 014：對弈棋盤改採容器驅動尺寸與 720×800／`xMidYMid meet` SVG 契約；25 個 test files／196 tests、production build、320／390／640／820／1180px 冷進、旋轉與實際點棋回著均通過，實體 iPad Air 待正式發布後補測。 |
+| 2026-07-17 | 1.23 | 授權工作包 014：依實體 iPad Air 首次直向進對弈裁切、旋轉後恢復的回報，移除對弈棋盤 `56vh` 依賴，改採容器驅動尺寸與明確 SVG 比例；第一輪不加入 viewport JavaScript workaround。 |
 | 2026-07-17 | 1.22 | 記錄工作包 013 commit `30e72d8`、Firebase 正式發布、根網址／`sw.js` no-cache、COOP／COEP、新 CSS／manifest，以及 live 1024×1366／1366×1024 滿版四欄與 overflow 0 驗證。 |
 | 2026-07-17 | 1.21 | 驗證工作包 013：25 個 test files／196 tests、production build 與 320～1366px 九組 viewport 通過；root／header 滿寬、水平 overflow 為 0、iPad 首頁四欄、內容局部限寬且 manifest 不鎖方向。 |
 | 2026-07-17 | 1.20 | 授權工作包 013：移除 App shell 全域 640px 上限與 PWA portrait 鎖定，支援 iPad 直向／橫向／分割視窗滿版，同時以各頁局部寬度維持可讀性。 |

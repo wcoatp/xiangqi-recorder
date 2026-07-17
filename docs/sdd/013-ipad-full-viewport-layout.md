@@ -120,7 +120,7 @@ App 啟動後直接使用目前 PWA 視窗：
 
 | 問題 | 決策者 | 截止／阻擋點 | 結果 |
 |---|---|---|---|
-| 實體 iPad standalone 的 safe-area 與旋轉體感是否符合預期？ | 產品負責人 | 正式部署後實機查看 | 不阻擋施工；模擬尺寸先驗證，發布後補實機觀察。 |
+| 實體 iPad standalone 的 safe-area 與旋轉體感是否符合預期？ | 產品負責人 | 正式部署後實機查看 | iPad Air 首次直向進入對弈頁發現裁切，旋轉橫向再回直向後恢復；交由 [工作包 014](014-ipad-play-board-first-layout.md) 修正與補驗。 |
 
 ## 12. Construction record
 
@@ -136,7 +136,7 @@ App 啟動後直接使用目前 PWA 視窗：
 - `npm test`：25 個 test files／196 tests 全數通過。
 - `npm run build`：通過；產生 16 個 precache entries，`dist/manifest.webmanifest` 不含 `orientation`。保留既有 dynamic import 與 500 kB chunk 提示，沒有新增編譯錯誤。
 - 手動／實機檢查：內建瀏覽器量測 320×568、390×844、640×900、744×1133、820×1180、834×1194、1024×1366、1133×744、1366×1024；所有 root／shell／header／page 寬度等於 viewport、水平 overflow 為 0。700px 以上首頁為四欄；1024／1366px 對弈設定頁內容 680px、指南與棋規內容 960px且外層 page 滿寬；drawer 於 1024px 的 left 為 0、寬 370px。320px 建立對局 overlay 為 fixed 320×568，dialog 寬 288px；首頁、drawer、對弈設定、指南、棋規 navigation flow 與 console error／warning 檢查通過。
-- 已知限制：自動化 viewport 不能完整模擬 iPadOS standalone 狀態列、Home 指示條、Split View 與 Stage Manager；需發布後由實體 iPad 補充確認。PWA 更新後若仍顯示舊版，可完全關閉已安裝 App 再開啟。
+- 已知限制：自動化 viewport 不能完整模擬 iPadOS standalone 狀態列、Home 指示條、Split View 與 Stage Manager。發布後實體 iPad Air 確認首次直向進入對弈頁會裁切、旋轉後恢復，已由工作包 014 追蹤；PWA 更新後若仍顯示舊版，可完全關閉已安裝 App 再開啟。
 
 ### Git and release
 

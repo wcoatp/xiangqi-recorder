@@ -245,7 +245,7 @@ export default function PlayPage({ gameId }: { gameId: number }) {
   const playerName = playerSide === "red" ? game.redName : game.blackName;
 
   return (
-    <div className="page" style={{ gap: 8 }}>
+    <div className="page play-page">
       <div className="topbar">
         <button onClick={() => go({ name: "home" })}>← 首頁</button>
         <div className="title">
@@ -257,7 +257,7 @@ export default function PlayPage({ gameId }: { gameId: number }) {
         </div>
       </div>
 
-      <div className="board-wrap" style={{ maxHeight: "56vh" }}>
+      <div className="board-wrap">
         <Board
           fen={fen}
           bottom={playerSide}

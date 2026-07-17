@@ -89,7 +89,14 @@ export default function Board(props: BoardProps) {
   const arrowColor = (k?: 'best' | 'alt') => (k === 'alt' ? '#8d8d8d' : '#1565c0')
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="象棋盤">
+    <svg
+      width={W}
+      height={H}
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="xMidYMid meet"
+      role="img"
+      aria-label="象棋盤"
+    >
       <rect x={M - 14} y={M - 14} width={W - 2 * M + 28} height={H - 2 * M + 28} rx={10} fill="var(--board-bg)" stroke="var(--board-line)" strokeWidth={3} />
       <path d={grid.join(' ')} stroke="var(--board-line)" strokeWidth={2} fill="none" />
       {palace.map(([a, b], i) => (
