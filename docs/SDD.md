@@ -1,9 +1,9 @@
 # 象棋記譜 Living SDD
 
 > 文件狀態：Living（持續維護）<br>
-> 文件版本：1.9<br>
+> 文件版本：1.10<br>
 > 最後更新：2026-07-17<br>
-> 程式基準：`main` 工作目錄 / 工作包 008 Verified（待 commit、push、deploy）<br>
+> 程式基準：`main` / `4756056`<br>
 > 使用者文件：[README.md](../README.md)<br>
 > 施工工作包：[docs/sdd/README.md](sdd/README.md)
 
@@ -245,7 +245,7 @@ v1 games-only 檔仍可還原；v2 選檔先預覽，確認後才進 transaction
 
 只要完整備份含協助者 profile 或校準對局，匯出與還原都要驗證目前 origin 的段級實驗室 PIN；PIN 不保存也不進檔案，新電腦須先由 setup 入口建立本機 PIN。主線改變時舊解棋分析會立即清除；更新前已存在或舊 v1 檔中的錯置 review 屬可重新產生的衍生資料，匯出／還原會略過並明確提示數量，不讓它阻塞棋局本體。詳細規格見 [008-portable-backup-v2.md](sdd/008-portable-backup-v2.md)。
 
-工作包 008 已完成本機程式驗證：17 個 test files／123 tests、production build、桌面瀏覽器的下載／預覽／取消／確認／重複匯入，以及 320／390／640 px 響應式流程均通過；目前仍待 commit、push、Firebase deploy 與正式站驗證。此狀態不可寫成已發布。
+工作包 008 已於 2026-07-17 發布：17 個 test files／123 tests、production build、桌面瀏覽器的下載／預覽／取消／確認／重複匯入，以及 320／390／640 px 響應式流程均通過；implementation commit 為 `4756056`，正式站顯示 v0.4.0 並完成隔離 origin 的零局匯出／還原／重複還原驗證。
 
 ## 8. 引擎難度與段級校準
 
@@ -380,10 +380,11 @@ firebase deploy --only hosting
 - 全站漢堡導覽與台灣象棋資源中心（工作包 005，2026-07-17 發布）。
 - 從復盤局面接續記錄或對弈（工作包 006，2026-07-17 發布）。
 - 單一 App 版本來源與 PWA 三輸入描述（工作包 007，2026-07-17 發布）。
+- 完整本機備份 v2 與安全還原（工作包 008，2026-07-17 發布）。
 
 ### 已驗證、待發布
 
-- 完整本機備份 v2 與安全還原（工作包 008；17 test files／123 tests、桌面流程與 320／390／640 px 響應式驗收通過，Git、部署及正式站驗證待完成）。
+- 無。
 
 ### 下一階段候選
 
@@ -407,6 +408,7 @@ firebase deploy --only hosting
 
 | 日期 | 版本 | 內容 |
 |---|---|---|
+| 2026-07-17 | 1.10 | 記錄工作包 008 commit `4756056`、Firebase 正式發布、v0.4.0、HTTP／COOP／COEP、正式資產與隔離 origin 的零局匯出／還原／重複還原驗證。 |
 | 2026-07-17 | 1.9 | 將工作包 008 更新為 Verified／待發布，記錄段級 PIN、legacy stale-review recovery、UTF-8 50 MiB 邊界、17 test files／123 tests，以及桌面與 320／390／640 px 響應式證據。 |
 | 2026-07-17 | 1.8 | 建立完整本機備份 v2、敏感設定排除、v1 相容、typed-array codec 與原子非破壞還原邊界。 |
 | 2026-07-17 | 1.7 | 統一 App 版本為 package 單一來源，補齊 PWA 三輸入描述、固定安裝識別與 manifest 分類。 |

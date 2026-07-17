@@ -1,6 +1,6 @@
 # SDD 008：完整本機備份 v2 與安全還原
 
-> Status：Verified（待發布）<br>
+> Status：Released<br>
 > Owner：Codex<br>
 > Created：2026-07-17<br>
 > Updated：2026-07-17<br>
@@ -174,7 +174,7 @@ interface BackupFileV2 {
 - [x] `npm run build` 通過，沒有新增 warning／syntax error。
 - [x] 桌面瀏覽器的鍵盤／取消與核心匯出、還原流程完成檢查。
 - [x] 320、390、640 px 響應式流程完成檢查。
-- [ ] 正式站匯出／預覽／還原／重複匯入完成無敏感資料的測試資料驗證。
+- [x] 正式站匯出／預覽／還原／重複匯入完成無敏感資料的測試資料驗證。
 - [x] Master SDD、README、索引與施工紀錄同步更新。
 
 ## 9. Test plan
@@ -208,7 +208,7 @@ interface BackupFileV2 {
 ### Implementation
 
 - 開始日期：2026-07-17
-- 完成日期：2026-07-17（程式與本機驗證完成，尚待發布）
+- 完成日期：2026-07-17（已發布）
 - 實際變更檔案：`package.json`, `package-lock.json`, `src/App.tsx`, `src/store/backup.ts`, `src/store/backupSchema.ts`, `src/store/db.ts`, `src/store/gameReview.ts`, 三份 store tests、`src/ui/GamesPage.tsx`, `ImportDialog.tsx`, `RecordPage.tsx`, `PlayPage.tsx`, `ReplayPage.tsx`, `src/styles.css`，以及 README／SDD 文件。
 - 與原規格的差異：因完整備份入口位於公開對局清單，新增含 profiles／calibration games 時的當次本機 PIN 驗證（008-D08）；為相容舊版 App 已可能形成的錯置 review，新增主線變更即失效 review 與 archive 略過／計數策略（008-D09）；匯出與匯入共用 UTF-8 50 MiB 上限，避免產生 App 自己無法還原的檔案。
 
@@ -220,11 +220,13 @@ interface BackupFileV2 {
 - 自動驗證：v1／v2 round trip、Float32 LE codec、UTF-8 byte limit、完整象棋合法著法與 review 關聯、敏感欄位排除、PIN missing／wrong／correct、piece/profile/game conflict、stale review recovery、冪等還原與 forced late-write rollback 均有測試。
 - 本機瀏覽器（桌面 viewport）：完整備份下載、選檔後先預覽且不立即寫入、Escape／取消、確認還原、added／skipped 結果與重複匯入流程已驗證；含段級資料的 PIN 欄位與 legacy stale-review 提示均能在預覽流程呈現。
 - 響應式檢查：320、390、640 px 的 document／dialog `scrollWidth === clientWidth`，主要按鈕皆可見；320 px 採單欄按鈕。Escape 與「取消」都能關閉視窗，console 無 warning／error。
+- 正式站：`https://xiangqi-recorder.web.app/?release=008-20260717-4756056` 回應 HTTP 200，`Cross-Origin-Opener-Policy: same-origin`、`Cross-Origin-Embedder-Policy: require-corp`；載入 `/assets/index-CyTN-SBE.js` 與 `/assets/index-1qa1uhg1.css`，設定頁顯示 v0.4.0。
+- 正式流程：`web.app` 完成只讀備份 v2 預覽；同一 Firebase Hosting 的隔離 `firebaseapp.com` origin 完成零局完整備份下載、預覽後確認還原與重複還原，兩次皆為 0 新增／0 略過且一般偏好套用，console 無 warning／error；320 px 正式站預覽無水平 overflow。驗收下載檔已刪除。
 - 已知限制：JSON 未加密且上限 50 MiB；目前不自動同步；目的端已有不同棋子範本時固定保留本機版本、沒有覆蓋選項；歷史 stale review 會略過並需重新解棋；PIN 只是本機防誤入門禁，不是檔案加密或真正權限系統。
 
 ### Git and release
 
-- Commit：未建立。
-- Push：未執行。
-- Deploy：待 implementation commit／push 後依 repository 預設執行；尚未部署。
-- 正式環境驗證：未執行。
+- Commit：`4756056`（`feat: add portable local backup v2`）。
+- Push：`main` 已推送至 `origin`。
+- Deploy：2026-07-17 已完成 `firebase deploy --only hosting`。
+- 正式環境驗證：通過；HTTP／安全標頭、v0.4.0、正式資產、零局匯出、v2 預覽／確認／重複還原與 320 px 版面皆完成驗證。
