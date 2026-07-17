@@ -1,14 +1,14 @@
 # SDD 002：本機段級校準實驗室
 
-> Status：Released（Phase 1；Phase 2+ Deferred）<br>
+> Status：Released（Phase 1）；Phase 2A 由工作包 009 Verified、待發布；其餘 Phase 2+ Deferred<br>
 > Owner：專案作者<br>
 > Created：2026-07-16<br>
-> Updated：2026-07-16<br>
+> Updated：2026-07-17<br>
 > Related decisions：`D-001`, `D-004`, `D-005`, `D-006`, `D-007`<br>
 > Depends on：無（Phase 1）；可協助校準的台灣象棋棋手（Phase 3）<br>
 > Implementation：Phase 1 已於 2026-07-16 完成、驗證並正式發布
 
-完整校準實驗室仍採分階段施工。產品負責人已於 2026-07-16 核准 Phase 1：PIN 隱藏入口、10 個固定錨點、本機資料骨架、匿名協助者 profile 與版本化 JSON 匯出。校準對弈、人類化選著、匯入合併與公開段級映射仍未核准，不得在本階段提前啟用。
+完整校準實驗室仍採分階段施工。產品負責人已於 2026-07-16 核准並發布 Phase 1；2026-07-17 以「繼續完成後續所有施工」授權 Phase 2A 工作包 009，先建立 inactive、可重播的選著與引擎搜尋協定。校準 schema v2／匯入統計、現場對弈與公開段級映射仍須依獨立工作包的驗收邊界施工，不得提前把未定型資料寫入正式校準表。
 
 ### 1.1 Phase 1 已核准範圍
 
@@ -21,11 +21,12 @@
 - 可匯出 schema v1 JSON；包含錨點、profiles、games，不含 PIN、salt、verifier 或 unlock 狀態。
 - 可關閉 feature gate 並保留資料；重新使用 setup URL 可再次開啟。
 
-### 1.2 Phase 1 明確延後
+### 1.2 Phase 1 延後項目的目前拆分
 
 - 不開始校準對弈，不把一般 `PlayPage` 棋局算入校準資料。
-- 不實作人類化選著、seed／候選紀錄或正式統計。
-- 不實作 JSON 匯入／合併；先以匯出做本機備份與格式驗證。
+- 工作包 009：只實作 `seeded-multipv-v1` 工程核心、seed／候選 decision 與專用 fixed-nodes 引擎 API；保持 inactive，不接 UI／DB。
+- 預計工作包 010：校準 schema v2、JSON 匯入／合併與純統計。
+- 預計工作包 011：獨立現場校準 match controller；一般 `PlayPage` 棋局仍不可算入校準資料。
 - 不發布 A01～A10 對應的台灣段級，也不修改公開 `PLAY_LEVELS`。
 
 ## 1. Context
@@ -62,7 +63,7 @@
 | 002-D03 | 資料先只存本機。 | Accepted | 不做後端；每個 origin／browser profile 各自獨立。 |
 | 002-D04 | 先做 10 個固定錨點。 | Accepted | 內部 ID 使用 `A01`～`A10`；顯示段級可後續映射。 |
 | 002-D05 | 原始資料與公開映射分離。 | Accepted | 收到新棋局不立即改變一般使用者難度。 |
-| 002-D06 | 引擎加入人類化選著。 | Accepted, algorithm open | 必須版本化、記錄 seed 與候選分數，才能重播。 |
+| 002-D06 | 引擎加入版本化的實驗性選著。 | Accepted；工程 v1 見 SDD 009 | `seeded-multipv-v1` 必須記錄 seed、候選與分數；尚未經真人驗證，不得直接稱為真人棋風。 |
 | 002-D07 | 校準資料以匯出檔搬移。 | Accepted | 不自動同步；匯入需處理重複與 schema version。 |
 | 002-D08 | PIN 忘記時可重設門禁。 | Phase 1 deferred | 第一階段可關閉／重開入口但不可繞過既有 PIN；正式重設流程留待後續，且預設應保留資料。 |
 | 002-D09 | Phase 1 入口以 URL gate 明確啟用。 | Accepted | 使用 `?rank-calibration=setup`，避免首頁入口與不可交接的連點彩蛋。 |
@@ -250,7 +251,7 @@ interface CalibrationGame {
 
 ### 8.6 Humanized move selection
 
-第一版演算法仍待實驗，但必須滿足：
+工程協定 v1 由 [SDD 009](009-reproducible-calibration-move-policy.md) 定義；仍須真人資料驗證，但必須滿足：
 
 - 引擎先產生多個候選及分數，不總是固定走第一名。
 - 選擇分布依 anchor 強度調整；不得在所有局面使用相同隨機率。
@@ -346,10 +347,12 @@ Phase 1 另已驗證：`A01`～`A10` 與完整 engine config 會進入 schema v1
 
 1. **Phase 0 — 規格凍結**：回答 Open Questions，確認資料與同意界線。
 2. **Phase 1 — 本機骨架**：Dexie migration、feature gate、PIN、profile、10 個 config registry 與 JSON 匯出。
-3. **Phase 2 — 對弈資料鏈**：humanized policy v1、校準對弈流程、seed／候選紀錄與匯入去重。
-4. **Phase 3 — 現場收集**：作者帶電腦給棋手使用，只收資料不發布段位。
-5. **Phase 4 — 分析與映射**：檢查樣本與偏差，產生候選 mapping version。
-6. **Phase 5 — 公開發布**：另行核准、更新免責文案、回歸測試與正式部署。
+3. **Phase 2A／工作包 009 — 可重現選著核心**：fixed nodes、單執行緒、fresh hash、資產 snapshot、seed／候選 decision；inactive，不接 UI／DB。
+4. **Phase 2B／預計工作包 010 — 資料鏈**：schema v2、版本化匯入／去重、原始資料與純統計重建。
+5. **Phase 2C／預計工作包 011 — 現場對弈**：獨立 match controller、紅黑平衡、中斷續存與結果分類。
+6. **Phase 3 — 現場收集**：作者帶電腦給棋手使用，只收資料不發布段位。
+7. **Phase 4 — 分析與映射**：檢查樣本與偏差，產生候選 mapping version。
+8. **Phase 5 — 公開發布**：另行核准、更新免責文案、回歸測試與正式部署。
 
 任何 phase 都可關閉 feature gate；原始資料不應因關閉入口被刪除。
 
@@ -359,7 +362,7 @@ Phase 1 另已驗證：`A01`～`A10` 與完整 engine config 會進入 schema v1
 |---|---|---|
 | 台灣採用哪套正式級／段名稱與制度來源？ | 決定 profile 欄位與 UI 選項。 | Phase 1 使用通用 10級～9段與四種來源分類；正式制度映射仍 Open。 |
 | A01～A10 的初始引擎 config 是什麼？ | 決定第一批可重現錨點。 | Phase 1 已凍結 `2026.07-v1`；Phase 2 加入 humanized policy 時必須建立新 config version。 |
-| humanized policy v1 如何依局面選候選？ | 直接影響棋力與可信度。 | Open |
+| experimental policy v1 如何依局面選候選？ | 直接影響棋力與可信度。 | 工作包 009 先固定 `seeded-multipv-v1` 作工程基準；真人感與參數仍 Open，取得真人資料前不得視為已校準。 |
 | 每位棋手／錨點至少要下幾局？ | 決定現場時間與發布門檻。 | Open |
 | 忘記 PIN 時，重設門禁是否保留資料？ | 影響安全說明與恢復 UX。 | Phase 1 deferred；目前不可繞過既有 PIN，未來預設應保留資料。 |
 | 匯出檔是否保留制度／協會自由文字？ | 涉及個資、命名一致與資料清理。 | Phase 1 只存四種來源分類；備註限制 200 字。 |

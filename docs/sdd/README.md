@@ -27,6 +27,7 @@
 | 006 | [從復盤局面接續記錄或對弈](006-continue-from-replay-position.md) | Released | `12c9bf4` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 從復盤目前節點建立獨立記譜／人機新局，保存自含來源快照且不修改原棋譜。 |
 | 007 | [單一 App 版本來源與 PWA 三輸入描述](007-app-version-and-pwa-metadata.md) | Released | `b35bb57` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 由 package 版本在 build 時封裝為 runtime 常數，並讓安裝資訊完整描述語音、拍照、點棋盤。 |
 | 008 | [完整本機備份 v2 與安全還原](008-portable-backup-v2.md) | Released | `4756056` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | v2 安全 allowlist、v1 相容、段級 PIN 門禁、legacy stale-review recovery 與五表原子非破壞合併；17 test files／123 tests、桌面及 320／390／640 px 響應式與正式站流程通過。 |
+| 009 | [可重現的實驗性校準選著協定 v1](009-reproducible-calibration-move-policy.md) | Verified | 待建立 | 待部署 | 固定 nodes／單執行緒／fresh hash 的校準搜尋與 seeded MultiPV 選著核心；20 test files／154 tests 與真實 WASM 重播通過，保持 inactive。 |
 
 新增工作包請複製 [TEMPLATE.md](TEMPLATE.md)，檔名使用 `NNN-kebab-case.md`。ID 一旦使用就不要重編，避免舊 commit 與討論失去指向。
 

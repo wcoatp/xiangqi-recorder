@@ -33,4 +33,59 @@ describe('段級校準固定錨點', () => {
     expect(RANK_ANCHORS.map((anchor) => anchor.order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     expect(anchorById('A06').engineConfig.movetimeMs).toBe(550)
   })
+
+  it('完整 legacy 2026.07-v1 契約不因 Phase 2 漂移', () => {
+    expect(JSON.parse(JSON.stringify(RANK_ANCHORS))).toEqual([
+      {
+        id: 'A01', order: 1, configVersion: '2026.07-v1',
+        engineConfig: { limitStrength: true, uciElo: 500, skillLevel: 20, movetimeMs: 120, multiPv: 5 },
+        movePolicyVersion: 'not-active-phase1',
+      },
+      {
+        id: 'A02', order: 2, configVersion: '2026.07-v1',
+        engineConfig: { limitStrength: true, uciElo: 700, skillLevel: 20, movetimeMs: 160, multiPv: 5 },
+        movePolicyVersion: 'not-active-phase1',
+      },
+      {
+        id: 'A03', order: 3, configVersion: '2026.07-v1',
+        engineConfig: { limitStrength: true, uciElo: 900, skillLevel: 20, movetimeMs: 220, multiPv: 5 },
+        movePolicyVersion: 'not-active-phase1',
+      },
+      {
+        id: 'A04', order: 4, configVersion: '2026.07-v1',
+        engineConfig: { limitStrength: true, uciElo: 1100, skillLevel: 20, movetimeMs: 300, multiPv: 5 },
+        movePolicyVersion: 'not-active-phase1',
+      },
+      {
+        id: 'A05', order: 5, configVersion: '2026.07-v1',
+        engineConfig: { limitStrength: true, uciElo: 1300, skillLevel: 20, movetimeMs: 400, multiPv: 5 },
+        movePolicyVersion: 'not-active-phase1',
+      },
+      {
+        id: 'A06', order: 6, configVersion: '2026.07-v1',
+        engineConfig: { limitStrength: true, uciElo: 1550, skillLevel: 20, movetimeMs: 550, multiPv: 5 },
+        movePolicyVersion: 'not-active-phase1',
+      },
+      {
+        id: 'A07', order: 7, configVersion: '2026.07-v1',
+        engineConfig: { limitStrength: true, uciElo: 1800, skillLevel: 20, movetimeMs: 700, multiPv: 5 },
+        movePolicyVersion: 'not-active-phase1',
+      },
+      {
+        id: 'A08', order: 8, configVersion: '2026.07-v1',
+        engineConfig: { limitStrength: true, uciElo: 2050, skillLevel: 20, movetimeMs: 900, multiPv: 5 },
+        movePolicyVersion: 'not-active-phase1',
+      },
+      {
+        id: 'A09', order: 9, configVersion: '2026.07-v1',
+        engineConfig: { limitStrength: true, uciElo: 2350, skillLevel: 20, movetimeMs: 1200, multiPv: 5 },
+        movePolicyVersion: 'not-active-phase1',
+      },
+      {
+        id: 'A10', order: 10, configVersion: '2026.07-v1',
+        engineConfig: { limitStrength: false, skillLevel: 20, movetimeMs: 1800, multiPv: 5 },
+        movePolicyVersion: 'not-active-phase1',
+      },
+    ])
+  })
 })

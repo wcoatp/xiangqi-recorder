@@ -1,9 +1,9 @@
 # 象棋記譜 Living SDD
 
 > 文件狀態：Living（持續維護）<br>
-> 文件版本：1.10<br>
+> 文件版本：1.11<br>
 > 最後更新：2026-07-17<br>
-> 程式基準：`main` / `4756056`<br>
+> 程式基準：`main` 工作目錄 / 工作包 009 Verified、待發布<br>
 > 使用者文件：[README.md](../README.md)<br>
 > 施工工作包：[docs/sdd/README.md](sdd/README.md)
 
@@ -60,6 +60,7 @@
 | D-011 | 復盤接續採「從此局面建立獨立新局」 | 來源棋譜不可被後續記錄、引擎走子或悔棋修改；新局保存自含來源快照，計著與循環統計從選中盤面重新開始。 |
 | D-012 | `package.json.version` 是 App 的單一人工維護版本來源 | 設定、回饋診斷、校準匯出與後續備份只能共用 build-time 封裝的版本模組，不得各自硬編碼。 |
 | D-013 | 完整備份採 schema v2、安全 allowlist、段級 PIN 門禁與原子 merge | 只搬移明確可攜資料；Token／PIN gate 永不匯出，含段級原始資料時當場驗證本機 PIN，先完整驗證再以單一交易寫入，任何不可判定衝突不得靜默覆寫。 |
+| D-014 | 段級校準的選著核心先以 inactive、可重播協定獨立施工 | 固定單執行緒／nodes／fresh hash 與引擎資產，使用 seeded MultiPV policy 並記錄完整 decision；沒有真人資料前不得稱為已具真人感或對應台灣段級，也不得開放校準對弈。 |
 
 ## 3. 現行功能基準
 
@@ -76,7 +77,7 @@
 | 殘局 | 擺盤合法性檢查、照片擺盤、MultiPV 分析、試走 | `src/ui/EndgamePage.tsx` |
 | 拍照辨識 | 棋盤偵測、透視校正、紅黑／空格判斷、合法著法比對、棋子分類 | `src/vision/` |
 | 棋子外觀校準 | 拍標準開局照，建立目前棋具的本機範本 | `src/ui/CalibrateDialog.tsx`, `src/vision/templates.ts` |
-| 段級校準實驗室 Phase 1 | 預設隱藏、PIN 上鎖、10 個固定錨點、匿名協助者、本機 JSON 匯出；尚未開放校準對弈 | `src/calibration/`, `src/store/rankCalibration.ts`, `src/ui/RankCalibrationPage.tsx` |
+| 段級校準實驗室 Phase 1＋inactive Phase 2A core | 預設隱藏、PIN 上鎖、10 個固定錨點、匿名協助者、本機 JSON 匯出；可重播 fixed-nodes／seeded MultiPV 工程核心已驗證，但尚未接 UI／DB 或開放校準對弈 | `src/calibration/`, `src/engine/engineClient.ts`, `src/store/rankCalibration.ts`, `src/ui/RankCalibrationPage.tsx` |
 | 棋規中心 | 113 年版勝負和摘要、循環判定矩陣、長捉例外與實體規則邊界 | `src/core/adjudication.ts`, `src/ui/RulesPage.tsx` |
 | 設定 | 語音、面對面模式、分析強度、照片校準、授權資訊；feature gate 開啟後顯示段級校準入口 | `src/ui/SettingsPage.tsx` |
 | 回饋 | 透過使用者自己的郵件 App 寄送，可附診斷資訊 | `src/ui/FeedbackDialog.tsx` |
@@ -271,7 +272,7 @@ v1 games-only 檔仍可還原；v2 選檔先預覽，確認後才進 transaction
 5. 原始棋局與統計只保存在當前電腦／瀏覽器；透過匯出檔帶回分析。
 6. 資料足夠後才版本化發布映射，逐步補齊完整段級。
 
-Phase 1 已凍結 `A01`～`A10` 的 `2026.07-v1` 設定並完成本機 PIN／profile／匯出骨架，但刻意不開放校準對弈；humanized policy、seed、候選著與匯入合併屬下一階段。
+Phase 1 已凍結 `A01`～`A10` 的 `2026.07-v1` 設定並完成本機 PIN／profile／匯出骨架，但刻意不開放校準對弈。工作包 009 已驗證 inactive 的 `2026.07-phase2-v1` 工程協定：固定 Threads 1、nodes、fresh hash、引擎資產與 seeded MultiPV decision record；本包不寫 DB、不接 UI。校準 schema v2／匯入統計與現場對弈會分別由後續工作包施工。
 
 詳細施工規格見 [002-local-rank-calibration-lab.md](sdd/002-local-rank-calibration-lab.md)。
 
@@ -361,7 +362,7 @@ firebase deploy --only hosting
 | 不同棋子範本不自動覆蓋 | 換裝置還原時若目的端已有不同範本，現行策略只保留目的端版本。 | 維持非破壞回報；需要人工選擇時另開工作包。 |
 | 無 URL Router | 重新整理會回首頁，無法深連結到棋局。 | 若要改，另開 SDD 並處理 PWA rewrite。 |
 | 級段尚未經人類校準 | 顯示名稱可能與真實棋力落差很大。 | 維持免責文字，完成 002 工作包後再發布映射。 |
-| 人類化選著尚未定義 | 弱化引擎可能仍不像真人。 | 固定策略版本、亂數 seed 與完整決策紀錄。 |
+| 實驗性選著尚未經真人驗證 | 可重播與參數單調只證明工程性質，不能證明像真人或對應某級段。 | 工作包 009 固定策略／seed／decision；待協會棋手資料後才校準參數與公開映射。 |
 | 長捉無法可靠自動分類 | 循環局面若直接自動判決可能誤判勝負。 | 維持人工分類＋矩陣輔助；取得裁判案例與專家驗證後另開 SDD。 |
 | 近期賽程是人工版本快照 | 部署後活動可能延期、取消、額滿或新增。 | 顯示查閱日與非即時聲明；每次相關發布重新查核，永遠保留官方活動總表。 |
 | CNN 主要由合成資料訓練 | 真實棋具泛化能力未知。 | 以使用者棋子範本為主，累積合法且有授權的實拍驗證集。 |
@@ -386,11 +387,16 @@ firebase deploy --only hosting
 
 - 無。
 
+### 已驗證待發布
+
+- 可重現的實驗性校準選著協定 v1（工作包 009；20 test files／154 tests、真實 WASM 重播與獨立稽核通過；inactive core，不開 UI、不寫正式校準資料）。
+
 ### 下一階段候選
 
-1. 本機段級校準實驗室 Phase 2：humanized policy v1、seed／候選紀錄、校準對弈與匯入去重（工作包 002，需另行核准）。
-2. 對手統計、ECCO 開局分類、每著計時／棋鐘。
-3. XQF 匯入、全離線語音、選配 AI 白話講解。
+1. 段級校準 schema v2、版本化匯入與純統計重建（預計工作包 010）。
+2. PIN 內的現場校準對弈 controller、紅黑平衡與中斷續存（預計工作包 011）。
+3. 對手統計、ECCO 開局分類、每著計時／棋鐘。
+4. XQF 匯入、全離線語音、選配 AI 白話講解。
 
 路線圖順序仍由產品負責人確認；候選項目不得因出現在本文件就視為已授權施工。
 
@@ -408,6 +414,7 @@ firebase deploy --only hosting
 
 | 日期 | 版本 | 內容 |
 |---|---|---|
+| 2026-07-17 | 1.11 | 授權並拆出工作包 009：先施工 inactive、固定 nodes／單執行緒／fresh hash／資產身分與 seeded decision record 的工程核心；schema v2 與現場對弈留給後續獨立工作包。 |
 | 2026-07-17 | 1.10 | 記錄工作包 008 commit `4756056`、Firebase 正式發布、v0.4.0、HTTP／COOP／COEP、正式資產與隔離 origin 的零局匯出／還原／重複還原驗證。 |
 | 2026-07-17 | 1.9 | 將工作包 008 更新為 Verified／待發布，記錄段級 PIN、legacy stale-review recovery、UTF-8 50 MiB 邊界、17 test files／123 tests，以及桌面與 320／390／640 px 響應式證據。 |
 | 2026-07-17 | 1.8 | 建立完整本機備份 v2、敏感設定排除、v1 相容、typed-array codec 與原子非破壞還原邊界。 |
