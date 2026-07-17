@@ -186,7 +186,7 @@ export default function SettingsPage() {
           <div className="rank-settings-mark" aria-hidden="true">校</div>
           <div className="grow">
             <h3>段級校準實驗室</h3>
-            <div className="muted">本機限定・PIN 上鎖・目前為第一階段資料骨架</div>
+            <div className="muted">本機限定・PIN 上鎖・可開始現場校準對弈</div>
           </div>
           <button onClick={() => go({ name: "rank-calibration" })}>進入</button>
         </div>
