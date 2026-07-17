@@ -2,11 +2,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useApp } from "../App";
 import {
   findKing,
-  positionKey,
   type Move,
   type Position,
   type Side,
 } from "../core/board";
+import {
+  countConsecutiveNonCapturePlies,
+  countCurrentPositionOccurrences,
+} from "../core/adjudication";
 import { parseFen } from "../core/fen";
 import { gameStatus, legalMovesFrom } from "../core/movegen";
 import type { GameResult } from "../core/pgn";
@@ -76,16 +79,17 @@ export default function RecordPage({ gameId }: { gameId: number }) {
   const status = useMemo(() => (pos ? gameStatus(pos) : null), [pos]);
   const turn = pos?.turn ?? "red";
 
-  // 三次重複局面提醒
-  const repetition = useMemo(() => {
-    if (!game || !pos || !current) return false;
+  const ruleProgress = useMemo(() => {
+    if (!game || !current) return { repetitionCount: 0, nonCapturePlies: 0 };
     const path = pathTo(game.tree, current.id) ?? [];
-    const keys = [game.tree.fenAfter, ...path.map((n) => n.fenAfter)].map((f) =>
-      positionKey(parseFen(f)),
-    );
-    const nowKey = positionKey(pos);
-    return keys.filter((k) => k === nowKey).length >= 3;
-  }, [game, pos, current]);
+    return {
+      repetitionCount: countCurrentPositionOccurrences([
+        game.tree.fenAfter,
+        ...path.map((node) => node.fenAfter),
+      ]),
+      nonCapturePlies: countConsecutiveNonCapturePlies(game.tree.fenAfter, path),
+    };
+  }, [game, current]);
 
   const persist = useCallback((g: GameRow) => {
     g.updatedAt = Date.now();
@@ -268,8 +272,23 @@ export default function RecordPage({ gameId }: { gameId: number }) {
             {status?.reason === "checkmate" ? "絕殺!" : "困斃!"}
             {SIDE_ZH[status?.winner ?? "red"]}方勝
           </b>
-        ) : repetition ? (
-          <b className="check-flash">三次重複局面(注意長打禁着)</b>
+        ) : ruleProgress.nonCapturePlies >= 100 || ruleProgress.repetitionCount >= 3 ? (
+          <div className="rule-notice">
+            <b className="check-flash">
+              {ruleProgress.nonCapturePlies >= 100
+                ? "已連續 100 著未吃子，請確認自然限著"
+                : `相同局面已出現 ${ruleProgress.repetitionCount} 次，請確認長將／長捉`}
+              {status?.inCheck ? "；目前被將軍" : ""}
+            </b>
+            <button
+              type="button"
+              onClick={() =>
+                go({ name: "rules", returnTo: { name: "record", gameId } })
+              }
+            >
+              查看棋規
+            </button>
+          </div>
         ) : status?.inCheck ? (
           <b className="check-flash">將軍!</b>
         ) : (
@@ -612,15 +631,10 @@ function EndDialog({
 }) {
   const [result, setResult] = useState<GameResult>(initial.result);
   const [reason, setReason] = useState(initial.reason);
-  const reasons = [
-    "絕殺",
-    "困斃",
-    "認輸",
-    "超時",
-    "協議和",
-    "長打判負",
-    "其他",
-  ];
+  const reasons =
+    result === "draw"
+      ? ["協議和", "雙方無法取勝", "自然限著和", "循環不變和", "其他"]
+      : ["絕殺", "困斃", "認輸", "超時", "長將判負", "長捉判負", "其他"];
   return (
     <div className="overlay">
       <div className="dialog">
@@ -630,7 +644,14 @@ function EndDialog({
             <button
               key={r}
               className={result === r ? "on" : ""}
-              onClick={() => setResult(r)}
+              onClick={() => {
+                setResult(r);
+                const nextReasons =
+                  r === "draw"
+                    ? ["協議和", "雙方無法取勝", "自然限著和", "循環不變和", "其他"]
+                    : ["絕殺", "困斃", "認輸", "超時", "長將判負", "長捉判負", "其他"];
+                if (!nextReasons.includes(reason)) setReason(nextReasons[0]);
+              }}
             >
               {r === "red" ? "紅勝" : r === "black" ? "黑勝" : "和棋"}
             </button>

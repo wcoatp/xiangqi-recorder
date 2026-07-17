@@ -19,6 +19,7 @@ type HomeIconName =
   | 'replay'
   | 'analyze'
   | 'endgame'
+  | 'rules'
   | 'settings'
   | 'feedback'
   | 'microphone'
@@ -74,6 +75,14 @@ function HomeIcon({ name, size = 24, className }: { name: HomeIconName; size?: n
           <>
             <circle cx="12" cy="12" r="3.2" />
             <path d="M12 2.8v2.1M12 19.1v2.1M2.8 12h2.1M19.1 12h2.1M5.5 5.5 7 7M17 17l1.5 1.5M18.5 5.5 17 7M7 17l-1.5 1.5" />
+          </>
+        )
+      case 'rules':
+        return (
+          <>
+            <path d="M5 4.5c2.7-.7 5-.2 7 1.5v13.5c-2-1.7-4.3-2.2-7-1.5z" />
+            <path d="M19 4.5c-2.7-.7-5-.2-7 1.5v13.5c2-1.7 4.3-2.2 7-1.5z" />
+            <path d="M8 9h2M14 9h2M8 12h2M14 12h2" />
           </>
         )
       case 'feedback':
@@ -223,6 +232,10 @@ export default function HomePage() {
       </section>
 
       <nav className="home-actions" aria-label="其他功能">
+        <button type="button" onClick={() => go({ name: 'rules', returnTo: { name: 'home' } })}>
+          <HomeIcon name="rules" size={19} />
+          <span>棋規</span>
+        </button>
         <button type="button" onClick={() => go({ name: 'settings' })}>
           <HomeIcon name="settings" size={19} />
           <span>設定</span>

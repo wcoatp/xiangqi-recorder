@@ -639,7 +639,7 @@ h3 {
 
 .home-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -1272,6 +1272,443 @@ h3 {
 
   .rank-local-badge {
     align-self: flex-start;
+  }
+}
+
+/* ---------- 棋規中心 ---------- */
+.rules-page {
+  gap: 14px;
+  padding-bottom: 28px;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.rules-page > * {
+  flex-shrink: 0;
+}
+
+.rules-page h1,
+.rules-page h2,
+.rules-page h3,
+.rules-page p {
+  margin: 0;
+}
+
+.rules-page h2 {
+  font-size: 18px;
+}
+
+.rules-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  overflow: hidden;
+  padding: 19px;
+  border: 2px solid #651b22;
+  border-radius: 22px;
+  color: #fff9ee;
+  background:
+    radial-gradient(circle at 88% 15%, rgba(255, 229, 164, 0.2) 0 7%, transparent 7.5%),
+    linear-gradient(140deg, var(--home-primary-from), var(--home-primary-to));
+  box-shadow:
+    0 7px 0 #681821,
+    0 13px 22px rgba(83, 21, 21, 0.24),
+    inset 0 2px 0 rgba(255, 255, 255, 0.25);
+}
+
+.rules-hero::after {
+  position: absolute;
+  right: -38px;
+  bottom: -62px;
+  width: 148px;
+  height: 148px;
+  border: 3px solid rgba(255, 249, 238, 0.15);
+  border-radius: 50%;
+  box-shadow: 0 0 0 13px rgba(255, 249, 238, 0.05);
+  content: "";
+}
+
+.rules-seal {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 58px;
+  height: 58px;
+  flex: none;
+  place-items: center;
+  border: 2px solid rgba(255, 248, 230, 0.72);
+  border-radius: 50%;
+  background: rgba(74, 8, 16, 0.2);
+  box-shadow:
+    0 5px 0 rgba(72, 10, 18, 0.65),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2);
+  font-family: "Kaiti TC", "BiauKai", "KaiTi", "DFKai-SB", serif;
+  font-size: 29px;
+  font-weight: 900;
+}
+
+.rules-hero > div:last-child {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.rules-version {
+  display: inline-block;
+  margin-bottom: 5px;
+  padding: 3px 8px;
+  border: 1px solid rgba(255, 248, 230, 0.42);
+  border-radius: 999px;
+  color: rgba(255, 249, 238, 0.84);
+  background: rgba(72, 10, 18, 0.18);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+}
+
+.rules-hero h1 {
+  font-family: "Kaiti TC", "BiauKai", "KaiTi", "DFKai-SB", serif;
+  font-size: clamp(22px, 6vw, 28px);
+  line-height: 1.18;
+  text-shadow: 0 2px 0 rgba(61, 5, 13, 0.55);
+}
+
+.rules-hero p {
+  margin-top: 6px;
+  color: rgba(255, 249, 238, 0.8);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.rules-scope-card,
+.rules-section,
+.cycle-guide {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-width: 1.5px;
+}
+
+.rules-scope-grid,
+.rules-result-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.rules-scope,
+.rules-result-grid article {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--panel-soft);
+}
+
+.rules-scope-auto {
+  box-shadow: inset 4px 0 0 var(--good);
+}
+
+.rules-scope-review {
+  box-shadow: inset 4px 0 0 var(--warn);
+}
+
+.rules-scope b,
+.rules-result-grid h3 {
+  font-size: 14px;
+}
+
+.rules-page ul {
+  margin: 7px 0 0;
+  padding-left: 20px;
+}
+
+.rules-page li {
+  margin: 5px 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.rules-caution {
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--warn) 40%, var(--line));
+  border-radius: 11px;
+  color: color-mix(in srgb, var(--ink) 86%, var(--warn));
+  background: color-mix(in srgb, var(--panel) 88%, #f2b84b);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+.rules-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rules-heading > span {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  place-items: center;
+  border: 1.5px solid color-mix(in srgb, var(--home-icon) 58%, var(--line));
+  border-radius: 50%;
+  color: var(--home-icon);
+  background: var(--home-icon-bg);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--home-icon) 30%, var(--line));
+  font-family: "Kaiti TC", "BiauKai", "KaiTi", "DFKai-SB", serif;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.rules-heading > div {
+  min-width: 0;
+}
+
+.rules-heading p {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.rules-result-grid article {
+  background: linear-gradient(155deg, var(--panel-soft), color-mix(in srgb, var(--panel-soft) 86%, #e8c477));
+}
+
+.rules-footnote {
+  line-height: 1.55;
+}
+
+.conduct-picker {
+  min-width: 0;
+  margin: 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+}
+
+.conduct-picker legend {
+  padding: 0 6px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.conduct-picker-red legend {
+  color: var(--red);
+}
+
+.conduct-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.conduct-options button {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  min-height: 66px;
+  padding: 8px 6px;
+  border-radius: 11px;
+  background: var(--panel-soft);
+}
+
+.conduct-options button.on {
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  background: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.conduct-picker-red .conduct-options button.on {
+  border-color: var(--red);
+  color: #fff;
+  background: var(--red);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--red) 28%, transparent);
+}
+
+.conduct-options b {
+  font-size: 14px;
+}
+
+.conduct-options small {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.conduct-options button.on small {
+  color: currentColor;
+  opacity: 0.78;
+}
+
+.cycle-ruling {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 11px;
+  padding: 14px;
+  border: 2px solid var(--line);
+  border-radius: 15px;
+  background: var(--panel-soft);
+}
+
+.cycle-ruling > span {
+  grid-row: 1 / 4;
+  align-self: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: var(--muted);
+  background: var(--chip);
+  font-size: 10px;
+  font-weight: 800;
+  writing-mode: vertical-rl;
+  letter-spacing: 0.08em;
+}
+
+.cycle-ruling strong {
+  font-family: "Kaiti TC", "BiauKai", "KaiTi", "DFKai-SB", serif;
+  font-size: 22px;
+}
+
+.cycle-ruling b {
+  font-size: 13px;
+}
+
+.cycle-ruling small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.cycle-ruling-red-wins {
+  border-color: color-mix(in srgb, var(--red) 62%, var(--line));
+  box-shadow: inset 5px 0 0 var(--red);
+}
+
+.cycle-ruling-black-wins {
+  border-color: color-mix(in srgb, var(--ink) 52%, var(--line));
+  box-shadow: inset 5px 0 0 var(--ink);
+}
+
+.cycle-ruling-draw {
+  border-color: color-mix(in srgb, var(--good) 55%, var(--line));
+  box-shadow: inset 5px 0 0 var(--good);
+}
+
+.cycle-order {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.cycle-order span {
+  width: 100%;
+  text-align: center;
+}
+
+.cycle-order b {
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.cycle-order i {
+  color: var(--warn);
+  font-size: 18px;
+  font-style: normal;
+}
+
+.chase-checklist {
+  margin-top: 0 !important;
+}
+
+.rules-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.rules-tags span {
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  background: var(--panel-soft);
+  font-size: 11px;
+}
+
+.rules-source {
+  padding: 6px 4px 12px;
+  text-align: center;
+}
+
+.rules-source p {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.rules-source a {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.rule-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 5px 8px;
+}
+
+.rule-notice button {
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+@media (max-width: 380px) {
+  .home-actions {
+    gap: 7px;
+  }
+
+  .home-actions button {
+    gap: 5px;
+    min-height: 45px;
+    padding: 7px 5px;
+    font-size: 11px;
+  }
+
+  .rules-hero {
+    align-items: flex-start;
+    padding: 16px;
+  }
+
+  .rules-seal {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+  }
+
+  .rules-scope-grid,
+  .rules-result-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .conduct-options small {
+    font-size: 9px;
   }
 }
 

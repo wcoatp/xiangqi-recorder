@@ -7,8 +7,11 @@ import HomePage from './ui/HomePage'
 import PlayPage from './ui/PlayPage'
 import RecordPage from './ui/RecordPage'
 import ReplayPage from './ui/ReplayPage'
+import RulesPage from './ui/RulesPage'
 import SettingsPage from './ui/SettingsPage'
 import RankCalibrationPage from './ui/RankCalibrationPage'
+
+type RulesReturnView = { name: 'home' } | { name: 'record'; gameId: number }
 
 export type View =
   | { name: 'home' }
@@ -18,6 +21,7 @@ export type View =
   | { name: 'replay'; gameId: number; analyze?: boolean }
   | { name: 'endgame' }
   | { name: 'settings' }
+  | { name: 'rules'; returnTo: RulesReturnView }
   | { name: 'rank-calibration' }
 
 interface AppCtxValue {
@@ -73,6 +77,7 @@ export default function App() {
       {view.name === 'replay' && <ReplayPage gameId={view.gameId} autoAnalyze={view.analyze} />}
       {view.name === 'endgame' && <EndgamePage />}
       {view.name === 'settings' && <SettingsPage />}
+      {view.name === 'rules' && <RulesPage onBack={() => setView(view.returnTo)} />}
       {view.name === 'rank-calibration' && <RankCalibrationPage />}
     </AppCtx.Provider>
   )
