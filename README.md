@@ -12,7 +12,7 @@
 
 新接手者先讀 Living SDD,再開對應工作包;已確認的功能/介面施工完成後,預設會 commit、push、Firebase deploy 並驗證線上版,當次明確說不要時才略過部署。
 
-**工作包 008（完整本機備份 v2）已發布**：17 個 test files／123 tests、桌面及 320／390／640 px 響應式流程皆通過，正式站已驗證 v0.4.0、零局匯出、預覽後確認還原與重複還原。
+**目前發布基準為 v0.5.0**：工作包 008 的完整本機備份 v2 與工作包 009 的 inactive 可重播校準選著核心均已發布；20 個 test files／154 tests、真實 WASM 重播、正式站版本與引擎載入通過。工作包 009 尚未開放校準對弈，也不代表已具真人棋風或對應台灣段級。
 
 ## 功能
 
@@ -100,7 +100,7 @@ App 會執行期自動偵測並降級;若未來 WebKit 修復,自動恢復即時
 
 ```bash
 npm install        # 會自動把引擎檔複製到 public/engine/
-npm test           # 目前基準:17 個 test files / 123 tests
+npm test           # 目前基準:20 個 test files / 154 tests
 npm run dev        # 開發伺服器(已內建 COOP/COEP 標頭)
 npm run build      # 產出 dist/
 ```

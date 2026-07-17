@@ -1,6 +1,6 @@
 # SDD 002：本機段級校準實驗室
 
-> Status：Released（Phase 1）；Phase 2A 由工作包 009 Verified、待發布；其餘 Phase 2+ Deferred<br>
+> Status：Released（Phase 1、Phase 2A 工程核心）；其餘 Phase 2+ Deferred<br>
 > Owner：專案作者<br>
 > Created：2026-07-16<br>
 > Updated：2026-07-17<br>
@@ -8,7 +8,7 @@
 > Depends on：無（Phase 1）；可協助校準的台灣象棋棋手（Phase 3）<br>
 > Implementation：Phase 1 已於 2026-07-16 完成、驗證並正式發布
 
-完整校準實驗室仍採分階段施工。產品負責人已於 2026-07-16 核准並發布 Phase 1；2026-07-17 以「繼續完成後續所有施工」授權 Phase 2A 工作包 009，先建立 inactive、可重播的選著與引擎搜尋協定。校準 schema v2／匯入統計、現場對弈與公開段級映射仍須依獨立工作包的驗收邊界施工，不得提前把未定型資料寫入正式校準表。
+完整校準實驗室仍採分階段施工。產品負責人已於 2026-07-16 核准並發布 Phase 1；2026-07-17 以「繼續完成後續所有施工」授權並發布 Phase 2A 工作包 009，建立 inactive、可重播的選著與引擎搜尋協定。校準 schema v2／匯入統計、現場對弈與公開段級映射仍須依獨立工作包的驗收邊界施工，不得提前把未定型資料寫入正式校準表。
 
 ### 1.1 Phase 1 已核准範圍
 

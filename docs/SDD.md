@@ -1,9 +1,9 @@
 # 象棋記譜 Living SDD
 
 > 文件狀態：Living（持續維護）<br>
-> 文件版本：1.11<br>
+> 文件版本：1.12<br>
 > 最後更新：2026-07-17<br>
-> 程式基準：`main` 工作目錄 / 工作包 009 Verified、待發布<br>
+> 程式基準：`main` / `66dad94`<br>
 > 使用者文件：[README.md](../README.md)<br>
 > 施工工作包：[docs/sdd/README.md](sdd/README.md)
 
@@ -382,14 +382,11 @@ firebase deploy --only hosting
 - 從復盤局面接續記錄或對弈（工作包 006，2026-07-17 發布）。
 - 單一 App 版本來源與 PWA 三輸入描述（工作包 007，2026-07-17 發布）。
 - 完整本機備份 v2 與安全還原（工作包 008，2026-07-17 發布）。
+- 可重現的實驗性校準選著協定 v1（工作包 009，2026-07-17 發布；inactive core，不開 UI、不寫正式校準資料）。
 
 ### 已驗證、待發布
 
 - 無。
-
-### 已驗證待發布
-
-- 可重現的實驗性校準選著協定 v1（工作包 009；20 test files／154 tests、真實 WASM 重播與獨立稽核通過；inactive core，不開 UI、不寫正式校準資料）。
 
 ### 下一階段候選
 
@@ -414,6 +411,7 @@ firebase deploy --only hosting
 
 | 日期 | 版本 | 內容 |
 |---|---|---|
+| 2026-07-17 | 1.12 | 記錄工作包 009 commit `66dad94`、v0.5.0 Firebase 正式發布、HTTP／COOP／COEP、正式資產、Chrome 版本與 Fairy-Stockfish NNUE 就緒驗證；協定維持 inactive。 |
 | 2026-07-17 | 1.11 | 授權並拆出工作包 009：先施工 inactive、固定 nodes／單執行緒／fresh hash／資產身分與 seeded decision record 的工程核心；schema v2 與現場對弈留給後續獨立工作包。 |
 | 2026-07-17 | 1.10 | 記錄工作包 008 commit `4756056`、Firebase 正式發布、v0.4.0、HTTP／COOP／COEP、正式資產與隔離 origin 的零局匯出／還原／重複還原驗證。 |
 | 2026-07-17 | 1.9 | 將工作包 008 更新為 Verified／待發布，記錄段級 PIN、legacy stale-review recovery、UTF-8 50 MiB 邊界、17 test files／123 tests，以及桌面與 320／390／640 px 響應式證據。 |
