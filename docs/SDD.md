@@ -1,9 +1,9 @@
 # 象棋記譜 Living SDD
 
 > 文件狀態：Living（持續維護）<br>
-> 文件版本：1.14<br>
+> 文件版本：1.15<br>
 > 最後更新：2026-07-17<br>
-> 程式基準：`main` / `2324d7e` / 工作包 010 Released<br>
+> 程式基準：`main` 工作目錄 / 工作包 011 Verified、待發布<br>
 > 使用者文件：[README.md](../README.md)<br>
 > 施工工作包：[docs/sdd/README.md](sdd/README.md)
 
@@ -78,7 +78,7 @@
 | 殘局 | 擺盤合法性檢查、照片擺盤、MultiPV 分析、試走 | `src/ui/EndgamePage.tsx` |
 | 拍照辨識 | 棋盤偵測、透視校正、紅黑／空格判斷、合法著法比對、棋子分類 | `src/vision/` |
 | 棋子外觀校準 | 拍標準開局照，建立目前棋具的本機範本 | `src/ui/CalibrateDialog.tsx`, `src/vision/templates.ts` |
-| 段級校準實驗室 Phase 1＋2A／2B | 預設隱藏、PIN 上鎖、10 個固定錨點、匿名協助者、schema v1/v2 原子匯入／匯出與版本隔離統計；可重播 fixed-nodes／seeded MultiPV 核心已接上 self-contained v2 契約，但仍未開放校準對弈 | `src/calibration/`, `src/engine/engineClient.ts`, `src/store/rankCalibration.ts`, `src/ui/RankCalibrationPage.tsx` |
+| 段級校準實驗室 Phase 1＋2A／2B／2C | 預設隱藏、PIN 上鎖、10 個固定錨點、匿名協助者、schema v1/v2 原子匯入／匯出與版本隔離統計；已接上 fixed-nodes／seeded MultiPV 現場對弈、紅黑交替、逐著 CAS 保存與中斷續局 | `src/calibration/`, `src/engine/engineClient.ts`, `src/store/rankCalibration.ts`, `src/store/rankCalibrationMatch.ts`, `src/ui/RankCalibrationPage.tsx` |
 | 棋規中心 | 113 年版勝負和摘要、循環判定矩陣、長捉例外與實體規則邊界 | `src/core/adjudication.ts`, `src/ui/RulesPage.tsx` |
 | 設定 | 語音、面對面模式、分析強度、照片校準、授權資訊；feature gate 開啟後顯示段級校準入口 | `src/ui/SettingsPage.tsx` |
 | 回饋 | 透過使用者自己的郵件 App 寄送，可附診斷資訊 | `src/ui/FeedbackDialog.tsx` |
@@ -215,7 +215,7 @@ flowchart LR
 - `players`：曾使用的玩家名稱。
 - `settings`：key/value 設定；包含語音、分析、面對面模式與 `pieceCalibration` 棋子範本。
 - `rankCalibrators`：匿名協助者 profile、自報級／段、制度來源與本機同意時間。
-- `rankCalibrationGames`：保存 immutable schema v1 legacy 與 self-contained schema v2 校準原始棋局；WP011 前正式 UI 不建立 v2 row。
+- `rankCalibrationGames`：保存 immutable schema v1 legacy 與 self-contained schema v2 校準原始棋局；PIN 內現場 controller 會先保存 ply 0，再以 CAS transaction 逐著更新同一筆 v2 row。
 
 version 2 只新增上述兩張表，不改寫既有 `games`、`players`、`settings`。段級校準 feature gate 與 salted PIN verifier 存在 `settings.rankCalibrationGate`；unlock flag 只存在 React memory。
 
@@ -273,7 +273,7 @@ v1 games-only 檔仍可還原；v2 選檔先預覽，確認後才進 transaction
 5. 原始棋局與統計只保存在當前電腦／瀏覽器；透過匯出檔帶回分析。
 6. 資料足夠後才版本化發布映射，逐步補齊完整段級。
 
-Phase 1 已凍結 `A01`～`A10` 的 `2026.07-v1` 設定並完成本機 PIN／profile 骨架；工作包 009 已發布 inactive 的 `2026.07-phase2-v1` 工程協定：固定 Threads 1、nodes、fresh hash、引擎資產與 seeded MultiPV decision record。工作包 010 已發布 gate/archive/game 分版、self-contained game v2、standalone/full-backup 原子匯入與版本隔離統計；v0.6.0 仍不建立正式 v2 棋局。PIN 內現場對弈由工作包 011 另行施工。
+Phase 1 已凍結 `A01`～`A10` 的 `2026.07-v1` 設定並完成本機 PIN／profile 骨架；工作包 009 已發布 `2026.07-phase2-v1` 工程協定，工作包 010 已發布 self-contained game v2、安全匯入與版本隔離統計。工作包 011 已驗證 PIN 內現場對弈 controller：固定 nodes／seeded MultiPV、偶紅奇黑、ply 0 先保存、逐著 CAS checkpoint、中斷續局與人工規則裁定；公開段級映射仍保持未發布。
 
 詳細施工規格見 [002-local-rank-calibration-lab.md](sdd/002-local-rank-calibration-lab.md)。
 
@@ -325,7 +325,7 @@ Phase 1 已凍結 `A01`～`A10` 的 `2026.07-v1` 設定並完成本機 PIN／pro
 9. 建立語意清楚的 commit 並 push 到遠端。
 10. 已確認的功能／介面施工預設在 push 後 deploy，並驗證正式 URL；當次明確說不要部署時才停在 Git。
 
-目前已發布測試基準（2026-07-17）：23 個 test files、179 tests 全部通過。
+目前施工驗證基準（2026-07-17）：25 個 test files、196 tests 全部通過。
 
 ## 11. 開發與發布 Runbook
 
@@ -390,9 +390,13 @@ firebase deploy --only hosting
 
 - 無。
 
+### 已驗證、待發布
+
+- PIN 內現場校準對弈 controller、紅黑平衡、固定節點引擎著與中斷續存（工作包 011；v0.7.0，25 個 test files／196 tests 與 production build 通過）。
+
 ### 下一階段候選
 
-1. PIN 內的現場校準對弈 controller、紅黑平衡與中斷續存（預計工作包 011）。
+1. 由真人棋手進行 Phase 3 現場收集；資料足夠前不發布 A01～A10 段級映射。
 2. 對手統計、ECCO 開局分類、每著計時／棋鐘。
 3. XQF 匯入、全離線語音、選配 AI 白話講解。
 
@@ -412,6 +416,7 @@ firebase deploy --only hosting
 
 | 日期 | 版本 | 內容 |
 |---|---|---|
+| 2026-07-17 | 1.15 | 驗證工作包 011：PIN 內 fixed-nodes 現場校準對弈、紅黑交替、逐著 CAS、中斷續局、結果分類與 v0.7.0 跨版本保護；公開段級映射仍維持關閉。 |
 | 2026-07-17 | 1.14 | 記錄工作包 010 implementation commit `2324d7e`、v0.6.0 Firebase 正式發布、HTTP／COOP／COEP、正式資產、Chrome 版本與 Fairy-Stockfish NNUE 就緒驗證。 |
 | 2026-07-17 | 1.13 | 授權工作包 010：拆開 gate/archive/game versions，建立 self-contained v2 raw games、standalone/full backup v1/v2 原子匯入與版本隔離統計；維持隱藏且不開對弈。 |
 | 2026-07-17 | 1.12 | 記錄工作包 009 commit `66dad94`、v0.5.0 Firebase 正式發布、HTTP／COOP／COEP、正式資產、Chrome 版本與 Fairy-Stockfish NNUE 就緒驗證；協定維持 inactive。 |

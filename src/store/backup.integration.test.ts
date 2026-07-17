@@ -4,14 +4,19 @@ import { RANK_ANCHORS } from '../calibration/anchors'
 import { PHASE2_ANCHORS } from '../calibration/phase2Protocol'
 import { setCalibrationPin } from '../calibration/pin'
 import {
-  CALIBRATION_COLLECTION_PROTOCOL_V1,
+  applyEngineCalibrationMoveDraft,
+  applyHumanCalibrationMoveDraft,
+  createCalibrationMatchDraft,
+} from '../calibration/matchController'
+import {
   type CalibrationGame,
   type CalibrationGameV2,
   type CalibratorProfile,
 } from '../calibration/rankTypes'
 import { parseFen, START_FEN } from '../core/fen'
 import { legalMoves } from '../core/movegen'
-import { addMove, newRoot, type GameNode } from '../core/tree'
+import { uciMove } from '../core/notation'
+import { addMove, mainline, newRoot, type GameNode } from '../core/tree'
 import { PATCH, PATCH_RADIUS } from '../vision/patch'
 import type { PieceTemplates } from '../vision/templates'
 import { APP_VERSION } from '../version'
@@ -79,6 +84,11 @@ describe.sequential('完整備份 Dexie transaction', () => {
     expect(restoredTemplates.samples.red[0].data).toBeInstanceOf(Float32Array)
     expect(restoredTemplates.samples.red[0].data).toEqual(source.templates.samples.red[0].data)
     expect((await db.games.toArray())[0].tree).toEqual(source.game.tree)
+    const restoredCalibrationV2 = (await db.rankCalibrationGames.toArray())
+      .find((game): game is CalibrationGameV2 => game.schemaVersion === 2)
+    expect(restoredCalibrationV2).toMatchObject({ currentPly: 2 })
+    expect(restoredCalibrationV2?.engineMoves).toHaveLength(1)
+    expect(mainline(restoredCalibrationV2!.gameSnapshot)).toHaveLength(2)
 
     db.close()
     await db.open()
@@ -506,32 +516,30 @@ function makeCalibrationGame(profile: CalibratorProfile, id: string): Calibratio
 
 function makeCalibrationGameV2(profile: CalibratorProfile, id: string): CalibrationGameV2 {
   const anchor = PHASE2_ANCHORS[4]
-  const snapshot = newRoot(START_FEN)
-  snapshot.id = `${id}-root`
-  return {
+  const started = createCalibrationMatchDraft({
     id,
-    schemaVersion: 2,
     sessionId: `${id}-session`,
-    collectionProtocolVersion: CALIBRATION_COLLECTION_PROTOCOL_V1,
-    profileId: profile.id,
-    profileRevision: profile.revision,
-    profileSnapshot: { ...profile },
-    anchorId: anchor.id,
-    anchorConfigVersion: anchor.configVersion,
-    movePolicyVersion: anchor.policy.version,
-    anchorSnapshot: structuredClone(anchor),
+    profile,
+    anchor,
     randomSeed: `${id}-seed`,
-    playerSide: 'red',
-    sideAssignment: { version: 'balanced-alternation-v1', sequenceIndex: 0 },
-    status: 'in-progress',
+    sequenceIndex: 0,
     startedAt: 3_300,
-    updatedAt: 3_300,
-    initialFen: START_FEN,
-    currentPly: 0,
-    gameSnapshot: snapshot,
-    engineMoves: [],
     appVersion: APP_VERSION,
-  }
+  })
+  const afterHuman = applyHumanCalibrationMoveDraft(started, { from: 27, to: 36 }, 3_301)
+  const path = mainline(afterHuman.gameSnapshot)
+  const fen = path[path.length - 1].fenAfter
+  const selected = legalMoves(parseFen(fen))[0]
+  const selectedUci = uciMove(selected)
+  return applyEngineCalibrationMoveDraft(afterHuman, {
+    nodes: anchor.search.nodes,
+    multipv: anchor.search.multipv,
+    lines: [{ multipv: 1, depth: 8, scoreCp: 0, pv: [selectedUci] }],
+    bestmove: selectedUci,
+    completedDepth: 8,
+    completeCandidateBatch: false,
+    anomalies: [`incomplete-multipv-batch:1/${anchor.search.multipv}`],
+  }, 3_302)
 }
 
 function makePieceTemplates(createdAt: number): PieceTemplates {

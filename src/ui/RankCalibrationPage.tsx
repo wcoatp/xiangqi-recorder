@@ -5,11 +5,14 @@ import { PHASE2_ANCHORS, PHASE2_CONFIG_VERSION } from '../calibration/phase2Prot
 import {
   RANK_SYSTEM_OPTIONS,
   TAIWAN_RANK_OPTIONS,
+  type AnchorId,
   type CalibrationGame,
+  type CalibrationGameV2,
   type CalibratorProfile,
   type RankCalibrationGate,
 } from '../calibration/rankTypes'
 import { buildCalibrationStats } from '../calibration/stats'
+import { engine } from '../engine/engineClient'
 import {
   createCalibratorProfile,
   disableRankCalibrationGate,
@@ -20,7 +23,9 @@ import {
   listCalibratorProfiles,
   loadRankCalibrationGate,
 } from '../store/rankCalibration'
+import { createCalibrationMatch } from '../store/rankCalibrationMatch'
 import { APP_VERSION } from '../version'
+import RankCalibrationMatch from './RankCalibrationMatch'
 import RankCalibrationUnlock from './RankCalibrationUnlock'
 
 type RankCalibrationInspection = ReturnType<typeof inspectRankCalibrationImport>
@@ -33,6 +38,9 @@ interface PendingRankCalibrationImport {
 
 const formatImportTime = (timestamp: number): string =>
   new Date(timestamp).toLocaleString('zh-TW', { hour12: false })
+
+const isAbortError = (error: unknown): boolean =>
+  error instanceof Error && error.name === 'AbortError'
 
 export default function RankCalibrationPage() {
   const { go } = useApp()
@@ -138,8 +146,14 @@ function RankCalibrationDashboard({ gate, onDisable }: { gate: RankCalibrationGa
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [pendingImport, setPendingImport] = useState<PendingRankCalibrationImport | null>(null)
+  const [activeMatchId, setActiveMatchId] = useState<string | null>(null)
+  const [matchProfileId, setMatchProfileId] = useState('')
+  const [matchAnchorId, setMatchAnchorId] = useState<AnchorId>('A05')
+  const [matchSessionId, setMatchSessionId] = useState('__new__')
   const downloadTimer = useRef(0)
   const importFileInput = useRef<HTMLInputElement>(null)
+  const mounted = useRef(false)
+  const matchStartAbort = useRef<AbortController | null>(null)
 
   const refresh = useCallback(async () => {
     const [nextProfiles, nextGames] = await Promise.all([listCalibratorProfiles(), listCalibrationGames()])
@@ -148,11 +162,21 @@ function RankCalibrationDashboard({ gate, onDisable }: { gate: RankCalibrationGa
   }, [])
 
   useEffect(() => {
+    mounted.current = true
     void refresh().catch((err: unknown) => {
-      setError(err instanceof Error ? err.message : '無法讀取本機校準資料')
+      if (mounted.current) setError(err instanceof Error ? err.message : '無法讀取本機校準資料')
     })
-    return () => window.clearTimeout(downloadTimer.current)
+    return () => {
+      mounted.current = false
+      matchStartAbort.current?.abort()
+      matchStartAbort.current = null
+      window.clearTimeout(downloadTimer.current)
+    }
   }, [refresh])
+
+  useEffect(() => {
+    if (!matchProfileId && profiles[0]) setMatchProfileId(profiles[0].id)
+  }, [matchProfileId, profiles])
 
   const v2AnchorCounts = useMemo(() => {
     const result = new Map<string, number>()
@@ -179,6 +203,29 @@ function RankCalibrationDashboard({ gate, onDisable }: { gate: RankCalibrationGa
     return result
   }, [games])
   const hasCompletedStats = stats.groups.some((group) => group.completed > 0)
+  const inProgressGames = useMemo(
+    () => games.filter(
+      (game): game is CalibrationGameV2 => game.schemaVersion === 2 && game.status === 'in-progress',
+    ),
+    [games],
+  )
+  const matchSessions = useMemo(() => {
+    const profile = profiles.find((entry) => entry.id === matchProfileId)
+    if (!profile) return []
+    const sessions = new Map<string, number>()
+    for (const game of games) {
+      if (
+        game.schemaVersion !== 2 ||
+        game.profileId !== profile.id ||
+        game.profileRevision !== profile.revision ||
+        game.appVersion !== APP_VERSION
+      ) continue
+      sessions.set(game.sessionId, Math.max(sessions.get(game.sessionId) ?? 0, game.startedAt))
+    }
+    return [...sessions.entries()]
+      .map(([id, lastPlayedAt]) => ({ id, lastPlayedAt }))
+      .sort((left, right) => right.lastPlayedAt - left.lastPlayedAt)
+  }, [games, matchProfileId, profiles])
 
   const addProfile = async (event: FormEvent) => {
     event.preventDefault()
@@ -190,7 +237,7 @@ function RankCalibrationDashboard({ gate, onDisable }: { gate: RankCalibrationGa
     }
     setBusy(true)
     try {
-      await createCalibratorProfile({
+      const profile = await createCalibratorProfile({
         alias,
         claimedRank,
         rankSystem,
@@ -200,12 +247,57 @@ function RankCalibrationDashboard({ gate, onDisable }: { gate: RankCalibrationGa
       setAlias('')
       setNotes('')
       setConsented(false)
+      setMatchProfileId(profile.id)
+      setMatchSessionId('__new__')
       setMessage('已建立匿名協助者資料。')
       await refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : '建立協助者資料失敗')
     } finally {
       setBusy(false)
+    }
+  }
+
+  const startCalibrationMatch = async () => {
+    setMessage('')
+    setError('')
+    if (!matchProfileId) {
+      setError('請先選擇匿名協助者')
+      return
+    }
+    const profile = profiles.find((entry) => entry.id === matchProfileId)
+    if (!profile) {
+      setError('找不到所選協助者；請重新整理後再試')
+      return
+    }
+    if (!engine.supported()) {
+      setError('此瀏覽器目前無法啟動本機校準引擎；請確認使用 HTTPS 且 COOP／COEP 正常。尚未建立棋局。')
+      return
+    }
+    const controller = new AbortController()
+    matchStartAbort.current?.abort()
+    matchStartAbort.current = controller
+    setBusy(true)
+    try {
+      await engine.init()
+      if (controller.signal.aborted || !mounted.current) return
+      const game = await createCalibrationMatch({
+        profileId: profile.id,
+        profileRevision: profile.revision,
+        anchorId: matchAnchorId,
+        ...(matchSessionId === '__new__' ? {} : { sessionId: matchSessionId }),
+        signal: controller.signal,
+      })
+      if (controller.signal.aborted || !mounted.current) return
+      setMatchSessionId(game.sessionId)
+      setActiveMatchId(game.id)
+    } catch (err) {
+      if (controller.signal.aborted || isAbortError(err) || !mounted.current) return
+      setError(err instanceof Error ? `校準引擎或建局失敗：${err.message}；尚未建立新局。` : '校準引擎或建局失敗；尚未建立新局。')
+      await refresh().catch(() => undefined)
+    } finally {
+      if (matchStartAbort.current === controller) matchStartAbort.current = null
+      if (mounted.current && !controller.signal.aborted) setBusy(false)
     }
   }
 
@@ -313,13 +405,28 @@ function RankCalibrationDashboard({ gate, onDisable }: { gate: RankCalibrationGa
     }
   }
 
+  if (activeMatchId) {
+    return (
+      <RankCalibrationMatch
+        gameId={activeMatchId}
+        onLeave={(sessionId) => {
+          setActiveMatchId(null)
+          setMatchSessionId(sessionId ?? '__new__')
+          void refresh().catch((err: unknown) => {
+            setError(err instanceof Error ? err.message : '棋局已保存，但儀表板刷新失敗')
+          })
+        }}
+      />
+    )
+  }
+
   return (
     <>
       <section className="card rank-lab-intro">
         <div>
-          <div className="rank-lab-eyebrow">PHASE 2B・LOCAL ONLY</div>
-          <h2>本機校準資料鏈</h2>
-          <p>可安全搬移、合併與重建版本隔離統計；本階段仍不會開始校準對弈或更動公開難度。</p>
+          <div className="rank-lab-eyebrow">PHASE 2C・PIN-GATED・LOCAL ONLY</div>
+          <h2>本機段級校準實驗室</h2>
+          <p>可開始逐著保存的現場校準對弈，並安全搬移、合併與重建版本隔離統計；結果不會自動更動公開難度。</p>
         </div>
         <span className="rank-local-badge">只存這台電腦</span>
       </section>
@@ -333,6 +440,90 @@ function RankCalibrationDashboard({ gate, onDisable }: { gate: RankCalibrationGa
 
       {message && <div className="rank-lab-notice" role="status" aria-live="polite">{message}</div>}
       {error && <div className="rank-lab-error" role="alert" aria-live="assertive">{error}</div>}
+
+      <section className="card rank-match-launch" aria-busy={busy}>
+        <div className="rank-section-heading">
+          <div>
+            <div className="rank-lab-eyebrow">FIELD MATCH・SCHEMA V2</div>
+            <h3>現場校準對弈</h3>
+          </div>
+          <span className="muted">無提示・無悔棋</span>
+        </div>
+        <p className="muted">
+          先選協助者、固定錨點與收集時段；App 會依同一版本序號自動交替紅黑方。A01～A10 仍是內部相對錨點，不代表正式級／段。
+        </p>
+        {inProgressGames.length > 0 ? (
+          <div className="rank-resume-list">
+            <b>有 {inProgressGames.length} 局尚未結束；請先續下或明確中止，才能建立新局。</b>
+            {inProgressGames.map((game) => {
+              const profile = profiles.find((entry) => entry.id === game.profileId)
+              return (
+                <div className="rank-resume-item" key={game.id}>
+                  <div>
+                    <b>{profile?.alias ?? game.profileSnapshot.alias}・{game.anchorId}</b>
+                    <span>
+                      協助者執{game.playerSide === 'red' ? '紅' : '黑'}・第 {game.currentPly} 著・App {game.appVersion}
+                    </span>
+                  </div>
+                  <button
+                    className="primary"
+                    type="button"
+                    onClick={() => setActiveMatchId(game.id)}
+                  >
+                    {game.appVersion === APP_VERSION ? '繼續對弈' : '唯讀／中止'}
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        ) : profiles.length === 0 ? (
+          <div className="rank-stat-empty">請先在下方建立一位已同意資料收集的匿名協助者。</div>
+        ) : (
+          <div className="rank-match-form">
+            <label>
+              <span>匿名協助者</span>
+              <select
+                value={matchProfileId}
+                onChange={(event) => {
+                  setMatchProfileId(event.target.value)
+                  setMatchSessionId('__new__')
+                }}
+              >
+                {profiles.map((profile) => (
+                  <option key={profile.id} value={profile.id}>
+                    {profile.alias}・{profile.claimedRank}・{profile.rankSystem}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>固定錨點（由弱至強）</span>
+              <select value={matchAnchorId} onChange={(event) => setMatchAnchorId(event.target.value as AnchorId)}>
+                {PHASE2_ANCHORS.map((anchor) => (
+                  <option key={anchor.id} value={anchor.id}>{anchor.id}・第 {anchor.order}／10 階</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>現場收集時段</span>
+              <select value={matchSessionId} onChange={(event) => setMatchSessionId(event.target.value)}>
+                <option value="__new__">建立新時段</option>
+                {matchSessions.map((session) => (
+                  <option key={session.id} value={session.id}>
+                    接續 {formatImportTime(session.lastPlayedAt)} 的時段
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="rank-match-confirmation">
+              <span>建立後會先保存 ply 0，再開啟棋盤；紅黑方由 App 自動分派。</span>
+              <button className="primary" type="button" disabled={busy} onClick={() => void startCalibrationMatch()}>
+                {busy ? '建立中…' : '確認並開始校準局'}
+              </button>
+            </div>
+          </div>
+        )}
+      </section>
 
       <section className="card" aria-busy={busy}>
         <div className="rank-section-heading">

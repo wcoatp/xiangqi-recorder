@@ -1447,6 +1447,85 @@ h3 {
   margin-bottom: 12px;
 }
 
+.rank-match-launch {
+  border-color: color-mix(in srgb, var(--home-icon) 48%, var(--line));
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--home-icon-bg) 42%, var(--panel)),
+    var(--panel)
+  );
+}
+
+.rank-match-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.rank-match-form label {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.rank-match-form select {
+  width: 100%;
+  min-width: 0;
+  font-size: 16px;
+}
+
+.rank-match-confirmation {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 12px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 44%, var(--line));
+  border-radius: 12px;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--accent) 5%, var(--panel));
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.rank-match-confirmation button {
+  flex: none;
+}
+
+.rank-resume-list {
+  display: grid;
+  gap: 9px;
+  margin-top: 13px;
+}
+
+.rank-resume-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid color-mix(in srgb, var(--warn) 38%, var(--line));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--warn) 6%, var(--panel));
+}
+
+.rank-resume-item > div {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.rank-resume-item span {
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font-size: 11px;
+}
+
 .rank-anchor-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -1693,6 +1772,23 @@ h3 {
   height: 42px;
   flex: none;
   font-size: 21px;
+}
+
+@media (max-width: 620px) {
+  .rank-match-form {
+    grid-template-columns: 1fr;
+  }
+
+  .rank-match-confirmation,
+  .rank-resume-item {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .rank-match-confirmation button,
+  .rank-resume-item button {
+    width: 100%;
+  }
 }
 
 @media (max-width: 380px) {
