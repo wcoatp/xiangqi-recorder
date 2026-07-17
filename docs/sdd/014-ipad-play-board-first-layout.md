@@ -1,6 +1,6 @@
 # SDD 014：iPad 對弈棋盤首次直向排版穩定化
 
-> Status：Verified<br>
+> Status：Released<br>
 > Owner：Codex／產品負責人<br>
 > Created：2026-07-17<br>
 > Updated：2026-07-17<br>
@@ -104,7 +104,7 @@
 - [x] `npm test` 通過。
 - [x] `npm run build` 通過，沒有新增 warning／syntax error。
 - [x] 文件與驗證證據同步更新。
-- [ ] 正式站資產、headers 與 changed flow 完成驗證。
+- [x] 正式站資產、headers 與 changed flow 完成驗證。
 
 ## 9. Test plan
 
@@ -149,9 +149,9 @@
 
 ### Git and release
 
-- Commit：未建立。
-- Push：未執行。
-- Deploy：依 repository 預設在 implementation commit／push 後執行；尚未執行。
-- 正式環境驗證：未執行。
+- Commit：`d5102bd fix: stabilize iPad play board layout`。
+- Push：已推送 `main` 至 `origin/main`（`b28d0aa..d5102bd`）。
+- Deploy：2026-07-17 已完成 `firebase deploy --only hosting`；18 個 dist files 發布至 [正式站](https://xiangqi-recorder.web.app/)。
+- 正式環境驗證：根網址與 `sw.js` 回 200、`Cache-Control: no-cache, no-store, must-revalidate`、`Cross-Origin-Opener-Policy: same-origin`、`Cross-Origin-Embedder-Policy: require-corp`；新 CSS `/assets/index-CXIpcGPN.css` 回 200，正式頁載入 `/assets/index-zMYSpy3d.js`。PWA 舊 shell 首次開啟後自動更新，reload 取得新資產；820×1180 首次直向、1180×820 橫向與回直向的 root／page／wrapper／controls 均在 viewport 內、overflow 0，回直向與首次幾何一致，SVG attributes 與 wrapper `max-height: none` 正確。正式站實際走 square 27 → 36 後，引擎成功回覆 `馬8進7(H8+7)`；console 無 error／warning。
 
 只有在驗證完成後才能標為 Verified；只有在正式部署並驗證後才能標為 Released。

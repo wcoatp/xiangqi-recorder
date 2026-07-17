@@ -1,9 +1,9 @@
 # 象棋記譜 Living SDD
 
 > 文件狀態：Living（持續維護）<br>
-> 文件版本：1.24<br>
+> 文件版本：1.25<br>
 > 最後更新：2026-07-17<br>
-> 程式基準：`main` / `b28d0aa` / 工作包 014 Verified（待提交與發布）<br>
+> 程式基準：`main` / `d5102bd` / 工作包 014 Released<br>
 > 使用者文件：[README.md](../README.md)<br>
 > 施工工作包：[docs/sdd/README.md](sdd/README.md)
 
@@ -396,10 +396,11 @@ firebase deploy --only hosting
 - PIN 內現場校準對弈 controller、紅黑平衡、固定節點引擎著與中斷續存（工作包 011，2026-07-17 發布；v0.7.0，25 個 test files／196 tests）。
 - 人機對弈獨立設定頁與正式根網址 no-cache（工作包 012，2026-07-17 發布；版本維持 v0.7.0）。
 - iPad 全視窗響應式版面（工作包 013，2026-07-17 發布；版本維持 v0.7.0）。
+- iPad 對弈棋盤首次直向排版穩定化（工作包 014，2026-07-17 發布；版本維持 v0.7.0，待同一台 iPad Air 補實機冷啟確認）。
 
 ### 施工中
 
-- iPad 對弈棋盤首次直向排版穩定化（工作包 014 Verified；25 個 test files／196 tests、build、320～1180px 冷進／旋轉／點棋通過，待 commit、push、deploy 與 iPad Air 補測）。
+- 無。
 
 ### 下一階段候選
 
@@ -423,6 +424,7 @@ firebase deploy --only hosting
 
 | 日期 | 版本 | 內容 |
 |---|---|---|
+| 2026-07-17 | 1.25 | 記錄工作包 014 commit `d5102bd`、Firebase 正式發布、根網址／`sw.js` no-cache、COOP／COEP、新 CSS／JS，以及正式站 820×1180 冷進、1180×820 旋轉、回直向與實際點棋引擎回著驗證；同一台實體 iPad Air 仍待產品負責人補測。 |
 | 2026-07-17 | 1.24 | 驗證工作包 014：對弈棋盤改採容器驅動尺寸與 720×800／`xMidYMid meet` SVG 契約；25 個 test files／196 tests、production build、320／390／640／820／1180px 冷進、旋轉與實際點棋回著均通過，實體 iPad Air 待正式發布後補測。 |
 | 2026-07-17 | 1.23 | 授權工作包 014：依實體 iPad Air 首次直向進對弈裁切、旋轉後恢復的回報，移除對弈棋盤 `56vh` 依賴，改採容器驅動尺寸與明確 SVG 比例；第一輪不加入 viewport JavaScript workaround。 |
 | 2026-07-17 | 1.22 | 記錄工作包 013 commit `30e72d8`、Firebase 正式發布、根網址／`sw.js` no-cache、COOP／COEP、新 CSS／manifest，以及 live 1024×1366／1366×1024 滿版四欄與 overflow 0 驗證。 |
