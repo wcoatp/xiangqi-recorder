@@ -1,6 +1,6 @@
 # SDD 006：從復盤局面接續記錄或對弈
 
-> Status：Verified<br>
+> Status：Released<br>
 > Owner：專案作者<br>
 > Created：2026-07-17<br>
 > Updated：2026-07-17<br>
@@ -129,8 +129,8 @@ interface GameContinuationSource {
 - [x] 文案清楚說明計著、重複局面與自然限著從新局重新開始。
 - [x] `npm test`、`npm run build` 通過。
 - [x] 320、390、640 px 與 Escape 完成本機瀏覽器檢查。
-- [ ] 正式 HTTPS 站完成實體記譜、人機對弈、引擎先走與來源不變檢查。
-- [ ] SDD、README、commit、push、deploy 與 live verification 完成。
+- [x] 正式 HTTPS 站完成實體記譜、人機對弈、引擎先走與來源不變檢查。
+- [x] SDD、README、commit、push、deploy 與 live verification 完成。
 
 ## 9. Test plan
 
@@ -164,7 +164,7 @@ interface GameContinuationSource {
 ### Implementation
 
 - 開始日期：2026-07-17。
-- 完成日期：2026-07-17（程式與本機驗證完成；待正式發布）。
+- 完成日期：2026-07-17；程式、本機與正式站驗證完成。
 - 實際變更檔案：`src/store/db.ts`、`src/store/gameContinuation.ts`、`src/store/gameContinuation.test.ts`、`src/ui/ContinueFromReplayDialog.tsx`、`src/ui/ReplayPage.tsx`、`src/ui/GamesPage.tsx`、`src/ui/PlayPage.tsx`、`src/content/guide.ts`、`src/styles.css`、`README.md`、`docs/SDD.md`、`docs/sdd/README.md`、本文件與 TypeScript build info。
 - 與原規格的差異：無；來源關係依規格採自含快照，數字 ID 只供建立當下稽核。
 
@@ -177,10 +177,13 @@ interface GameContinuationSource {
 - Browser：從黑方輪走局面建立玩家執紅的人機接續局，畫面先提示「引擎會先走」，引擎實際完成黑炮 2 平 5，新局正常進入既有 PlayPage。
 - Browser：320、390、640 px 的 document 與 dialog `clientWidth === scrollWidth`；Escape 關閉後焦點回到「從此局面開新局」按鈕。
 - Browser：初次檢查發現既有 `playerNames()` 對未索引的 `createdAt` 使用 Dexie `orderBy`；改為讀取後在記憶體排序。全新分頁重跑 dialog 與建立流程後 console 無錯誤。
+- 正式站：以既有 root 局面建立「驗證接續紅／驗證接續黑」實體局，正確進入 RecordPage；另建立玩家執黑的人機接續局，提示引擎先走並實際完成紅兵三進一。兩筆測試棋局驗證後均已刪除，來源棋局仍保留且著數不變。
+- 正式站：320、390、640 px 的 document／dialog 均無水平溢出；Escape 後 dialog 數為 0、焦點返回接續按鈕；console 無錯誤。
+- 正式資源與標頭：HTTP 200；`Cross-Origin-Opener-Policy: same-origin`、`Cross-Origin-Embedder-Policy: require-corp`；載入 `assets/index-DA_uI2BL.js`、`assets/index-BqP7AsxT.css`。
 
 ### Git and release
 
-- Commit：未建立。
-- Push：未執行。
-- Deploy：未執行。
-- 正式環境驗證：未執行。
+- Commit：`12c9bf4 feat: continue games from replay positions`。
+- Push：已推送至 `origin/main`。
+- Deploy：2026-07-17 11:30（Asia/Taipei）完成 Firebase Hosting 部署，網址為 <https://xiangqi-recorder.web.app/>。
+- 正式環境驗證：已完成上述實體記譜、人機引擎先走、來源不變、響應式、鍵盤、console、資源版本與安全標頭檢查。

@@ -24,7 +24,7 @@
 | 003 | [首頁 3D 中國漫畫風主題](003-home-3d-chinese-comic-theme.md) | Released | `8de002f` | 2026-07-16 / [正式站](https://xiangqi-recorder.web.app/) | 立體漫畫卡片、山景祥雲與棋盤紋理背景、現代中國配色。 |
 | 004 | [象棋棋規中心與循環判定輔助](004-xiangqi-rules-centre.md) | Released | `1cf403f` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 113 年版勝負和摘要、循環判定矩陣、長捉例外與對局規則提醒。 |
 | 005 | [全站導覽與台灣象棋資源中心](005-global-menu-and-taiwan-resource-centre.md) | Released | `405cdb2`, `bbe76df` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 全站漢堡抽屜、完整功能說明、台灣官方教學／棋規入口與標示查閱日的近期賽程。 |
-| 006 | [從復盤局面接續記錄或對弈](006-continue-from-replay-position.md) | Verified | — | — | 從復盤目前節點建立獨立記譜／人機新局，保存自含來源快照且不修改原棋譜；待正式發布。 |
+| 006 | [從復盤局面接續記錄或對弈](006-continue-from-replay-position.md) | Released | `12c9bf4` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 從復盤目前節點建立獨立記譜／人機新局，保存自含來源快照且不修改原棋譜。 |
 
 新增工作包請複製 [TEMPLATE.md](TEMPLATE.md)，檔名使用 `NNN-kebab-case.md`。ID 一旦使用就不要重編，避免舊 commit 與討論失去指向。
 
