@@ -1,6 +1,6 @@
 # SDD 004：象棋棋規中心與循環判定輔助
 
-> Status：Verified<br>
+> Status：Released<br>
 > Owner：專案作者<br>
 > Created：2026-07-17<br>
 > Updated：2026-07-17<br>
@@ -163,7 +163,7 @@ countConsecutiveNonCapturePlies(initialFen, path): number
 
 ### Git and release
 
-- Commit：未建立。
-- Push：未執行。
-- Deploy：依 repository 預設在 implementation commit／push 後執行；尚未執行。
-- 正式環境驗證：未執行。
+- Commit：`1cf403f`（`feat: add xiangqi rules and cycle rulings`）。
+- Push：已推送 `main` 至 `origin`。
+- Deploy：2026-07-17 10:01（Asia/Taipei）部署至 Firebase Hosting；正式網址 https://xiangqi-recorder.web.app/ 。
+- 正式環境驗證：HTTP 200；回應含 `Cross-Origin-Opener-Policy: same-origin` 與 `Cross-Origin-Embedder-Policy: require-corp`；HTML 載入 `assets/index-Bi42IhUk.js`、`assets/index-BBVc1YQh.css`。正式站首頁「棋規」入口、棋規頁標題、官方來源連結與 390 px 無水平溢出皆以實際瀏覽器驗證通過；首次受舊 Service Worker shell 控制時重新整理一次即切換新介面。

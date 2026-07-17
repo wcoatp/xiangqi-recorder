@@ -22,7 +22,7 @@
 | 001 | [首頁品牌與視覺整理](001-home-visual-refresh.md) | Released | `1bf5e21` | 2026-07-16 / [正式站](https://xiangqi-recorder.web.app/) | 換成「帥」品牌、統一 SVG、三輸入等權、響應式與無障礙整理。 |
 | 002 | [本機段級校準實驗室](002-local-rank-calibration-lab.md) | Released（Phase 1） | `dba28db` | 2026-07-16 / [正式站](https://xiangqi-recorder.web.app/) | PIN 隱藏入口、10 個固定錨點、本機 profile／棋局資料骨架與版本化匯出；後續 phase 尚未核准。 |
 | 003 | [首頁 3D 中國漫畫風主題](003-home-3d-chinese-comic-theme.md) | Released | `8de002f` | 2026-07-16 / [正式站](https://xiangqi-recorder.web.app/) | 立體漫畫卡片、山景祥雲與棋盤紋理背景、現代中國配色。 |
-| 004 | [象棋棋規中心與循環判定輔助](004-xiangqi-rules-centre.md) | Verified | — | — | 113 年版勝負和摘要、循環判定矩陣、長捉例外與對局規則提醒。 |
+| 004 | [象棋棋規中心與循環判定輔助](004-xiangqi-rules-centre.md) | Released | `1cf403f` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 113 年版勝負和摘要、循環判定矩陣、長捉例外與對局規則提醒。 |
 
 新增工作包請複製 [TEMPLATE.md](TEMPLATE.md)，檔名使用 `NNN-kebab-case.md`。ID 一旦使用就不要重編，避免舊 commit 與討論失去指向。
 
