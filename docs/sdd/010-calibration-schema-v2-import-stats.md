@@ -1,6 +1,6 @@
 # SDD 010：段級校準資料 v2、安全匯入與版本隔離統計
 
-> Status：Verified（待 commit／push／deploy；已由產品負責人於 2026-07-17「繼續完成後續所有施工」授權）<br>
+> Status：Released（產品負責人於 2026-07-17「繼續完成後續所有施工」授權）<br>
 > Owner：Codex<br>
 > Created：2026-07-17<br>
 > Updated：2026-07-17<br>
@@ -161,8 +161,8 @@ standalone import 在 `rankCalibrators`＋`rankCalibrationGames` 單一 transact
 - [x] UI 完成選檔預覽、取消、確認、成功與 conflict；沒有新增校準對弈入口。
 - [x] 320／390／桌面 CSS 邊界、鍵盤 label/live region 與 auto-lock 來源完成稽核；長檔名／appVersion 具斷行保護。
 - [x] `npm test` 與 `npm run build` 通過，沒有新增 error。
-- [ ] 正式站 v0.6.0、COOP／COEP、引擎載入與已解鎖實驗室流程完成 smoke test。
-- [ ] Master SDD、SDD 002／008、索引、README 與施工紀錄同步更新。（發布紀錄待 deploy 後補）
+- [x] 正式站 v0.6.0、COOP／COEP、引擎載入與已解鎖實驗室流程完成 smoke test。
+- [x] Master SDD、SDD 002／008、索引、README 與施工紀錄同步更新。
 
 ## 9. Test plan
 
@@ -210,7 +210,7 @@ standalone import 在 `rankCalibrators`＋`rankCalibrationGames` 單一 transact
 
 ### Git and release
 
-- Commit：待建立。
-- Push：未執行。
-- Deploy：依 repository 預設在 implementation commit／push 後執行；尚未執行。
-- 正式環境驗證：未執行。
+- Commit：`2324d7e`（`feat: add calibration archive v2 import and stats`）。
+- Push：`main` 已推送至 `origin/main`。
+- Deploy：2026-07-17 已部署 Firebase Hosting，使用 `2324d7e` 的乾淨 v0.6.0 production build。
+- 正式環境驗證：`https://xiangqi-recorder.web.app/?release=20260717-v060-clean` 回傳 HTTP 200、COOP=`same-origin`、COEP=`require-corp`；HTML 載入 `index-r8DlHNDA.js` 與 `index-CBaZ8nuj.css`。Chrome 設定頁顯示 v0.6.0，Fairy-Stockfish xiangqi NNUE 顯示就緒。

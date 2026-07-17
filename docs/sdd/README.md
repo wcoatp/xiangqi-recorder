@@ -20,7 +20,7 @@
 | ID | 文件 | 狀態 | 程式 commit | 正式部署 | 摘要 |
 |---|---|---|---|---|---|
 | 001 | [首頁品牌與視覺整理](001-home-visual-refresh.md) | Released | `1bf5e21` | 2026-07-16 / [正式站](https://xiangqi-recorder.web.app/) | 換成「帥」品牌、統一 SVG、三輸入等權、響應式與無障礙整理。 |
-| 002 | [本機段級校準實驗室](002-local-rank-calibration-lab.md) | Released（Phase 1） | `dba28db` | 2026-07-16 / [正式站](https://xiangqi-recorder.web.app/) | PIN 隱藏入口、10 個固定錨點、本機 profile／棋局資料骨架與版本化匯出；後續 phase 尚未核准。 |
+| 002 | [本機段級校準實驗室](002-local-rank-calibration-lab.md) | Released（Phase 1、2A、2B） | `dba28db`, `66dad94`, `2324d7e` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | PIN 隱藏入口、10 個固定錨點、可重播選著核心、schema v2 安全匯入與版本隔離統計；尚未發布段級映射。 |
 | 003 | [首頁 3D 中國漫畫風主題](003-home-3d-chinese-comic-theme.md) | Released | `8de002f` | 2026-07-16 / [正式站](https://xiangqi-recorder.web.app/) | 立體漫畫卡片、山景祥雲與棋盤紋理背景、現代中國配色。 |
 | 004 | [象棋棋規中心與循環判定輔助](004-xiangqi-rules-centre.md) | Released | `1cf403f` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 113 年版勝負和摘要、循環判定矩陣、長捉例外與對局規則提醒。 |
 | 005 | [全站導覽與台灣象棋資源中心](005-global-menu-and-taiwan-resource-centre.md) | Released | `405cdb2`, `bbe76df` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 全站漢堡抽屜、完整功能說明、台灣官方教學／棋規入口與標示查閱日的近期賽程。 |
@@ -28,7 +28,7 @@
 | 007 | [單一 App 版本來源與 PWA 三輸入描述](007-app-version-and-pwa-metadata.md) | Released | `b35bb57` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 由 package 版本在 build 時封裝為 runtime 常數，並讓安裝資訊完整描述語音、拍照、點棋盤。 |
 | 008 | [完整本機備份 v2 與安全還原](008-portable-backup-v2.md) | Released | `4756056` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | v2 安全 allowlist、v1 相容、段級 PIN 門禁、legacy stale-review recovery 與五表原子非破壞合併；17 test files／123 tests、桌面及 320／390／640 px 響應式與正式站流程通過。 |
 | 009 | [可重現的實驗性校準選著協定 v1](009-reproducible-calibration-move-policy.md) | Released | `66dad94` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 固定 nodes／單執行緒／fresh hash 的校準搜尋與 seeded MultiPV 選著核心；20 test files／154 tests、真實 WASM 重播與正式引擎載入通過，保持 inactive。 |
-| 010 | [段級校準資料 v2、安全匯入與版本隔離統計](010-calibration-schema-v2-import-stats.md) | Verified | 待建立 | 待部署 | 拆開 gate/archive versions、self-contained v2 games、standalone/full backup v1/v2 原子匯入與不混版描述性統計；23 test files／179 tests 與 production build 通過，不開放對弈。 |
+| 010 | [段級校準資料 v2、安全匯入與版本隔離統計](010-calibration-schema-v2-import-stats.md) | Released | `2324d7e` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 拆開 gate/archive versions、self-contained v2 games、standalone/full backup v1/v2 原子匯入與不混版描述性統計；23 test files／179 tests 與 production build 通過，不開放對弈。 |
 
 新增工作包請複製 [TEMPLATE.md](TEMPLATE.md)，檔名使用 `NNN-kebab-case.md`。ID 一旦使用就不要重編，避免舊 commit 與討論失去指向。
 

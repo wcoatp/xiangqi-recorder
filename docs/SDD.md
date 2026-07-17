@@ -1,9 +1,9 @@
 # 象棋記譜 Living SDD
 
 > 文件狀態：Living（持續維護）<br>
-> 文件版本：1.13<br>
+> 文件版本：1.14<br>
 > 最後更新：2026-07-17<br>
-> 程式基準：`main` 工作目錄 / 工作包 010 In Progress<br>
+> 程式基準：`main` / `2324d7e` / 工作包 010 Released<br>
 > 使用者文件：[README.md](../README.md)<br>
 > 施工工作包：[docs/sdd/README.md](sdd/README.md)
 
@@ -273,7 +273,7 @@ v1 games-only 檔仍可還原；v2 選檔先預覽，確認後才進 transaction
 5. 原始棋局與統計只保存在當前電腦／瀏覽器；透過匯出檔帶回分析。
 6. 資料足夠後才版本化發布映射，逐步補齊完整段級。
 
-Phase 1 已凍結 `A01`～`A10` 的 `2026.07-v1` 設定並完成本機 PIN／profile 骨架；工作包 009 已驗證 inactive 的 `2026.07-phase2-v1` 工程協定：固定 Threads 1、nodes、fresh hash、引擎資產與 seeded MultiPV decision record。工作包 010 已完成 gate/archive/game 分版、self-contained game v2、standalone/full-backup 原子匯入與版本隔離統計；仍不建立正式 v2 棋局。PIN 內現場對弈由工作包 011 另行施工。
+Phase 1 已凍結 `A01`～`A10` 的 `2026.07-v1` 設定並完成本機 PIN／profile 骨架；工作包 009 已發布 inactive 的 `2026.07-phase2-v1` 工程協定：固定 Threads 1、nodes、fresh hash、引擎資產與 seeded MultiPV decision record。工作包 010 已發布 gate/archive/game 分版、self-contained game v2、standalone/full-backup 原子匯入與版本隔離統計；v0.6.0 仍不建立正式 v2 棋局。PIN 內現場對弈由工作包 011 另行施工。
 
 詳細施工規格見 [002-local-rank-calibration-lab.md](sdd/002-local-rank-calibration-lab.md)。
 
@@ -325,7 +325,7 @@ Phase 1 已凍結 `A01`～`A10` 的 `2026.07-v1` 設定並完成本機 PIN／pro
 9. 建立語意清楚的 commit 並 push 到遠端。
 10. 已確認的功能／介面施工預設在 push 後 deploy，並驗證正式 URL；當次明確說不要部署時才停在 Git。
 
-目前測試基準（2026-07-17）：17 個 test files、123 tests 全部通過。
+目前已發布測試基準（2026-07-17）：23 個 test files、179 tests 全部通過。
 
 ## 11. 開發與發布 Runbook
 
@@ -384,10 +384,7 @@ firebase deploy --only hosting
 - 單一 App 版本來源與 PWA 三輸入描述（工作包 007，2026-07-17 發布）。
 - 完整本機備份 v2 與安全還原（工作包 008，2026-07-17 發布）。
 - 可重現的實驗性校準選著協定 v1（工作包 009，2026-07-17 發布；inactive core，不開 UI、不寫正式校準資料）。
-
-### 已驗證、待發布
-
-- 段級校準資料 v2、安全匯入與版本隔離統計（工作包 010；23 個 test files／179 tests 與 production build 通過；不開放對弈、不產生正式 v2 棋局）。
+- 段級校準資料 v2、安全匯入與版本隔離統計（工作包 010，2026-07-17 發布；23 個 test files／179 tests，不開放對弈、不產生正式 v2 棋局）。
 
 ### 施工中
 
@@ -415,6 +412,7 @@ firebase deploy --only hosting
 
 | 日期 | 版本 | 內容 |
 |---|---|---|
+| 2026-07-17 | 1.14 | 記錄工作包 010 implementation commit `2324d7e`、v0.6.0 Firebase 正式發布、HTTP／COOP／COEP、正式資產、Chrome 版本與 Fairy-Stockfish NNUE 就緒驗證。 |
 | 2026-07-17 | 1.13 | 授權工作包 010：拆開 gate/archive/game versions，建立 self-contained v2 raw games、standalone/full backup v1/v2 原子匯入與版本隔離統計；維持隱藏且不開對弈。 |
 | 2026-07-17 | 1.12 | 記錄工作包 009 commit `66dad94`、v0.5.0 Firebase 正式發布、HTTP／COOP／COEP、正式資產、Chrome 版本與 Fairy-Stockfish NNUE 就緒驗證；協定維持 inactive。 |
 | 2026-07-17 | 1.11 | 授權並拆出工作包 009：先施工 inactive、固定 nodes／單執行緒／fresh hash／資產身分與 seeded decision record 的工程核心；schema v2 與現場對弈留給後續獨立工作包。 |

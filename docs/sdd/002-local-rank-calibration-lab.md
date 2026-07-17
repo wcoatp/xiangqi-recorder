@@ -1,6 +1,6 @@
 # SDD 002：本機段級校準實驗室
 
-> Status：Released（Phase 1、Phase 2A 工程核心）；Phase 2B 由工作包 010 Verified／待發布；其餘 Phase 2+ Deferred<br>
+> Status：Released（Phase 1、Phase 2A 工程核心、Phase 2B 資料鏈）；Phase 2C 由工作包 011 施工中；其餘 Phase 3+ Deferred<br>
 > Owner：專案作者<br>
 > Created：2026-07-16<br>
 > Updated：2026-07-17<br>
@@ -8,7 +8,7 @@
 > Depends on：無（Phase 1）；可協助校準的台灣象棋棋手（Phase 3）<br>
 > Implementation：Phase 1 已於 2026-07-16 完成、驗證並正式發布
 
-完整校準實驗室仍採分階段施工。產品負責人已於 2026-07-16 核准並發布 Phase 1；2026-07-17 以「繼續完成後續所有施工」授權並發布 Phase 2A 工作包 009，建立 inactive、可重播的選著與引擎搜尋協定。校準 schema v2／匯入統計、現場對弈與公開段級映射仍須依獨立工作包的驗收邊界施工，不得提前把未定型資料寫入正式校準表。
+完整校準實驗室仍採分階段施工。產品負責人已於 2026-07-16 核准並發布 Phase 1；2026-07-17 以「繼續完成後續所有施工」授權並發布 Phase 2A 工作包 009 與 Phase 2B 工作包 010，建立 inactive、可重播的選著／引擎搜尋協定，以及 schema v2 安全匯入與版本隔離統計。現場對弈由工作包 011 施工中；公開段級映射仍須依後續獨立工作包驗收，不得把未審查資料直接改寫公開難度。
 
 ### 1.1 Phase 1 已核准範圍
 
@@ -25,8 +25,8 @@
 
 - 不開始校準對弈，不把一般 `PlayPage` 棋局算入校準資料。
 - 工作包 009：只實作 `seeded-multipv-v1` 工程核心、seed／候選 decision 與專用 fixed-nodes 引擎 API；保持 inactive，不接 UI／DB。
-- 工作包 010（已驗證、待發布）：校準 schema v2、JSON 匯入／合併與版本隔離純統計。
-- 預計工作包 011：獨立現場校準 match controller；一般 `PlayPage` 棋局仍不可算入校準資料。
+- 工作包 010（已發布）：校準 schema v2、JSON 匯入／合併與版本隔離純統計。
+- 工作包 011（施工中）：獨立現場校準 match controller；一般 `PlayPage` 棋局仍不可算入校準資料。
 - 不發布 A01～A10 對應的台灣段級，也不修改公開 `PLAY_LEVELS`。
 
 ## 1. Context
