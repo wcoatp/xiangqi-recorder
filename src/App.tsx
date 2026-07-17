@@ -1,8 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { DEFAULT_SETTINGS, loadSettings, saveSettings, type AppSettings } from './store/db'
 import { enableRankCalibrationGate } from './store/rankCalibration'
+import AppMenu from './ui/AppMenu'
 import EndgamePage from './ui/EndgamePage'
 import GamesPage from './ui/GamesPage'
+import GuidePage from './ui/GuidePage'
 import HomePage from './ui/HomePage'
 import PlayPage from './ui/PlayPage'
 import RecordPage from './ui/RecordPage'
@@ -11,16 +13,20 @@ import RulesPage from './ui/RulesPage'
 import SettingsPage from './ui/SettingsPage'
 import RankCalibrationPage from './ui/RankCalibrationPage'
 
-type RulesReturnView = { name: 'home' } | { name: 'record'; gameId: number }
+export type HomeAction = 'record' | 'play' | 'feedback'
 
-export type View =
-  | { name: 'home' }
+export type RulesReturnView =
+  | { name: 'home'; action?: HomeAction }
   | { name: 'record'; gameId: number }
   | { name: 'play'; gameId: number }
   | { name: 'games'; intent: 'replay' | 'analyze' }
   | { name: 'replay'; gameId: number; analyze?: boolean }
   | { name: 'endgame' }
   | { name: 'settings' }
+  | { name: 'guide' }
+
+export type View =
+  | RulesReturnView
   | { name: 'rules'; returnTo: RulesReturnView }
   | { name: 'rank-calibration' }
 
@@ -70,15 +76,21 @@ export default function App() {
 
   return (
     <AppCtx.Provider value={ctx}>
-      {view.name === 'home' && <HomePage />}
-      {view.name === 'record' && <RecordPage gameId={view.gameId} />}
-      {view.name === 'play' && <PlayPage gameId={view.gameId} />}
-      {view.name === 'games' && <GamesPage intent={view.intent} />}
-      {view.name === 'replay' && <ReplayPage gameId={view.gameId} autoAnalyze={view.analyze} />}
-      {view.name === 'endgame' && <EndgamePage />}
-      {view.name === 'settings' && <SettingsPage />}
-      {view.name === 'rules' && <RulesPage onBack={() => setView(view.returnTo)} />}
-      {view.name === 'rank-calibration' && <RankCalibrationPage />}
+      <div className="app-shell">
+        <AppMenu currentView={view} />
+        <main className="app-view">
+          {view.name === 'home' && <HomePage action={view.action} />}
+          {view.name === 'record' && <RecordPage gameId={view.gameId} />}
+          {view.name === 'play' && <PlayPage gameId={view.gameId} />}
+          {view.name === 'games' && <GamesPage intent={view.intent} />}
+          {view.name === 'replay' && <ReplayPage gameId={view.gameId} autoAnalyze={view.analyze} />}
+          {view.name === 'endgame' && <EndgamePage />}
+          {view.name === 'settings' && <SettingsPage />}
+          {view.name === 'guide' && <GuidePage />}
+          {view.name === 'rules' && <RulesPage onBack={() => setView(view.returnTo)} />}
+          {view.name === 'rank-calibration' && <RankCalibrationPage />}
+        </main>
+      </div>
     </AppCtx.Provider>
   )
 }

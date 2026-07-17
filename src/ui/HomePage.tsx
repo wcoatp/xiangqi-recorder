@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useApp } from '../App'
+import { useApp, type HomeAction } from '../App'
 import { START_FEN } from '../core/fen'
 import { newRoot } from '../core/tree'
 import { db, playerNames, rememberPlayer, type GameRow } from '../store/db'
@@ -138,16 +138,30 @@ function HomeIcon({ name, size = 24, className }: { name: HomeIconName; size?: n
   )
 }
 
-export default function HomePage() {
+export default function HomePage({ action }: { action?: HomeAction }) {
   const { go } = useApp()
-  const [showNew, setShowNew] = useState(false)
-  const [showPlay, setShowPlay] = useState(false)
-  const [showFeedback, setShowFeedback] = useState(false)
+  const [showNew, setShowNew] = useState(action === 'record')
+  const [showPlay, setShowPlay] = useState(action === 'play')
+  const [showFeedback, setShowFeedback] = useState(action === 'feedback')
   const [recent, setRecent] = useState<GameRow[]>([])
 
   useEffect(() => {
     void db.games.orderBy('updatedAt').reverse().limit(3).toArray().then(setRecent)
   }, [])
+
+  useEffect(() => {
+    if (!action) return
+    setShowNew(action === 'record')
+    setShowPlay(action === 'play')
+    setShowFeedback(action === 'feedback')
+  }, [action])
+
+  const closeAction = (which: HomeAction) => {
+    if (which === 'record') setShowNew(false)
+    if (which === 'play') setShowPlay(false)
+    if (which === 'feedback') setShowFeedback(false)
+    if (action === which) go({ name: 'home' })
+  }
 
   return (
     <div className="page home-page">
@@ -289,9 +303,9 @@ export default function HomePage() {
         </section>
       )}
 
-      {showNew && <NewGameDialog onClose={() => setShowNew(false)} />}
-      {showPlay && <PlayDialog onClose={() => setShowPlay(false)} />}
-      {showFeedback && <FeedbackDialog onClose={() => setShowFeedback(false)} />}
+      {showNew && <NewGameDialog onClose={() => closeAction('record')} />}
+      {showPlay && <PlayDialog onClose={() => closeAction('play')} />}
+      {showFeedback && <FeedbackDialog onClose={() => closeAction('feedback')} />}
     </div>
   )
 }
