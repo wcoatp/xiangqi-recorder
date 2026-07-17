@@ -1,9 +1,9 @@
 # 象棋記譜 Living SDD
 
 > 文件狀態：Living（持續維護）<br>
-> 文件版本：1.18<br>
+> 文件版本：1.19<br>
 > 最後更新：2026-07-17<br>
-> 程式基準：`main` / `dac8872` / 工作包 011 Released<br>
+> 程式基準：`main` / `6040d3e` / 工作包 012 Released<br>
 > 使用者文件：[README.md](../README.md)<br>
 > 施工工作包：[docs/sdd/README.md](sdd/README.md)
 
@@ -387,10 +387,11 @@ firebase deploy --only hosting
 - 可重現的實驗性校準選著協定 v1（工作包 009，2026-07-17 發布；inactive core，不開 UI、不寫正式校準資料）。
 - 段級校準資料 v2、安全匯入與版本隔離統計（工作包 010，2026-07-17 發布；23 個 test files／179 tests，不開放對弈、不產生正式 v2 棋局）。
 - PIN 內現場校準對弈 controller、紅黑平衡、固定節點引擎著與中斷續存（工作包 011，2026-07-17 發布；v0.7.0，25 個 test files／196 tests）。
+- 人機對弈獨立設定頁與正式根網址 no-cache（工作包 012，2026-07-17 發布；版本維持 v0.7.0）。
 
 ### 施工中
 
-- 人機對弈設定獨立頁（工作包 012）：程式與本機驗證完成，待 commit／push／正式發布。
+- 無。
 
 ### 下一階段候選
 
@@ -414,6 +415,7 @@ firebase deploy --only hosting
 
 | 日期 | 版本 | 內容 |
 |---|---|---|
+| 2026-07-17 | 1.19 | 記錄工作包 012 commits `82deda1`／`6040d3e`、Firebase 正式發布、根網址與 `sw.js` no-cache、COOP／COEP、正式資產與不帶 query 的首頁對弈獨立頁驗證。 |
 | 2026-07-17 | 1.18 | 驗證工作包 012：人機對弈獨立設定 view、三入口共用、建局後進原棋盤；25 個 test files／196 tests、production build 與 320／390／640 px 流程通過。 |
 | 2026-07-17 | 1.17 | 授權工作包 012：首頁、drawer 與功能指南的人機對弈入口統一進入獨立設定 view，不再把建局表單附加在首頁最下方。 |
 | 2026-07-17 | 1.16 | 記錄工作包 011 commits `5b6391c`／`dac8872`、v0.7.0 Firebase 正式發布、HTTP／COOP／COEP、正式資產、fresh Chrome 設定文案、PIN 門禁與 Fairy-Stockfish NNUE 就緒驗證。 |

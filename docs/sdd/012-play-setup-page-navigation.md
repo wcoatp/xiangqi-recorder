@@ -1,6 +1,6 @@
 # SDD 012：人機對弈設定獨立頁
 
-> Status：Verified（待 commit／push／正式部署）<br>
+> Status：Released<br>
 > Owner：Codex<br>
 > Created：2026-07-17<br>
 > Updated：2026-07-17<br>
@@ -75,7 +75,7 @@
 - [x] UI 只顯示 App 相對級／段，不顯示 Elo 或認證暗示。
 - [x] `npm test`、`npm run build`、`git diff --check` 通過。
 - [x] 320／390／640 px 與桌面流程完成 browser smoke。
-- [ ] commit、push、Firebase deploy 與正式站流程驗證完成。
+- [x] commit、push、Firebase deploy 與正式站流程驗證完成。
 
 ## 9. Risks and mitigations
 
@@ -90,9 +90,9 @@
 ### Implementation
 
 - 開始日期：2026-07-17
-- 完成日期：2026-07-17（程式與本機驗證；正式發布待完成）。
-- 實際變更檔案：`src/ui/PlaySetupPage.tsx`、`src/ui/HomePage.tsx`、`src/ui/AppMenu.tsx`、`src/ui/GuidePage.tsx`、`src/App.tsx`、`src/styles.css`、`tsconfig.app.tsbuildinfo`、Living SDD／工作包索引／README。
-- 與原規格的差異：為避免純 UI 修正觸發校準局跨版本唯讀，App 版本維持 `0.7.0`；建局資料格式與一般 `PlayPage` 未變。
+- 完成日期：2026-07-17（程式、本機驗證與正式發布完成）。
+- 實際變更檔案：`src/ui/PlaySetupPage.tsx`、`src/ui/HomePage.tsx`、`src/ui/AppMenu.tsx`、`src/ui/GuidePage.tsx`、`src/App.tsx`、`src/styles.css`、`tsconfig.app.tsbuildinfo`、`firebase.json`、Living SDD／工作包索引／README。
+- 與原規格的差異：為避免純 UI 修正觸發校準局跨版本唯讀，App 版本維持 `0.7.0`；建局資料格式與一般 `PlayPage` 未變。正式驗證另發現 Firebase 根網址 `/` 沒有套用 `/index.html` 的 no-cache，已加上精確 root header，避免部署後舊 shell 被 CDN 保存一小時。
 
 ### Verification evidence
 
@@ -104,7 +104,7 @@
 
 ### Git and release
 
-- Commit：待完成。
-- Push：待完成。
-- Deploy：待完成。
-- 正式環境驗證：待完成。
+- Commit：`82deda1`（`feat: open play setup as a separate page`）；根網址快取修正 `6040d3e`（`fix: prevent stale root app shell`）。
+- Push：`main` 已推送至 `origin/main`。
+- Deploy：2026-07-17 已部署 Firebase Hosting；production build 對應 `82deda1`，hosting config 對應 `6040d3e`。
+- 正式環境驗證：`https://xiangqi-recorder.web.app/` 回傳 HTTP 200、Cache-Control=`no-cache, no-store, must-revalidate`、COOP=`same-origin`、COEP=`require-corp`；`sw.js` 同樣 no-cache。HTML 載入 `index-P-3URtN4.js` 與 `index-QrFBhgRn.css`。App 內瀏覽器由不帶 query 的正式根網址點首頁「對弈」，成功只顯示「準備這一局」獨立頁，首頁 hero／最近對局不在該畫面，console 無 error。
