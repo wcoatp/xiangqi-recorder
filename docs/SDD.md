@@ -1,7 +1,7 @@
 # 象棋記譜 Living SDD
 
 > 文件狀態：Living（持續維護）<br>
-> 文件版本：1.16<br>
+> 文件版本：1.18<br>
 > 最後更新：2026-07-17<br>
 > 程式基準：`main` / `dac8872` / 工作包 011 Released<br>
 > 使用者文件：[README.md](../README.md)<br>
@@ -62,6 +62,7 @@
 | D-013 | 完整備份採 schema v2、安全 allowlist、段級 PIN 門禁與原子 merge | 只搬移明確可攜資料；Token／PIN gate 永不匯出，含段級原始資料時當場驗證本機 PIN，先完整驗證再以單一交易寫入，任何不可判定衝突不得靜默覆寫。 |
 | D-014 | 段級校準的選著核心先以 inactive、可重播協定獨立施工 | 固定單執行緒／nodes／fresh hash 與引擎資產，使用 seeded MultiPV policy 並記錄完整 decision；沒有真人資料前不得稱為已具真人感或對應台灣段級，也不得開放校準對弈。 |
 | D-015 | 段級 gate v1 與 archive/game versions 分離；v2 採自含快照、嚴格原子匯入與版本隔離統計 | 既有 PIN 不得因資料升版失效；同 ID 異內容整包拒絕，不同 protocol／engine／search／rank／side／App version 不可混成同一勝率。 |
+| D-016 | 一般人機對弈先進入獨立設定 view | 首頁、漢堡選單與功能指南共用同一入口；姓名、紅黑方與相對級段設定不得再附加在首頁內容最下方。 |
 
 ## 3. 現行功能基準
 
@@ -71,7 +72,7 @@
 | 全站導覽 | 上方品牌列、漢堡按鈕、左側可收納抽屜與全部公開功能捷徑 | `src/ui/AppMenu.tsx`, `src/content/guide.ts` |
 | 功能與資源 | 完整 App 使用說明、台灣官方教學／棋規連結、標示查閱日的近期賽程 | `src/ui/GuidePage.tsx`, `src/content/guide.ts` |
 | 實體記譜 | 姓名、先手、面對面模式、語音／WXF／棋盤點按／照片、合法著法、悔棋 | `src/ui/RecordPage.tsx` |
-| 人機對弈 | 執紅／執黑、級段階梯、提示、悔棋、認輸、自動記譜 | `src/ui/PlayPage.tsx`, `src/ui/playLevels.ts` |
+| 人機對弈 | 獨立設定頁、執紅／執黑、級段階梯、提示、悔棋、認輸、自動記譜 | `src/ui/PlaySetupPage.tsx`, `src/ui/PlayPage.tsx`, `src/ui/playLevels.ts` |
 | 對局清單 | 依復盤或分析意圖選局 | `src/ui/GamesPage.tsx` |
 | 復盤 | 主線／變著、播放、註解、從任一步另開記譜／對弈局、匯入、匯出、完整本機備份 v2 | `src/ui/ReplayPage.tsx`, `src/ui/ContinueFromReplayDialog.tsx`, `src/ui/ImportDialog.tsx` |
 | 解棋 | 本機引擎逐著分析、評分曲線、著法標記、建議變化 | `src/engine/analysis.ts` |
@@ -129,7 +130,7 @@ flowchart TD
 ### 5.1 全站導覽與外部資源
 
 - 首頁、開始紀錄、人機對弈、復盤、解棋、殘局、棋規、功能與資源、設定、回饋都必須出現在公開抽屜。
-- 「開始紀錄／人機對弈／回饋」由 drawer 回首頁直接開啟既有 dialog，不建立第二套資料流程。
+- 「開始紀錄／回饋」由 drawer 回首頁開啟既有 dialog；「人機對弈」進入獨立設定 view，首頁、drawer 與功能指南共用同一建局流程。
 - 功能與資源頁的完整產品說明隨 App shell 打包，不需網路；只有使用者點擊教學、棋規、活動或報名連結時才連至外部網站。
 - 賽程是 `checkedAt` 版本快照，不做 runtime fetch。任何日期、場地、資格或名額都以主辦單位最新公告為準。
 - 第一版外部資源只收錄可追溯的中華民國象棋文化協會頁面；列入不代表合作、認證或涵蓋台灣全部資源。
@@ -389,7 +390,7 @@ firebase deploy --only hosting
 
 ### 施工中
 
-- 無。
+- 人機對弈設定獨立頁（工作包 012）：程式與本機驗證完成，待 commit／push／正式發布。
 
 ### 下一階段候選
 
@@ -413,6 +414,8 @@ firebase deploy --only hosting
 
 | 日期 | 版本 | 內容 |
 |---|---|---|
+| 2026-07-17 | 1.18 | 驗證工作包 012：人機對弈獨立設定 view、三入口共用、建局後進原棋盤；25 個 test files／196 tests、production build 與 320／390／640 px 流程通過。 |
+| 2026-07-17 | 1.17 | 授權工作包 012：首頁、drawer 與功能指南的人機對弈入口統一進入獨立設定 view，不再把建局表單附加在首頁最下方。 |
 | 2026-07-17 | 1.16 | 記錄工作包 011 commits `5b6391c`／`dac8872`、v0.7.0 Firebase 正式發布、HTTP／COOP／COEP、正式資產、fresh Chrome 設定文案、PIN 門禁與 Fairy-Stockfish NNUE 就緒驗證。 |
 | 2026-07-17 | 1.15 | 驗證工作包 011：PIN 內 fixed-nodes 現場校準對弈、紅黑交替、逐著 CAS、中斷續局、結果分類與 v0.7.0 跨版本保護；公開段級映射仍維持關閉。 |
 | 2026-07-17 | 1.14 | 記錄工作包 010 implementation commit `2324d7e`、v0.6.0 Firebase 正式發布、HTTP／COOP／COEP、正式資產、Chrome 版本與 Fairy-Stockfish NNUE 就緒驗證。 |

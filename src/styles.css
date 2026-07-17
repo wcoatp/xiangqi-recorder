@@ -513,6 +513,236 @@ h3 {
   z-index: 1;
 }
 
+/* ---------- 人機對弈設定 ---------- */
+.play-setup-page {
+  align-items: center;
+  gap: 18px;
+  padding: 16px 16px 30px;
+  background:
+    radial-gradient(circle at 12px 12px, rgba(87, 51, 29, 0.05) 0 1.5px, transparent 1.8px) 0 0 / 24px 24px,
+    linear-gradient(180deg, var(--home-canvas-from), var(--home-canvas-to));
+}
+
+.play-setup-page > * {
+  width: min(100%, 680px);
+}
+
+.play-setup-topbar {
+  min-height: 42px;
+}
+
+.play-setup-hero {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  align-items: center;
+  gap: 17px;
+  padding: 18px 20px;
+  border: 2px solid color-mix(in srgb, var(--home-outline) 74%, var(--line));
+  border-radius: 24px;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--panel) 91%, #e8c77e), color-mix(in srgb, var(--panel-soft) 84%, #9fc4ad));
+  box-shadow:
+    0 7px 0 color-mix(in srgb, var(--home-outline) 68%, #385b46),
+    0 14px 24px rgba(75, 39, 16, 0.17),
+    inset 0 2px 0 rgba(255, 255, 255, 0.46);
+}
+
+.play-setup-mark {
+  display: grid;
+  width: 72px;
+  height: 72px;
+  place-items: center;
+  border: 3px solid #5a251e;
+  border-radius: 50%;
+  color: #fff5df;
+  background: linear-gradient(145deg, #d95842, #9f292c);
+  box-shadow: 0 6px 0 #5a251e, inset 0 3px 0 rgba(255, 255, 255, 0.28);
+  font-family: "Kaiti TC", "BiauKai", "KaiTi", "DFKai-SB", serif;
+  font-size: 40px;
+  font-weight: 900;
+  transform: rotate(-4deg);
+}
+
+.play-setup-hero span {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.play-setup-hero h1 {
+  margin-top: 4px;
+  font-family: "Kaiti TC", "BiauKai", "KaiTi", "DFKai-SB", serif;
+  font-size: clamp(26px, 7vw, 34px);
+  letter-spacing: 0.05em;
+}
+
+.play-setup-hero p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.play-setup-card {
+  display: grid;
+  gap: 20px;
+  padding: 20px;
+  border-width: 2px;
+}
+
+.play-setup-field {
+  display: grid;
+  gap: 7px;
+}
+
+.play-setup-field > span,
+.play-setup-field label,
+.play-setup-fieldset legend {
+  font-weight: 800;
+}
+
+.play-setup-field small,
+.play-setup-fieldset p,
+.play-level-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.play-setup-field input:not([type="range"]) {
+  width: 100%;
+  min-height: 46px;
+  font-size: 16px;
+}
+
+.play-setup-fieldset {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.play-side-seg button {
+  min-height: 46px;
+}
+
+.play-level-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.play-level-heading strong {
+  color: var(--accent);
+  font-size: 20px;
+}
+
+.play-level-field input[type="range"] {
+  width: 100%;
+  min-height: 34px;
+  padding-inline: 0;
+}
+
+.play-level-scale {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.play-level-scale span:nth-child(2) {
+  text-align: center;
+}
+
+.play-level-scale span:last-child {
+  text-align: right;
+}
+
+.play-setup-summary {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 13px;
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--line));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 7%, var(--panel-soft));
+}
+
+.play-setup-summary > span {
+  display: grid;
+  flex: 0 0 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--accent-ink);
+  background: var(--accent);
+  font-family: "Kaiti TC", "BiauKai", "KaiTi", "DFKai-SB", serif;
+  font-size: 19px;
+  font-weight: 900;
+}
+
+.play-setup-summary p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.play-setup-error {
+  padding: 10px 12px;
+  border: 1px solid var(--bad);
+  border-radius: 10px;
+  color: var(--bad);
+  font-size: 13px;
+}
+
+.play-setup-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr);
+  gap: 10px;
+}
+
+.play-setup-actions button {
+  min-height: 48px;
+  font-weight: 800;
+}
+
+@media (max-width: 380px) {
+  .play-setup-page {
+    gap: 13px;
+    padding: 12px 12px 22px;
+  }
+
+  .play-setup-hero {
+    grid-template-columns: 60px minmax(0, 1fr);
+    gap: 12px;
+    padding: 14px;
+    border-radius: 19px;
+  }
+
+  .play-setup-mark {
+    width: 54px;
+    height: 54px;
+    border-width: 2px;
+    box-shadow: 0 4px 0 #5a251e, inset 0 2px 0 rgba(255, 255, 255, 0.28);
+    font-size: 31px;
+  }
+
+  .play-setup-hero h1 {
+    font-size: 26px;
+  }
+
+  .play-setup-card {
+    gap: 17px;
+    padding: 16px;
+  }
+}
+
 .home-scenery {
   position: absolute;
   z-index: 0;

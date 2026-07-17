@@ -4,7 +4,6 @@ import { START_FEN } from '../core/fen'
 import { newRoot } from '../core/tree'
 import { db, playerNames, rememberPlayer, type GameRow } from '../store/db'
 import FeedbackDialog from './FeedbackDialog'
-import { DEFAULT_LEVEL, engineName, levelAt, PLAY_LEVELS } from './playLevels'
 
 const RESULT_LABEL: Record<string, string> = {
   red: '紅勝',
@@ -141,7 +140,6 @@ function HomeIcon({ name, size = 24, className }: { name: HomeIconName; size?: n
 export default function HomePage({ action }: { action?: HomeAction }) {
   const { go } = useApp()
   const [showNew, setShowNew] = useState(action === 'record')
-  const [showPlay, setShowPlay] = useState(action === 'play')
   const [showFeedback, setShowFeedback] = useState(action === 'feedback')
   const [recent, setRecent] = useState<GameRow[]>([])
 
@@ -152,13 +150,11 @@ export default function HomePage({ action }: { action?: HomeAction }) {
   useEffect(() => {
     if (!action) return
     setShowNew(action === 'record')
-    setShowPlay(action === 'play')
     setShowFeedback(action === 'feedback')
   }, [action])
 
   const closeAction = (which: HomeAction) => {
     if (which === 'record') setShowNew(false)
-    if (which === 'play') setShowPlay(false)
     if (which === 'feedback') setShowFeedback(false)
     if (action === which) go({ name: 'home' })
   }
@@ -211,7 +207,7 @@ export default function HomePage({ action }: { action?: HomeAction }) {
             </span>
           </span>
         </button>
-        <button className="menu-btn" type="button" onClick={() => setShowPlay(true)}>
+        <button className="menu-btn" type="button" onClick={() => go({ name: 'play-setup' })}>
           <span className="menu-icon">
             <HomeIcon name="play" />
           </span>
@@ -304,103 +300,7 @@ export default function HomePage({ action }: { action?: HomeAction }) {
       )}
 
       {showNew && <NewGameDialog onClose={() => closeAction('record')} />}
-      {showPlay && <PlayDialog onClose={() => closeAction('play')} />}
       {showFeedback && <FeedbackDialog onClose={() => closeAction('feedback')} />}
-    </div>
-  )
-}
-
-function PlayDialog({ onClose }: { onClose: () => void }) {
-  const { go } = useApp()
-  const [name, setName] = useState('我')
-  const [side, setSide] = useState<'red' | 'black'>('red')
-  const [level, setLevel] = useState(DEFAULT_LEVEL)
-  const [names, setNames] = useState<string[]>([])
-
-  useEffect(() => {
-    void playerNames().then(setNames)
-  }, [])
-
-  const start = async () => {
-    const playerName = name.trim() || '我'
-    await rememberPlayer(playerName)
-    const now = Date.now()
-    const engineLabel = engineName(level)
-    const id = await db.games.add({
-      redName: side === 'red' ? playerName : engineLabel,
-      blackName: side === 'black' ? playerName : engineLabel,
-      mode: 'play',
-      playerSide: side,
-      level,
-      startedAt: now,
-      updatedAt: now,
-      result: '*',
-      initialFen: START_FEN,
-      tree: newRoot(START_FEN),
-      moveCount: 0,
-    } as GameRow)
-    go({ name: 'play', gameId: id as number })
-  }
-
-  return (
-    <div className="overlay" onClick={onClose}>
-      <div className="dialog" onClick={(e) => e.stopPropagation()}>
-        <h3 className="dialog-title">
-          <span className="dialog-title-icon">
-            <HomeIcon name="play" size={19} />
-          </span>
-          對弈
-        </h3>
-        <label>
-          <div className="muted">你的名字</div>
-          <input list="player-names" value={name} onChange={(e) => setName(e.target.value)} style={{ width: '100%' }} />
-        </label>
-        <datalist id="player-names">
-          {names.map((n) => (
-            <option key={n} value={n} />
-          ))}
-        </datalist>
-        <div>
-          <div className="muted">你執哪邊（紅方先行）</div>
-          <div className="seg">
-            <button className={side === 'red' ? 'on' : ''} onClick={() => setSide('red')}>
-              執紅（先手）
-            </button>
-            <button className={side === 'black' ? 'on' : ''} onClick={() => setSide('black')}>
-              執黑（後手）
-            </button>
-          </div>
-        </div>
-        <div>
-          <div className="row">
-            <span className="muted grow">難度</span>
-            <b style={{ fontSize: 17, color: 'var(--accent)' }}>{levelAt(level).label}</b>
-          </div>
-          <input
-            type="range"
-            min={0}
-            max={PLAY_LEVELS.length - 1}
-            value={level}
-            onChange={(e) => setLevel(Number(e.target.value))}
-            style={{ width: '100%' }}
-          />
-          <div className="row muted" style={{ fontSize: 11, justifyContent: 'space-between' }}>
-            <span>10 級（最弱）</span>
-            <span>1 級</span>
-            <span>9 段（引擎全力）</span>
-          </div>
-          <div className="muted" style={{ fontSize: 11, marginTop: 4 }}>
-            級／段為本 App 目前的相對棋力階梯，尚未經象棋協會認證。
-          </div>
-        </div>
-        <div className="muted">對弈全程自動記譜，結束後可復盤與解棋。</div>
-        <div className="fab-row">
-          <button onClick={onClose}>取消</button>
-          <button className="primary" onClick={() => void start()}>
-            開始對弈
-          </button>
-        </div>
-      </div>
     </div>
   )
 }

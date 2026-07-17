@@ -10,10 +10,10 @@ function currentTitle(view: View): string {
   switch (view.name) {
     case 'home':
       if (view.action === 'record') return '開始紀錄'
-      if (view.action === 'play') return '人機對弈'
       if (view.action === 'feedback') return '回饋及建議'
       return '首頁'
     case 'record': return '實體記譜'
+    case 'play-setup': return '人機對弈設定'
     case 'play': return '人機對弈'
     case 'games': return view.intent === 'analyze' ? '選擇解棋' : '復盤紀錄'
     case 'replay': return view.analyze ? '解棋' : '復盤'
@@ -29,6 +29,7 @@ function activeTarget(view: View): MenuTarget | null {
   switch (view.name) {
     case 'home': return view.action ?? 'home'
     case 'record': return 'record'
+    case 'play-setup': return 'play'
     case 'play': return 'play'
     case 'games': return view.intent
     case 'replay': return view.analyze ? 'analyze' : 'replay'
@@ -76,7 +77,7 @@ export default function AppMenu({ currentView }: { currentView: View }) {
     switch (target) {
       case 'home': go({ name: 'home' }); break
       case 'record': go({ name: 'home', action: 'record' }); break
-      case 'play': go({ name: 'home', action: 'play' }); break
+      case 'play': go({ name: 'play-setup' }); break
       case 'replay': go({ name: 'games', intent: 'replay' }); break
       case 'analyze': go({ name: 'games', intent: 'analyze' }); break
       case 'endgame': go({ name: 'endgame' }); break

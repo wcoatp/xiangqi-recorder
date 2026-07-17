@@ -68,7 +68,7 @@ export default function GuidePage() {
           <button type="button" onClick={() => go({ name: 'home', action: 'record' })}>
             <b>實體棋盤正在下</b><span>開始紀錄 →</span>
           </button>
-          <button type="button" onClick={() => go({ name: 'home', action: 'play' })}>
+          <button type="button" onClick={() => go({ name: 'play-setup' })}>
             <b>想找對手練棋</b><span>人機對弈 →</span>
           </button>
           <button type="button" onClick={() => go({ name: 'games', intent: 'analyze' })}>
