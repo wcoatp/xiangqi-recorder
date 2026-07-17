@@ -1,6 +1,6 @@
 # SDD 007：單一 App 版本來源與 PWA 三輸入描述
 
-> Status：Verified<br>
+> Status：Released<br>
 > Owner：Codex<br>
 > Created：2026-07-17<br>
 > Updated：2026-07-17<br>
@@ -92,7 +92,7 @@
 - [x] manifest 有固定 `id`、`scope`、`start_url`，且保持 standalone／portrait。
 - [x] `npm test` 通過。
 - [x] `npm run build` 通過，沒有新增 warning／syntax error。
-- [ ] production build 與正式站 manifest 完成實際檢查。
+- [x] production build 與正式站 manifest 完成實際檢查。
 - [x] Master SDD、工作包索引與施工紀錄同步更新。
 
 ## 9. Test plan
@@ -122,7 +122,7 @@
 ### Implementation
 
 - 開始日期：2026-07-17
-- 完成日期：2026-07-17（待發布）
+- 完成日期：2026-07-17
 - 實際變更檔案：`package.json`, `package-lock.json`, `index.html`, `vite.config.ts`, `src/version.ts`, `src/version.test.ts`, `src/ui/FeedbackDialog.tsx`, `src/ui/SettingsPage.tsx`, `src/ui/RankCalibrationPage.tsx`, `docs/SDD.md`, `docs/sdd/README.md`, 本文件。
 - 與原規格的差異：初版設計使用 Vite global define；測試發現獨立 `vitest.config.ts` 不會繼承該 define，改採 package JSON named import。仍為 build-time 封裝且沒有 runtime fetch，並避免 Vite／Vitest 設定漂移。
 
@@ -135,7 +135,7 @@
 
 ### Git and release
 
-- Commit：未建立。
-- Push：未執行。
-- Deploy：依 repository 預設在 implementation commit／push 後執行；尚未執行。
-- 正式環境驗證：未執行。
+- Commit：`b35bb57`（`chore: unify app version and PWA metadata`）。
+- Push：2026-07-17 已推送 `main` 至 `origin/main`。
+- Deploy：2026-07-17 已以 Firebase Hosting 發布 production build；正式 JS `/assets/index--f5Xj_X4.js`、CSS `/assets/index-BqP7AsxT.css`。
+- 正式環境驗證：`https://xiangqi-recorder.web.app/?release=007-20260717` 回應 HTTP 200；COOP `same-origin`、COEP `require-corp`。正式 manifest 含語音／拍照／點棋盤、`id`／`scope`／`start_url`、standalone／portrait 與 categories；正式站設定頁及回饋診斷均顯示 `0.3.0`。

@@ -25,7 +25,7 @@
 | 004 | [象棋棋規中心與循環判定輔助](004-xiangqi-rules-centre.md) | Released | `1cf403f` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 113 年版勝負和摘要、循環判定矩陣、長捉例外與對局規則提醒。 |
 | 005 | [全站導覽與台灣象棋資源中心](005-global-menu-and-taiwan-resource-centre.md) | Released | `405cdb2`, `bbe76df` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 全站漢堡抽屜、完整功能說明、台灣官方教學／棋規入口與標示查閱日的近期賽程。 |
 | 006 | [從復盤局面接續記錄或對弈](006-continue-from-replay-position.md) | Released | `12c9bf4` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 從復盤目前節點建立獨立記譜／人機新局，保存自含來源快照且不修改原棋譜。 |
-| 007 | [單一 App 版本來源與 PWA 三輸入描述](007-app-version-and-pwa-metadata.md) | Verified | 待建立 | 待部署 | 由 package 版本在 build 時封裝為 runtime 常數，並讓安裝資訊完整描述語音、拍照、點棋盤。 |
+| 007 | [單一 App 版本來源與 PWA 三輸入描述](007-app-version-and-pwa-metadata.md) | Released | `b35bb57` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 由 package 版本在 build 時封裝為 runtime 常數，並讓安裝資訊完整描述語音、拍照、點棋盤。 |
 
 新增工作包請複製 [TEMPLATE.md](TEMPLATE.md)，檔名使用 `NNN-kebab-case.md`。ID 一旦使用就不要重編，避免舊 commit 與討論失去指向。
 
