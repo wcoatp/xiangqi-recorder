@@ -33,7 +33,7 @@
 | 012 | [人機對弈設定獨立頁](012-play-setup-page-navigation.md) | Released | `82deda1`, `6040d3e` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 首頁、drawer 與功能指南共用獨立 `play-setup` view，不再把建局表單附加在首頁最下方；25 個 test files／196 tests、320／390／640 px、正式根網址 no-cache 與 live flow 通過。 |
 | 013 | [iPad 全視窗響應式版面](013-ipad-full-viewport-layout.md) | Released | `30e72d8` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | App shell 於 320～1366px 使用完整 viewport，iPad 首頁四欄、內容局部限寬且 manifest 不鎖方向；25 個 test files／196 tests、build、九組 viewport、正式 headers 與 live 直／橫向通過。 |
 | 014 | [iPad 對弈棋盤首次直向排版穩定化](014-ipad-play-board-first-layout.md) | Released | `d5102bd` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 移除對弈棋盤 `56vh`、採容器驅動尺寸與明確 SVG 比例；25 個 test files／196 tests、build、320～1180px 冷進／旋轉／點棋及正式站驗證通過，待同一台 iPad Air 補測。 |
-| 015 | [響應式解棋工作台](015-responsive-analysis-workspace.md) | Verified | — | — | 直向三段分析面板、寬橫向棋盤／分析雙欄與本著／曲線／關鍵著／棋譜分頁；25 個 test files／196 tests、320～1366 px 與真實引擎生命週期通過，待發布。 |
+| 015 | [響應式解棋工作台](015-responsive-analysis-workspace.md) | Released | `2d344b2` | 2026-07-18 / [正式站](https://xiangqi-recorder.web.app/) | 直向三段分析面板、寬橫向棋盤／分析雙欄與本著／曲線／關鍵著／棋譜分頁；25 個 test files／196 tests、320～1366 px、真實引擎生命週期與正式站通過。 |
 
 新增工作包請複製 [TEMPLATE.md](TEMPLATE.md)，檔名使用 `NNN-kebab-case.md`。ID 一旦使用就不要重編，避免舊 commit 與討論失去指向。
 

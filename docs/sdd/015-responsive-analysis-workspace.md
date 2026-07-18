@@ -1,6 +1,6 @@
 # SDD 015：響應式解棋工作台
 
-> Status：Verified<br>
+> Status：Released<br>
 > Owner：Codex／產品負責人<br>
 > Created：2026-07-18<br>
 > Updated：2026-07-18<br>
@@ -96,7 +96,7 @@
 - [x] 不破壞 Master SDD 的本機優先與資料界線。
 - [x] `npm test` 通過。
 - [x] `npm run build` 通過，沒有新增 warning／syntax error。
-- [ ] commit、push、Firebase deploy 與正式站驗證完成。
+- [x] commit、push、Firebase deploy 與正式站驗證完成。
 
 ## 9. Test plan
 
@@ -136,13 +136,15 @@
 - 手動／瀏覽器檢查：本機真實引擎 3 局面分析完成。1180×820 下分析前／中／後棋盤均為 621.328×540 px，分析窗格均為 439.664×689.5 px；曲線方向鍵、關鍵著與棋譜分別驗證同步到正確 ply。
 - 響應式證據：820×1180 三段面板為 250／500／760 px，棋盤皆維持 796×731.594 px；320×568、390×844、820×1180、1180×820、1366×1024 的 root／page 水平 overflow 均為 0。320 px 棋盤優先模式的分析 body 為 88 px 可視／177 px 內容、`overflow-y: auto`，證明內容改由局部捲動承擔。
 - 冷進／旋轉：820×1180 冷進 `scrollTop=0`、棋盤頂端 118.5 px；旋轉至 1180×820 使用 grid，轉回直向恢復 flex、尺寸與 overflow 仍正確。
-- 已知限制：自動化可覆蓋代表尺寸；同一台實體 iPad Air 的觸感仍需產品負責人發布後補驗。
+- 正式站：根網址與 `sw.js` 回應 200、`Cache-Control: no-cache, no-store, must-revalidate`、COOP `same-origin`、COEP `require-corp`；正式資產為 `index-CnMSfkr3.js`／`index-CuGbADa2.css`。
+- 正式流程：820×1180 冷進為 flex，棋盤 796×731.594 px、compact 面板 796×250 px；1180×820 旋轉為 624.328／439.664 px grid，棋盤 621.328×540 px、分析面板 439.664×689.5 px，兩者 root／page overflow 皆為 0。
+- 已知限制：既有受舊 Service Worker 控制的已開啟分頁可能先顯示上一版 precache；新 SW 接管後重新載入即取得上述新資產。同一台實體 iPad Air 的觸感仍需產品負責人補驗。
 
 ### Git and release
 
-- Commit：未建立。
-- Push：未執行。
-- Deploy：依 repository 預設在 implementation commit／push 後執行；尚未執行。
-- 正式環境驗證：未執行。
+- Commit：`2d344b2`（`feat: add responsive analysis workspace`）。
+- Push：2026-07-18 已推送 `main` 至 `origin`。
+- Deploy：2026-07-18 已發布至 Firebase Hosting。
+- 正式環境驗證：2026-07-18 已驗證 [正式站](https://xiangqi-recorder.web.app/) headers、Service Worker、新資產、iPad 直／橫向工作台與 overflow。
 
 只有在驗證完成後才能標為 Verified；只有在正式部署並驗證後才能標為 Released。
