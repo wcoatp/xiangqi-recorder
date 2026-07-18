@@ -1,9 +1,9 @@
 # 象棋記譜 Living SDD
 
 > 文件狀態：Living（持續維護）<br>
-> 文件版本：1.30<br>
+> 文件版本：1.31<br>
 > 最後更新：2026-07-18<br>
-> 程式基準：`main` / `b6b7cba` / 工作包 016 Verified（待 commit／發布）<br>
+> 程式基準：`main` / `11de252` / 工作包 016 Released<br>
 > 使用者文件：[README.md](../README.md)<br>
 > 施工工作包：[docs/sdd/README.md](sdd/README.md)
 
@@ -405,10 +405,11 @@ firebase deploy --only hosting
 - iPad 全視窗響應式版面（工作包 013，2026-07-17 發布；版本維持 v0.7.0）。
 - iPad 對弈棋盤首次直向排版穩定化（工作包 014，2026-07-17 發布；版本維持 v0.7.0，待同一台 iPad Air 補實機冷啟確認）。
 - 響應式解棋工作台（工作包 015，2026-07-18 發布；版本維持 v0.7.0，直向三段、寬橫向雙欄、四個分析分頁）。
+- PWA 新版提示與安全更新（工作包 016，2026-07-18 發布；v0.8.0、no-store 版本描述、稍後／立即更新、單飛與錯誤重試）。
 
 ### 施工中
 
-- PWA 新版提示與安全更新（工作包 016，2026-07-18 本機驗證完成、待發布）：v0.8.0 由 autoUpdate 改為確認式更新、build-time 版本描述與一鍵安全重新載入；27 個 test files／216 tests、320～1366 px 通過，不變更本機資料。
+- 目前無已授權但尚未驗證／發布的工作包。
 
 ### 下一階段候選
 
@@ -432,6 +433,7 @@ firebase deploy --only hosting
 
 | 日期 | 版本 | 內容 |
 |---|---|---|
+| 2026-07-18 | 1.31 | 記錄工作包 016 commit `11de252`、v0.8.0 Firebase 正式發布、根網址／`sw.js`／`app-version.json` no-store、COOP／COEP、新 JS／CSS 與 production bundle 驗證；既有 v0.7.0 SW 分頁仍可能暫時回傳舊資產，未清除本機資料，後續版本由 v0.8.0 prompt 接手。 |
 | 2026-07-18 | 1.30 | 驗證工作包 016：v0.8.0 新版提示、版本描述、稍後／更新中／錯誤重試與單飛套用完成；27 個 test files／216 tests、production build、precache 檢查及 320～1366 px 通過，待 commit／push／正式發布。 |
 | 2026-07-18 | 1.29 | 授權工作包 016：PWA 由背景 autoUpdate 改為使用者確認；新版等待時顯示目前／可用版本，可稍後或單次套用，版本描述由 package 版本在 build 時產生且不快取。 |
 | 2026-07-18 | 1.28 | 記錄工作包 015 commit `2d344b2`、Firebase 正式發布、根網址／`sw.js` no-cache、COOP／COEP、新 CSS／JS，以及正式站 820×1180 直向、1180×820 雙欄與 overflow 0 驗證；既有舊 SW 分頁重新載入後取得新版。 |

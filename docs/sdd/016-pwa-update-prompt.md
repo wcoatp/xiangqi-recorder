@@ -1,6 +1,6 @@
 # SDD 016：PWA 新版提示與安全更新
 
-> Status：Verified<br>
+> Status：Released<br>
 > Owner：Codex／產品負責人<br>
 > Created：2026-07-18<br>
 > Updated：2026-07-18<br>
@@ -113,7 +113,7 @@
 - [x] 不破壞本機資料與 Master SDD 產品界線。
 - [x] `npm test` 通過。
 - [x] `npm run build` 通過。
-- [ ] commit、push、Firebase deploy 與正式站驗證完成。
+- [x] commit、push、Firebase deploy 與正式站驗證完成。
 
 ## 9. Test plan
 
@@ -158,13 +158,14 @@
 - 一般本機入口：無等待新版時 prompt count 0、announcer 為空；設定頁顯示 `象棋記譜 v0.8.0`。
 - 響應式：320×568、390×844、820×1180、1180×820、1366×1024 的 html／body 水平 overflow 均為 0；提示完整位於 viewport，320px 錯誤狀態高度 176.64px、左右／底部各 8px，按鈕高度 40.5px；其餘按鈕高度 42px。
 - 層級：App drawer z-index 100，高於提示 90；提示不改變棋盤／頁面 layout 尺寸。
-- 已知限制：v0.7.0 本身沒有提示 UI；真正跨正式版本提示需讓已載入 v0.8.0 的分頁觀察後續部署，第一版會以單元測試、dev preview 與 Service Worker 產物驗證補足。
+- 正式 production bundle：Firebase HTML 引用的 `index-CIxthfdQ.js`／`index-Cj87mXLr.css` 均為 200；同一份本機 production preview 在 820×1180 載入，overflow 0、announcer 1、idle prompt 0，設定顯示 v0.8.0。
+- 已知限制：v0.7.0 本身沒有提示 UI；部署當下既有 `web.app` 分頁在一般 reload 與瀏覽器快捷強制 reload 後仍由舊 Service Worker 回傳 `index-CnMSfkr3.js`，因此未以刪除 SW／Cache Storage 的方式破壞或干預本機資料。真正跨正式版本提示需由已載入 v0.8.0 的分頁觀察後續部署，本版以單元測試、dev preview、production bundle 與正式 HTTP 產物驗證補足。
 
 ### Git and release
 
-- Commit：待建立。
-- Push：待執行。
-- Deploy：依 repository 預設在 implementation commit／push 後執行；尚未執行。
-- 正式環境驗證：未執行。
+- Commit：`11de252 feat: add safe PWA update prompt`。
+- Push：`main` 已推送至 `origin`（`b6b7cba..11de252`）。
+- Deploy：2026-07-18 已發布至 [Firebase Hosting](https://xiangqi-recorder.web.app/)；19 個 dist files、7 個新檔上傳完成。
+- 正式環境驗證：根網址、`sw.js`、`app-version.json` 均 HTTP 200，`Cache-Control: no-cache, no-store, must-revalidate` 與 COOP／COEP 正確；版本檔為 `{"version":"0.8.0"}`，HTML 引用本次 JS／CSS，兩項資產均 HTTP 200。
 
 只有在驗證完成後才能標為 Verified；只有在正式部署並驗證後才能標為 Released。

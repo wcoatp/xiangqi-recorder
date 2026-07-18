@@ -34,7 +34,7 @@
 | 013 | [iPad 全視窗響應式版面](013-ipad-full-viewport-layout.md) | Released | `30e72d8` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | App shell 於 320～1366px 使用完整 viewport，iPad 首頁四欄、內容局部限寬且 manifest 不鎖方向；25 個 test files／196 tests、build、九組 viewport、正式 headers 與 live 直／橫向通過。 |
 | 014 | [iPad 對弈棋盤首次直向排版穩定化](014-ipad-play-board-first-layout.md) | Released | `d5102bd` | 2026-07-17 / [正式站](https://xiangqi-recorder.web.app/) | 移除對弈棋盤 `56vh`、採容器驅動尺寸與明確 SVG 比例；25 個 test files／196 tests、build、320～1180px 冷進／旋轉／點棋及正式站驗證通過，待同一台 iPad Air 補測。 |
 | 015 | [響應式解棋工作台](015-responsive-analysis-workspace.md) | Released | `2d344b2` | 2026-07-18 / [正式站](https://xiangqi-recorder.web.app/) | 直向三段分析面板、寬橫向棋盤／分析雙欄與本著／曲線／關鍵著／棋譜分頁；25 個 test files／196 tests、320～1366 px、真實引擎生命週期與正式站通過。 |
-| 016 | [PWA 新版提示與安全更新](016-pwa-update-prompt.md) | Verified | — | — | v0.8.0 改為確認式更新，含 no-store 版本描述、單飛套用與錯誤重試；27 個 test files／216 tests、production build 與 320～1366 px 通過，待正式發布。 |
+| 016 | [PWA 新版提示與安全更新](016-pwa-update-prompt.md) | Released | `11de252` | 2026-07-18 / [正式站](https://xiangqi-recorder.web.app/) | v0.8.0 改為確認式更新，含 no-store 版本描述、單飛套用與錯誤重試；27 個 test files／216 tests、production build、320～1366 px 與正式 headers 通過。 |
 
 新增工作包請複製 [TEMPLATE.md](TEMPLATE.md)，檔名使用 `NNN-kebab-case.md`。ID 一旦使用就不要重編，避免舊 commit 與討論失去指向。
 
