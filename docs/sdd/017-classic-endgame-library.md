@@ -1,6 +1,6 @@
 # SDD 017：經典殘局題庫與局面練習
 
-> Status：Verified<br>
+> Status：Released<br>
 > Owner：Codex／產品負責人<br>
 > Created：2026-07-18<br>
 > Updated：2026-07-18<br>
@@ -130,7 +130,7 @@
 - [x] `npm test` 通過。
 - [x] `npm run build` 通過，沒有新增 syntax error；保留既有單一 JS chunk 大於 500 kB 提示。
 - [x] 320／390／640 px、iPad Air 直向／橫向與桌面完成檢查。
-- [x] SDD、README、題包來源帳與正式站流程同步更新；正式站證據待發布後回填。
+- [x] SDD、README、題包來源帳與正式站流程同步更新，且正式站證據已回填。
 
 ## 9. Test plan
 
@@ -164,7 +164,7 @@
 ### Implementation
 
 - 開始日期：2026-07-18
-- 完成日期：2026-07-18（功能驗證完成，待發布）。
+- 完成日期：2026-07-18（功能、發布與正式環境驗證完成）。
 - 實際變更：
   - 新增 `src/endgames/` runtime schema、來源／權利帳、12 題五階離線包與下載 catalog；新增 `public/endgames/shiqing-yaqu-selection-v1.json` 48 題包，合計 60 題且 ID 唯一。
   - 新增 `src/store/endgameLibrary.ts` 的同站下載、2 MB 上限、整包驗證、跨包 ID 防衝突、IndexedDB 安裝／移除與本機進度；下載內容不經背景 API。
@@ -190,9 +190,13 @@
 
 ### Git and release
 
-- Commit：未建立。
-- Push：未執行。
-- Deploy：依 repository 預設在 implementation commit／push 後執行；待發布。
-- 正式環境驗證：待發布後回填。
+- Implementation commit：`c3b11f7`（`feat: add classic endgame library and practice flows`）。
+- Push：`main` 已成功推送至 `origin/main`。
+- Deploy：2026-07-18 已以 Firebase CLI 發布 20 個 `dist` 檔案至 [正式站](https://xiangqi-recorder.web.app/)；release complete。
+- 正式環境驗證：
+  - 正式根網址回傳 HTTP 200、`Cache-Control: no-cache, no-store, must-revalidate`、COOP `same-origin`、COEP `require-corp`；`sw.js` 與 `app-version.json` 同樣 no-store。
+  - `/app-version.json` 回報 v0.9.0；正式 `/endgames/shiqing-yaqu-selection-v1.json` 為 pack v1、48 題、11,428 bytes 且涵蓋五階；正式 JS／CSS 為 `index-Ct9QJSm4.js`／`index-BXXciUT6.css`。
+  - 為避免清除既有瀏覽器資料，另以同一份 `dist` 建立 1 天自動到期的 Firebase channel `verify-017`：首次 12 題、下載後 60 題、四入口、解題隱藏答案、本機引擎提示、v0.9.0 顯示、390 px 與 iPad Air 直→橫→直均通過，console error 0。
+  - 驗證所用瀏覽器仍有多個 v0.7.0 正式站分頁，舊 active Service Worker 會暫時回傳舊 shell，符合 SDD 016 已記錄的首次跨版限制；關閉全部舊分頁再開正式根網址即可讓等待中的新版接管，不需清除網站資料或本機棋譜。
 
 只有在驗證完成後才能標為 Verified；只有在正式部署並驗證後才能標為 Released。
