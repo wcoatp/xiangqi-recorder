@@ -1,6 +1,26 @@
-import { defineConfig } from "vite";
+import { readFileSync } from "node:fs";
+import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import { serializeAppVersionManifest } from "./src/pwa/versionManifest";
+
+const packageJson = JSON.parse(
+  readFileSync(new URL("./package.json", import.meta.url), "utf8"),
+) as { version: string };
+
+function appVersionManifestPlugin(): Plugin {
+  return {
+    name: "app-version-manifest",
+    apply: "build",
+    generateBundle() {
+      this.emitFile({
+        type: "asset",
+        fileName: "app-version.json",
+        source: serializeAppVersionManifest(packageJson.version),
+      });
+    },
+  };
+}
 
 // COOP/COEP:引擎多執行緒(SharedArrayBuffer)必需。
 // 正式部署時由 public/_headers(Netlify/Cloudflare Pages)提供同樣標頭。
@@ -12,8 +32,9 @@ const coopCoep = {
 export default defineConfig({
   plugins: [
     react(),
+    appVersionManifestPlugin(),
     VitePWA({
-      registerType: "autoUpdate",
+      registerType: "prompt",
       includeAssets: ["icons/apple-touch-icon.png"],
       manifest: {
         name: "象棋記譜",

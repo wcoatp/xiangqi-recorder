@@ -8,6 +8,7 @@ import GuidePage from './ui/GuidePage'
 import HomePage from './ui/HomePage'
 import PlayPage from './ui/PlayPage'
 import PlaySetupPage from './ui/PlaySetupPage'
+import PwaUpdatePrompt from './ui/PwaUpdatePrompt'
 import RecordPage from './ui/RecordPage'
 import ReplayPage from './ui/ReplayPage'
 import RulesPage from './ui/RulesPage'
@@ -99,6 +100,7 @@ export default function App() {
           {view.name === 'rules' && <RulesPage onBack={() => setView(view.returnTo)} />}
           {view.name === 'rank-calibration' && <RankCalibrationPage />}
         </main>
+        <PwaUpdatePrompt />
       </div>
     </AppCtx.Provider>
   )
