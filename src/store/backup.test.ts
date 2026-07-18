@@ -342,6 +342,27 @@ describe('backup schema v1/v2', () => {
       .toBe(canonicalJson(normalizeGameRecord(gameRecord())))
   })
 
+  it('殘局來源快照可安全 round trip，且拒絕未知 launch mode', () => {
+    const file = v2File()
+    delete file.games[0].record.continuedFrom
+    file.games[0].record.endgameSource = {
+      schemaVersion: 1,
+      packId: 'shiqing-yaqu-starter-v1',
+      puzzleId: 'shiqing-0435',
+      title: '獨行千里',
+      sourceWork: '《適情雅趣》',
+      sourceOrdinal: 435,
+      sourceFen: START_FEN,
+      launchMode: 'solve',
+    }
+    const parsed = parseBackup(JSON.stringify(file))
+    expect(parsed.games[0].record.endgameSource).toEqual(file.games[0].record.endgameSource)
+
+    const bad = structuredClone(file) as any
+    bad.games[0].record.endgameSource.launchMode = 'upload'
+    expect(() => parseBackup(JSON.stringify(bad))).toThrow(/launchMode/)
+  })
+
   it('rejects future, corrupt and unknown fields with a useful path', () => {
     expect(() => parseBackup(JSON.stringify({ format: BACKUP_FORMAT, version: 3 }))).toThrow(/backup\.version/)
     const badStable = v2File() as unknown as Record<string, unknown>

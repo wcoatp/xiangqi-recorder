@@ -30,7 +30,7 @@ export const PUBLIC_MENU_ITEMS: PublicMenuItem[] = [
   { target: 'play', group: '開始使用', seal: '弈', label: '人機對弈', description: '選擇相對段級與本機引擎下棋' },
   { target: 'replay', group: '棋譜工具', seal: '譜', label: '復盤紀錄', description: '播放、接續、變著與匯出' },
   { target: 'analyze', group: '棋譜工具', seal: '解', label: '解棋', description: '引擎評分、關鍵著法與建議線' },
-  { target: 'endgame', group: '棋譜工具', seal: '殘', label: '殘局解析', description: '擺盤、拍照建局與試走分析' },
+  { target: 'endgame', group: '棋譜工具', seal: '殘', label: '經典殘局', description: '題庫解題、局面開局、擺盤與分析' },
   { target: 'rules', group: '學習與支援', seal: '規', label: '比賽棋規', description: '勝負和、限著與循環判決' },
   { target: 'guide', group: '學習與支援', seal: '資', label: '功能與資源', description: '完整說明、台灣教學與近期賽程' },
   { target: 'settings', group: '學習與支援', seal: '設', label: '設定', description: '語音、引擎、照片與本機資料' },
@@ -81,9 +81,14 @@ export const FEATURE_GUIDES: FeatureGuide[] = [
   },
   {
     seal: '殘',
-    title: '殘局解析',
-    summary: '從雙帥骨架手動擺盤，或以照片建立局面，再讓引擎拆解。',
-    points: ['開始分析前會檢查棋子數量與基本局面合法性。', '可在建議局面中試走並查看多條候選變化。'],
+    title: '經典殘局與自行擺盤',
+    summary: '從公版古譜挑題練習，也能手動或拍照建立自己的局面。',
+    points: [
+      '內建十二題可直接離線使用，額外精選包由使用者主動下載，驗證後只存目前瀏覽器。',
+      '每題可選解題練習、實體棋盤開始記錄、人機對弈或自由分析；四種入口的控制方不混用。',
+      '五階難度是 App 題庫相對分級，未經真人棋手校準，不代表協會級段。',
+      '自行擺盤開始分析前會檢查棋子數量與基本局面合法性，可試走並查看多條候選變化。',
+    ],
   },
   {
     seal: '規',

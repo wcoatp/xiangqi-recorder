@@ -75,7 +75,7 @@ export default function GuidePage() {
             <b>想檢討已下棋局</b><span>進入解棋 →</span>
           </button>
           <button type="button" onClick={() => go({ name: 'endgame' })}>
-            <b>手邊只有一個局面</b><span>殘局解析 →</span>
+            <b>想練經典殘局或自訂局面</b><span>進入殘局題庫 →</span>
           </button>
         </div>
       </section>

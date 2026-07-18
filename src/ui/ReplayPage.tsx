@@ -273,6 +273,15 @@ export default function ReplayPage({
         </div>
       )}
 
+      {game.endgameSource && (
+        <div className="continuation-note">
+          <span className="continuation-badge">經典殘局</span>
+          <span>
+            從「{game.endgameSource.title}」開始（{game.endgameSource.sourceWork}原第 {game.endgameSource.sourceOrdinal} 局）
+          </span>
+        </div>
+      )}
+
       <div className="replay-workspace">
         <section className="replay-board-pane" aria-label="復盤棋盤與控制">
           <div className="board-wrap replay-board-wrap">

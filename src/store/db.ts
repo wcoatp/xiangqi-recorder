@@ -18,6 +18,18 @@ export interface GameContinuationSource {
   sourceNodeLabel?: string
 }
 
+export interface EndgameGameSource {
+  schemaVersion: 1
+  packId: string
+  puzzleId: string
+  title: string
+  sourceWork: string
+  sourceOrdinal: number
+  sourceFen: string
+  /** solve = 全力引擎防守的解題；record/play = 一般記譜／級段對弈。 */
+  launchMode: 'solve' | 'record' | 'play'
+}
+
 export interface GameRow {
   id: number
   redName: string
@@ -37,6 +49,8 @@ export interface GameRow {
   moveCount: number
   /** 從復盤某局面另開新局時保存的自含來源快照。 */
   continuedFrom?: GameContinuationSource
+  /** 從版本化殘局題包開局時保存的自含來源快照。 */
+  endgameSource?: EndgameGameSource
   review?: GameReview | null
   reviewedAt?: number
 }

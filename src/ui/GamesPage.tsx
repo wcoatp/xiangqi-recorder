@@ -82,6 +82,11 @@ export default function GamesPage({ intent }: { intent: 'replay' | 'analyze' }) 
                 <b style={{ color: 'var(--red)' }}>{g.redName}</b> vs <b>{g.blackName}</b>{' '}
                 <span className="result-badge">{RESULT_LABEL[g.result]}</span>
                 {g.continuedFrom && <span className="result-badge continuation-badge">接續局</span>}
+                {g.endgameSource && (
+                  <span className="result-badge continuation-badge">
+                    {g.endgameSource.launchMode === 'solve' ? '殘局解題' : '殘局開局'}
+                  </span>
+                )}
                 {g.review && <span className="result-badge">已解棋</span>}
               </div>
               <div className="muted">

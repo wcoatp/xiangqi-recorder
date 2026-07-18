@@ -17,7 +17,7 @@ function currentTitle(view: View): string {
     case 'play': return '人機對弈'
     case 'games': return view.intent === 'analyze' ? '選擇解棋' : '復盤紀錄'
     case 'replay': return view.analyze ? '解棋' : '復盤'
-    case 'endgame': return '殘局解析'
+    case 'endgame': return '經典殘局'
     case 'settings': return '設定'
     case 'rules': return '比賽棋規'
     case 'guide': return '功能與資源'

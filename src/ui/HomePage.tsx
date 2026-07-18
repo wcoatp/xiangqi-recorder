@@ -235,8 +235,8 @@ export default function HomePage({ action }: { action?: HomeAction }) {
           <span className="menu-icon">
             <HomeIcon name="endgame" />
           </span>
-          <span className="menu-title">殘局解析</span>
-          <span className="sub">擺盤・引擎拆解</span>
+          <span className="menu-title">經典殘局</span>
+          <span className="sub">題庫解題・擺盤分析</span>
           <HomeIcon name="arrow" size={17} className="menu-arrow" />
         </button>
       </section>

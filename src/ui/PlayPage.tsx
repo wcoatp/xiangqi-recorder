@@ -11,7 +11,9 @@ import { addMove, findNode, findParent, mainline, type GameNode } from "../core/
 import { engine } from "../engine/engineClient";
 import { speak } from "../speech/speech";
 import { db, type GameRow } from "../store/db";
+import { recordEndgameAttempt, recordEndgameSolved } from "../store/endgameLibrary";
 import { invalidateGameReview } from "../store/gameReview";
+import { createPositionGame } from "../store/positionGame";
 import Board, { type BoardArrow } from "./Board";
 import { levelAt } from "./playLevels";
 
@@ -27,6 +29,7 @@ export default function PlayPage({ gameId }: { gameId: number }) {
   const [flash, setFlash] = useState("");
   const [engineErr, setEngineErr] = useState("");
   const [ended, setEnded] = useState<{ result: GameResult; reason: string } | null>(null);
+  const [hintCount, setHintCount] = useState(0);
   const seqRef = useRef(0);
   const flashTimer = useRef(0);
 
@@ -38,6 +41,7 @@ export default function PlayPage({ gameId }: { gameId: number }) {
     setFlash("");
     setEngineErr("");
     setEnded(null);
+    setHintCount(0);
     setThinking(false);
     void db.games.get(gameId).then((g) => {
       if (!g) return;
@@ -52,6 +56,7 @@ export default function PlayPage({ gameId }: { gameId: number }) {
   const playerSide: Side = game?.playerSide ?? "red";
   const engineSide: Side = opposite(playerSide);
   const level = levelAt(game?.level);
+  const isEndgameSolve = game?.endgameSource?.launchMode === "solve";
 
   const current: GameNode | null = useMemo(
     () => (game && currentId ? findNode(game.tree, currentId) : null),
@@ -82,8 +87,11 @@ export default function PlayPage({ gameId }: { gameId: number }) {
       persist(game);
       setGame({ ...game });
       setEnded({ result, reason });
+      if (isEndgameSolve && result === playerSide) {
+        void recordEndgameSolved(game.endgameSource!.puzzleId, hintCount);
+      }
     },
-    [game, persist],
+    [game, hintCount, isEndgameSolve, persist, playerSide],
   );
 
   /** 套用一著(人或引擎),回傳新節點 */
@@ -125,7 +133,12 @@ export default function PlayPage({ gameId }: { gameId: number }) {
     const mySeq = ++seqRef.current;
     setThinking(true);
     void engine
-      .analyze(fen, { movetimeMs: level.movetimeMs, multipv: 1, elo: level.elo })
+      .analyze(
+        fen,
+        isEndgameSolve
+          ? { movetimeMs: 1500, multipv: 1 }
+          : { movetimeMs: level.movetimeMs, multipv: 1, elo: level.elo },
+      )
       .then((res) => {
         if (seqRef.current !== mySeq) return;
         const m = res.bestmove ? parseUciMove(res.bestmove) : null;
@@ -142,7 +155,7 @@ export default function PlayPage({ gameId }: { gameId: number }) {
         if (seqRef.current === mySeq) setThinking(false);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [game, fen, over, engineSide]);
+  }, [game, fen, over, engineSide, isEndgameSolve]);
 
   const onTap = useCallback(
     (s: number) => {
@@ -202,39 +215,42 @@ export default function PlayPage({ gameId }: { gameId: number }) {
         const m = res.bestmove ? parseUciMove(res.bestmove) : null;
         if (!m) return;
         setHint({ arrows: [{ ...m, kind: "best" }], zh: moveZh(fen, m) });
+        setHintCount((count) => count + 1);
       })
       .finally(() => {
         if (seqRef.current === mySeq) setThinking(false);
       });
-  }, [pos, over, thinking, playerSide, fen, current, game]);
+  }, [pos, over, thinking, playerSide, fen]);
 
   const resign = useCallback(() => {
     if (!game || over) return;
-    if (!window.confirm("確定認輸?")) return;
+    if (!window.confirm(isEndgameSolve ? "確定結束這次解題？" : "確定認輸?")) return;
     seqRef.current++;
     setThinking(false);
-    finalize(engineSide, "認輸");
-  }, [game, over, engineSide, finalize]);
+    finalize(engineSide, isEndgameSolve ? "本次未解出" : "認輸");
+  }, [game, over, engineSide, finalize, isEndgameSolve]);
 
   const rematch = async () => {
     if (!game) return;
-    const now = Date.now();
-    const { newRoot } = await import("../core/tree");
-    const id = await db.games.add({
-      redName: game.redName,
-      blackName: game.blackName,
-      mode: "play",
-      playerSide: game.playerSide,
-      level: game.level,
-      startedAt: now,
-      updatedAt: now,
-      result: "*",
-      initialFen: game.initialFen,
-      tree: newRoot(game.initialFen),
-      moveCount: 0,
-      continuedFrom: game.continuedFrom ? { ...game.continuedFrom } : undefined,
-    } as GameRow);
-    go({ name: "play", gameId: id as number });
+    const id = await createPositionGame(
+      game.initialFen,
+      {
+        mode: "play",
+        redName: game.redName,
+        blackName: game.blackName,
+        playerSide,
+        level: game.level ?? 0,
+      },
+      game.endgameSource
+        ? { endgameSource: { ...game.endgameSource } }
+        : game.continuedFrom
+          ? { continuedFrom: { ...game.continuedFrom } }
+          : {},
+    );
+    if (isEndgameSolve && game.endgameSource) {
+      await recordEndgameAttempt(game.endgameSource.puzzleId);
+    }
+    go({ name: "play", gameId: id });
   };
 
   if (!game || !pos || !current) return <div className="page">載入中…</div>;
@@ -249,11 +265,12 @@ export default function PlayPage({ gameId }: { gameId: number }) {
       <div className="topbar">
         <button onClick={() => go({ name: "home" })}>← 首頁</button>
         <div className="title">
-          🤖 對弈.{level.label}
+          {isEndgameSolve ? `🧩 解題・${game.endgameSource?.title}` : `🤖 對弈.${level.label}`}
           <span className="muted" style={{ fontWeight: 400 }}>
             .{playerName} 執{SIDE_ZH[playerSide]}
           </span>
           {game.continuedFrom && <span className="result-badge continuation-badge">接續局</span>}
+          {game.endgameSource && !isEndgameSolve && <span className="result-badge continuation-badge">殘局對弈</span>}
         </div>
       </div>
 
@@ -275,9 +292,13 @@ export default function PlayPage({ gameId }: { gameId: number }) {
           <b style={{ color: "var(--bad)" }}>{engineErr}</b>
         ) : ended ? (
           <b className="check-flash">
-            {ended.result === "draw"
-              ? "和棋"
-              : `${SIDE_ZH[ended.result as Side]}方勝(${ended.reason})`}
+            {isEndgameSolve
+              ? ended.result === playerSide
+                ? `解出了！${hintCount === 0 ? "本次沒有使用提示" : `使用 ${hintCount} 次提示`}`
+                : ended.reason || "本次未解出"
+              : ended.result === "draw"
+                ? "和棋"
+                : `${SIDE_ZH[ended.result as Side]}方勝(${ended.reason})`}
           </b>
         ) : thinking ? (
           "🤖 引擎思考中…"
@@ -301,20 +322,31 @@ export default function PlayPage({ gameId }: { gameId: number }) {
             💡 提示
           </button>
           <button className="danger" onClick={resign}>
-            🏳 認輸
+            {isEndgameSolve ? "結束練習" : "🏳 認輸"}
           </button>
         </div>
       ) : (
         <div className="fab-row">
-          <button onClick={() => go({ name: "replay", gameId })}>📖 復盤</button>
-          <button onClick={() => go({ name: "replay", gameId, analyze: true })}>💡 解棋</button>
+          {isEndgameSolve ? (
+            <>
+              <button onClick={() => go({ name: "endgame" })}>← 題庫</button>
+              <button onClick={() => go({ name: "endgame", initialFen: game.initialFen, initialTitle: game.endgameSource?.title })}>🔍 自由分析</button>
+            </>
+          ) : (
+            <>
+              <button onClick={() => go({ name: "replay", gameId })}>📖 復盤</button>
+              <button onClick={() => go({ name: "replay", gameId, analyze: true })}>💡 解棋</button>
+            </>
+          )}
           <button className="primary" onClick={() => void rematch()}>
-            ⚔ 再來一局
+            {isEndgameSolve ? "↻ 再試一次" : "⚔ 再來一局"}
           </button>
         </div>
       )}
       <div className="muted" style={{ textAlign: "center" }}>
-        對弈全程自動記譜:結束後這一局會出現在「復盤紀錄」,可播放、解棋、匯出。
+        {isEndgameSolve
+          ? `答案不預先顯示；提示由本機全力引擎即時計算。這次已使用 ${hintCount} 次提示，棋局仍會保存在復盤紀錄。`
+          : "對弈全程自動記譜:結束後這一局會出現在「復盤紀錄」,可播放、解棋、匯出。"}
       </div>
     </div>
   );

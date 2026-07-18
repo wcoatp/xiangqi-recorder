@@ -10,7 +10,7 @@ import type { GameNode } from '../core/tree'
 import type { GameReview, MoveJudgment, MoveTag, PlyAnalysis } from '../engine/analysis'
 import { INK_CAP, PATCH } from '../vision/patch'
 import type { PieceTemplates } from '../vision/templates'
-import type { GameContinuationSource, GameRow, PlayerRow } from './db'
+import type { EndgameGameSource, GameContinuationSource, GameRow, PlayerRow } from './db'
 
 export const BACKUP_FORMAT = 'xiangqi-recorder-backup' as const
 export const BACKUP_VERSION = 2 as const
@@ -361,6 +361,31 @@ function normalizeContinuation(value: unknown, path: string): GameContinuationSo
   return result
 }
 
+function normalizeEndgameSource(value: unknown, path: string): EndgameGameSource {
+  const source = objectAt(value, path)
+  exactKeys(source, [
+    'schemaVersion',
+    'packId',
+    'puzzleId',
+    'title',
+    'sourceWork',
+    'sourceOrdinal',
+    'sourceFen',
+    'launchMode',
+  ], path)
+  if (source.schemaVersion !== 1) fail(`${path}.schemaVersion`, '只支援 endgameSource schema 1')
+  return {
+    schemaVersion: 1,
+    packId: stringAt(source.packId, `${path}.packId`, { empty: false, max: 256 }),
+    puzzleId: stringAt(source.puzzleId, `${path}.puzzleId`, { empty: false, max: 256 }),
+    title: stringAt(source.title, `${path}.title`, { empty: false, max: 1_024 }),
+    sourceWork: stringAt(source.sourceWork, `${path}.sourceWork`, { empty: false, max: 1_024 }),
+    sourceOrdinal: integerAt(source.sourceOrdinal, `${path}.sourceOrdinal`, { min: 1, max: 100_000 }),
+    sourceFen: strictPosition(source.sourceFen, `${path}.sourceFen`).fen,
+    launchMode: enumAt(source.launchMode, ['solve', 'record', 'play'] as const, `${path}.launchMode`),
+  }
+}
+
 function normalizePlyAnalysis(value: unknown, path: string): PlyAnalysis {
   const item = objectAt(value, path)
   exactKeys(item, ['ply', 'fen', 'scoreRed', 'bestUci', 'bestZh', 'bestLineZh', 'depth'], path)
@@ -510,7 +535,7 @@ function normalizeGameRecordInternal(
   const record = objectAt(value, path)
   exactKeys(record, [
     'redName', 'blackName', 'mode', 'playerSide', 'level', 'startedAt', 'updatedAt', 'result', 'resultReason',
-    'initialFen', 'tree', 'moveCount', 'continuedFrom', 'review', 'reviewedAt',
+    'initialFen', 'tree', 'moveCount', 'continuedFrom', 'endgameSource', 'review', 'reviewedAt',
   ], path)
   const normalizedTree = normalizeTree(record.tree, `${path}.tree`)
   const initial = strictPosition(record.initialFen, `${path}.initialFen`)
@@ -538,6 +563,8 @@ function normalizeGameRecordInternal(
   const reason = optionalString(record.resultReason, `${path}.resultReason`)
   if (reason !== undefined) result.resultReason = reason
   if (record.continuedFrom !== undefined) result.continuedFrom = normalizeContinuation(record.continuedFrom, `${path}.continuedFrom`)
+  if (record.endgameSource !== undefined) result.endgameSource = normalizeEndgameSource(record.endgameSource, `${path}.endgameSource`)
+  if (result.continuedFrom && result.endgameSource) fail(path, '不可同時有 continuedFrom 與 endgameSource')
   let staleReviewOmitted = false
   if (record.review !== undefined) {
     if (record.review === null) {

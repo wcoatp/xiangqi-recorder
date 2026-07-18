@@ -24,7 +24,7 @@ export type RulesReturnView =
   | { name: 'play'; gameId: number }
   | { name: 'games'; intent: 'replay' | 'analyze' }
   | { name: 'replay'; gameId: number; analyze?: boolean }
-  | { name: 'endgame' }
+  | { name: 'endgame'; initialFen?: string; initialTitle?: string }
   | { name: 'settings' }
   | { name: 'guide' }
 
@@ -94,7 +94,7 @@ export default function App() {
           {view.name === 'play' && <PlayPage gameId={view.gameId} />}
           {view.name === 'games' && <GamesPage intent={view.intent} />}
           {view.name === 'replay' && <ReplayPage gameId={view.gameId} autoAnalyze={view.analyze} />}
-          {view.name === 'endgame' && <EndgamePage />}
+          {view.name === 'endgame' && <EndgamePage initialFen={view.initialFen} initialTitle={view.initialTitle} />}
           {view.name === 'settings' && <SettingsPage />}
           {view.name === 'guide' && <GuidePage />}
           {view.name === 'rules' && <RulesPage onBack={() => setView(view.returnTo)} />}

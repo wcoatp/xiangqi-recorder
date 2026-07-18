@@ -16,7 +16,9 @@ import { formatFen, parseFen, START_FEN } from "../core/fen";
 import { MAX_COUNT, validatePosition } from "../core/placement";
 import { gameStatus, inCheck, legalMovesFrom } from "../core/movegen";
 import { chineseMove } from "../core/notation";
+import type { EndgamePack, EndgamePuzzle } from "../endgames/schema";
 import Board, { type BoardArrow } from "./Board";
+import EndgameLibrary from "./EndgameLibrary";
 import LiveAnalysis from "./LiveAnalysis";
 import PhotoSetupDialog from "./PhotoSetupDialog";
 
@@ -27,20 +29,59 @@ const PIECE_LABEL: Record<Side, Record<PieceType, string>> = {
 
 type Palette = { side: Side; type: PieceType } | "erase";
 
-export default function EndgamePage() {
+interface WorkspaceSource {
+  fen?: string;
+  title?: string;
+}
+
+export default function EndgamePage({ initialFen, initialTitle }: { initialFen?: string; initialTitle?: string }) {
+  const [workspace, setWorkspace] = useState<WorkspaceSource | null>(
+    initialFen ? { fen: initialFen, title: initialTitle } : null,
+  );
+
+  if (!workspace) {
+    return (
+      <EndgameLibrary
+        onManual={() => setWorkspace({})}
+        onAnalyze={(_pack: EndgamePack, puzzle: EndgamePuzzle) => {
+          setWorkspace({ fen: puzzle.fen, title: puzzle.title });
+        }}
+      />
+    );
+  }
+
+  return (
+    <EndgameWorkspace
+      initialFen={workspace.fen}
+      initialTitle={workspace.title}
+      onBack={() => setWorkspace(null)}
+    />
+  );
+}
+
+function EndgameWorkspace({
+  initialFen,
+  initialTitle,
+  onBack,
+}: {
+  initialFen?: string;
+  initialTitle?: string;
+  onBack: () => void;
+}) {
   const { go } = useApp();
   const [board, setBoard] = useState<BoardArr>(() => {
+    if (initialFen) return parseFen(initialFen).board;
     // 預設一個簡單殘局骨架:雙帥 + 可自行加子
     const b = emptyBoard();
     b[sq(0, 4)] = { side: "red", type: "K" };
     b[sq(9, 4)] = { side: "black", type: "K" };
     return b;
   });
-  const [turn, setTurn] = useState<Side>("red");
+  const [turn, setTurn] = useState<Side>(() => initialFen ? parseFen(initialFen).turn : "red");
   const [palette, setPalette] = useState<Palette>("erase");
-  const [mode, setMode] = useState<"edit" | "analyze">("edit");
+  const [mode, setMode] = useState<"edit" | "analyze">(initialFen ? "analyze" : "edit");
   const [error, setError] = useState("");
-  const [explore, setExplore] = useState<string[]>([]); // 試走 fen 堆疊(含起點)
+  const [explore, setExplore] = useState<string[]>(initialFen ? [initialFen] : []); // 試走 fen 堆疊(含起點)
   const [selected, setSelected] = useState<number | null>(null);
   const [arrows, setArrows] = useState<BoardArrow[]>([]);
   const [moveLog, setMoveLog] = useState<string[]>([]);
@@ -124,13 +165,11 @@ export default function EndgamePage() {
     <div className="page">
       <div className="topbar">
         <button
-          onClick={() =>
-            mode === "analyze" ? setMode("edit") : go({ name: "home" })
-          }
+          onClick={() => mode === "analyze" ? setMode("edit") : onBack()}
         >
-          ← {mode === "analyze" ? "回擺盤" : "首頁"}
+          ← {mode === "analyze" ? "回擺盤" : "題庫"}
         </button>
-        <div className="title">殘局解析</div>
+        <div className="title">殘局解析{initialTitle ? `・${initialTitle}` : ""}</div>
         {mode === "edit" && (
           <div className="seg" style={{ width: 130 }}>
             <button
@@ -288,6 +327,9 @@ export default function EndgamePage() {
           onClose={() => setShowPhoto(false)}
         />
       )}
+      <div className="muted" style={{ textAlign: "center" }}>
+        <button type="button" className="link-button" onClick={() => go({ name: "home" })}>回首頁</button>
+      </div>
     </div>
   );
 }

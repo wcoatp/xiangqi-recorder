@@ -4387,6 +4387,470 @@ h3 {
   }
 }
 
+/* ---------- 經典殘局題庫 ---------- */
+.endgame-library-page {
+  width: min(100%, 1180px);
+  margin-inline: auto;
+}
+
+.endgame-library-page > * {
+  flex: 0 0 auto;
+}
+
+.endgame-library-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  overflow: hidden;
+  padding: clamp(16px, 3vw, 26px);
+  border: 1px solid color-mix(in srgb, var(--accent) 36%, var(--line));
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 88% 16%, color-mix(in srgb, #f0b34d 24%, transparent) 0 8%, transparent 29%),
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 16%, var(--panel)), var(--panel-soft));
+  box-shadow: var(--shadow);
+}
+
+.endgame-library-hero::after {
+  position: absolute;
+  right: -22px;
+  bottom: -32px;
+  width: 210px;
+  height: 92px;
+  border-radius: 55% 45% 0 0;
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+  content: "";
+  transform: rotate(-7deg);
+}
+
+.endgame-library-hero > div:first-child {
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.endgame-library-hero h2 {
+  font-family: "Kaiti TC", "DFKai-SB", "BiauKai", serif;
+  font-size: clamp(24px, 4vw, 36px);
+  color: var(--accent);
+}
+
+.endgame-library-hero p {
+  max-width: 650px;
+  margin: 5px 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.endgame-library-seal {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  flex: none;
+  place-items: center;
+  border: 3px double color-mix(in srgb, var(--red) 76%, #6d1c14);
+  border-radius: 15px;
+  color: #fff8e8;
+  background: linear-gradient(145deg, #b64330, #7b211b);
+  box-shadow: inset 0 0 0 3px rgb(255 244 218 / 20%), 0 8px 16px rgb(83 26 18 / 20%);
+  font-family: "Kaiti TC", "DFKai-SB", "BiauKai", serif;
+  font-size: 34px;
+  font-weight: 800;
+  transform: rotate(-3deg);
+}
+
+.endgame-library-stats {
+  z-index: 1;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 1px 8px;
+  min-width: 112px;
+  padding: 10px 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--line));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--panel) 86%, transparent);
+}
+
+.endgame-library-stats b {
+  color: var(--accent);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.endgame-library-stats span {
+  align-self: center;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.endgame-pack-shelf {
+  display: grid;
+  gap: 8px;
+}
+
+.endgame-pack-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 48%, var(--line));
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--accent) 6%, var(--panel));
+}
+
+.endgame-pack-card.is-installed {
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--good) 44%, var(--line));
+}
+
+.endgame-pack-card > .grow {
+  display: grid;
+  gap: 2px;
+}
+
+.endgame-pack-card small,
+.endgame-puzzle-row small,
+.endgame-action-grid small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.endgame-pack-kicker {
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+}
+
+.endgame-library-message {
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--good) 42%, var(--line));
+  border-radius: 11px;
+  color: color-mix(in srgb, var(--good) 76%, var(--text));
+  background: color-mix(in srgb, var(--good) 8%, var(--panel));
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.endgame-filter-card {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) repeat(3, minmax(130px, auto));
+  gap: 9px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.endgame-filter-card label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.endgame-filter-card input,
+.endgame-filter-card select {
+  width: 100%;
+  min-width: 0;
+}
+
+.endgame-library-workspace {
+  display: grid;
+  grid-template-columns: minmax(270px, 0.78fr) minmax(420px, 1.22fr);
+  gap: 12px;
+  min-height: auto;
+}
+
+.endgame-puzzle-list,
+.endgame-puzzle-detail {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.endgame-puzzle-list {
+  max-height: 760px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px;
+}
+
+.endgame-list-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 7px 10px;
+}
+
+.endgame-list-heading span {
+  color: var(--muted);
+  font-size: 10px;
+  text-align: right;
+}
+
+.endgame-puzzle-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 5px;
+  padding: 9px;
+  border-color: transparent;
+  text-align: left;
+}
+
+.endgame-puzzle-row.is-selected {
+  border-color: color-mix(in srgb, var(--accent) 58%, var(--line));
+  background: color-mix(in srgb, var(--accent) 10%, var(--panel-soft));
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.endgame-puzzle-row > .grow {
+  min-width: 0;
+}
+
+.endgame-puzzle-row b,
+.endgame-puzzle-row small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.endgame-row-status {
+  flex: none;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.endgame-difficulty {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-weight: 900;
+}
+
+.endgame-difficulty.large {
+  width: 44px;
+  height: 44px;
+  font-size: 20px;
+}
+
+.difficulty-1 { color: #368a55; background: color-mix(in srgb, #56aa70 12%, var(--panel)); }
+.difficulty-2 { color: #35778f; background: color-mix(in srgb, #4c98ad 12%, var(--panel)); }
+.difficulty-3 { color: #a06a17; background: color-mix(in srgb, #d49a38 13%, var(--panel)); }
+.difficulty-4 { color: #b14e2c; background: color-mix(in srgb, #d96842 12%, var(--panel)); }
+.difficulty-5 { color: #8d2e3c; background: color-mix(in srgb, #b53c4f 12%, var(--panel)); }
+
+.endgame-puzzle-detail {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 10px;
+  padding: clamp(13px, 2vw, 19px);
+}
+
+.endgame-detail-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.endgame-detail-heading h2 {
+  margin-top: 2px;
+  font-family: "Kaiti TC", "DFKai-SB", "BiauKai", serif;
+  font-size: clamp(23px, 3vw, 31px);
+}
+
+.endgame-preview-board {
+  display: flex;
+  width: min(100%, 430px);
+  aspect-ratio: 9 / 10;
+  align-self: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.endgame-preview-board svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.endgame-puzzle-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.endgame-puzzle-meta b,
+.endgame-puzzle-meta span {
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-soft);
+  font-size: 11px;
+}
+
+.endgame-puzzle-meta b {
+  color: var(--red);
+}
+
+.endgame-rank-disclaimer,
+.endgame-local-note {
+  margin: 0;
+  text-align: center;
+}
+
+.endgame-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.endgame-action-grid button {
+  min-width: 0;
+  padding: 11px;
+  text-align: left;
+}
+
+.endgame-action-grid b {
+  display: block;
+  margin-bottom: 2px;
+}
+
+.endgame-action-main {
+  grid-column: 1 / -1;
+}
+
+.endgame-action-main small {
+  color: color-mix(in srgb, currentColor 74%, transparent);
+}
+
+.endgame-source-note {
+  padding: 9px 11px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.endgame-source-note summary {
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.endgame-source-note p {
+  margin: 7px 0;
+}
+
+.endgame-empty {
+  padding: 24px 10px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.link-button {
+  padding: 3px 7px;
+  border: 0;
+  color: var(--accent);
+  background: transparent;
+  text-decoration: underline;
+  box-shadow: none;
+}
+
+@media (max-width: 820px) {
+  .endgame-filter-card {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .endgame-search {
+    grid-column: 1 / -1;
+  }
+
+  .endgame-library-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .endgame-puzzle-list {
+    max-height: min(42vh, 420px);
+  }
+}
+
+@media (max-width: 520px) {
+  .endgame-library-page .topbar {
+    flex-wrap: wrap;
+  }
+
+  .endgame-library-page .topbar .title {
+    order: -1;
+    width: 100%;
+    flex-basis: 100%;
+  }
+
+  .endgame-library-hero {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .endgame-library-stats {
+    width: fit-content;
+  }
+
+  .endgame-pack-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .endgame-filter-card {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .endgame-action-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .endgame-action-main {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 380px) {
+  .endgame-library-hero > div:first-child {
+    align-items: flex-start;
+  }
+
+  .endgame-library-seal {
+    width: 48px;
+    height: 48px;
+    font-size: 28px;
+  }
+
+  .endgame-filter-card {
+    grid-template-columns: 1fr;
+  }
+
+  .endgame-search {
+    grid-column: auto;
+  }
+}
+
 .fab-row {
   display: flex;
   gap: 8px;
