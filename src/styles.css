@@ -3471,7 +3471,7 @@ h3 {
 
 /* ---------- 復盤 ---------- */
 .replay-page {
-  --analysis-panel-height: clamp(220px, 24dvh, 250px);
+  --analysis-panel-height: clamp(360px, 46dvh, 500px);
 }
 
 .replay-workspace,
@@ -3493,7 +3493,7 @@ h3 {
   flex: 0 0 auto;
   width: 100%;
   height: auto;
-  max-height: min(62dvh, 760px);
+  max-height: min(70dvh, 760px);
   aspect-ratio: 9 / 10;
 }
 
@@ -3528,14 +3528,6 @@ h3 {
   box-shadow: var(--shadow);
 }
 
-.analysis-dock--half {
-  --analysis-panel-height: clamp(280px, 46dvh, 500px);
-}
-
-.analysis-dock--full {
-  --analysis-panel-height: clamp(380px, 72dvh, 760px);
-}
-
 .analysis-dock-header {
   display: flex;
   flex: 0 0 auto;
@@ -3567,31 +3559,6 @@ h3 {
   line-height: 1.4;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.analysis-size-switch {
-  display: flex;
-  flex: 0 0 auto;
-  gap: 3px;
-  padding: 3px;
-  border: 1px solid var(--line);
-  border-radius: 11px;
-  background: var(--panel);
-}
-
-.analysis-size-switch button {
-  border: 0;
-  padding: 5px 8px;
-  background: transparent;
-  color: var(--muted);
-  font-size: 11px;
-  white-space: nowrap;
-}
-
-.analysis-size-switch button.on {
-  background: var(--accent);
-  color: var(--accent-ink);
-  font-weight: 700;
 }
 
 .analysis-tabs {
@@ -3856,23 +3823,11 @@ h3 {
 
 @media (max-width: 520px) {
   .analysis-dock-header {
-    align-items: stretch;
-    flex-direction: column;
-    gap: 6px;
     padding: 9px 10px 7px;
   }
 
   .analysis-dock-title h3 {
     font-size: 16px;
-  }
-
-  .analysis-size-switch {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .analysis-size-switch button {
-    padding: 4px 5px;
   }
 
   .analysis-tabs button {
@@ -3950,9 +3905,6 @@ h3 {
     min-height: 0;
   }
 
-  .replay-page--analysis .analysis-size-switch {
-    display: none;
-  }
 }
 
 /* ---------- 殘局編輯 ---------- */

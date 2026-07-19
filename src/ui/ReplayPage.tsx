@@ -51,19 +51,12 @@ const RESULT_LABEL: Record<string, string> = {
 };
 
 type AnalysisTab = "current" | "chart" | "key" | "moves";
-type AnalysisSize = "compact" | "half" | "full";
 
 const ANALYSIS_TABS: Array<{ id: AnalysisTab; label: string }> = [
   { id: "current", label: "本著" },
   { id: "chart", label: "曲線" },
   { id: "key", label: "關鍵著" },
   { id: "moves", label: "棋譜" },
-];
-
-const ANALYSIS_SIZES: Array<{ id: AnalysisSize; label: string }> = [
-  { id: "compact", label: "棋盤優先" },
-  { id: "half", label: "半開" },
-  { id: "full", label: "分析優先" },
 ];
 
 export default function ReplayPage({
@@ -85,7 +78,6 @@ export default function ReplayPage({
   const [commentDraft, setCommentDraft] = useState<string | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(!!autoAnalyze);
   const [analysisTab, setAnalysisTab] = useState<AnalysisTab>("current");
-  const [analysisSize, setAnalysisSize] = useState<AnalysisSize>("compact");
   const [reviewing, setReviewing] = useState<ReviewProgress | null>(null);
   const [reviewError, setReviewError] = useState("");
   const [liveOn, setLiveOn] = useState(false);
@@ -482,7 +474,6 @@ export default function ReplayPage({
         {showAnalysis && (
           <AnalysisDock
             tab={analysisTab}
-            size={analysisSize}
             review={review}
             reviewedAt={game.reviewedAt}
             reviewing={reviewing}
@@ -494,7 +485,6 @@ export default function ReplayPage({
             )}
             moveList={moveList}
             onTabChange={setAnalysisTab}
-            onSizeChange={setAnalysisSize}
             onStart={() => void runReview()}
             onCancel={() => {
               cancelRef.current.cancelled = true;
@@ -628,7 +618,6 @@ function MoveList({
 // ---------------- 解棋工作台 ----------------
 function AnalysisDock({
   tab,
-  size,
   review,
   reviewedAt,
   reviewing,
@@ -638,13 +627,11 @@ function AnalysisDock({
   estimatedSeconds,
   moveList,
   onTabChange,
-  onSizeChange,
   onStart,
   onCancel,
   onJump,
 }: {
   tab: AnalysisTab;
-  size: AnalysisSize;
   review: GameReview | null;
   reviewedAt?: number;
   reviewing: ReviewProgress | null;
@@ -654,7 +641,6 @@ function AnalysisDock({
   estimatedSeconds: number;
   moveList: ReactNode;
   onTabChange: (tab: AnalysisTab) => void;
-  onSizeChange: (size: AnalysisSize) => void;
   onStart: () => void;
   onCancel: () => void;
   onJump: (ply: number) => void;
@@ -686,26 +672,13 @@ function AnalysisDock({
   }
 
   return (
-    <section className={`analysis-dock analysis-dock--${size}`} aria-label="解棋工作台">
+    <section className="analysis-dock" aria-label="解棋工作台">
       <div className="analysis-dock-header">
         <div className="analysis-dock-title">
           <h3>解棋工作台</h3>
           <div className="analysis-current-summary" aria-live="polite">
             {summary}
           </div>
-        </div>
-        <div className="analysis-size-switch" role="group" aria-label="分析面板大小">
-          {ANALYSIS_SIZES.map((option) => (
-            <button
-              key={option.id}
-              type="button"
-              className={size === option.id ? "on" : ""}
-              aria-pressed={size === option.id}
-              onClick={() => onSizeChange(option.id)}
-            >
-              {option.label}
-            </button>
-          ))}
         </div>
       </div>
 
