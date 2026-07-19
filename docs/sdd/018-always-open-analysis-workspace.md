@@ -1,6 +1,6 @@
 # SDD 018：固定展開的解棋對照工作台
 
-> Status：Verified<br>
+> Status：Released<br>
 > Owner：Codex／產品負責人<br>
 > Created：2026-07-19<br>
 > Updated：2026-07-19<br>
@@ -99,7 +99,7 @@ SDD 015 已把解棋拆成棋盤區與分析區，但直向仍預設只有 250 p
 - [x] iPad 直→橫→直後版面恢復正確。
 - [x] 不破壞 Master SDD 的本機優先、隱私、離線與資料契約。
 - [x] `npm test` 與 `npm run build` 通過。
-- [ ] commit、push、Firebase deploy 與正式站驗證完成。
+- [x] commit、push、Firebase deploy 與正式站驗證完成。
 
 ## 9. Test plan
 
@@ -151,9 +151,11 @@ SDD 015 已把解棋拆成棋盤區與分析區，但直向仍預設只有 250 p
 
 ### Git and release
 
-- Commit：未建立。
-- Push：未執行。
-- Deploy：依 repository 預設在 implementation commit／push 後執行；尚未執行。
-- 正式環境驗證：未執行。
+- Commit：`f5baae8`（`feat: keep analysis workspace expanded`）。
+- Push：2026-07-19 已推送 `main` 至 `origin`。
+- Deploy：2026-07-19 已將 v0.10.0 production build 發布至 Firebase Hosting。
+- 正式環境驗證：根網址、`sw.js`、`app-version.json` 均為 200；HTML／SW 為 `Cache-Control: no-cache, no-store, must-revalidate`，COOP `same-origin`、COEP `require-corp`；正式版本檔為 v0.10.0，資產為 `index-CeGtwglx.js`／`index-aL9ISWDf.css`。
+- 正式更新流程：既有 v0.9.0 頁面顯示 v0.10.0 確認式提示，點「立即更新」後原有棋局仍在，設定頁顯示 v0.10.0，console error 0。
+- 正式解棋流程：820×1180 棋盤 796×760 px、dock 796×500 px，三段控制數量 0；1180×820 旋轉後使用 grid、棋盤 621.3×540 px、dock 439.7×689.5 px，轉回直向精確恢復。曲線 tab 可直接切換且棋盤／dock 寬高不變，root overflow 0。
 
 只有在驗證完成後才能標為 Verified；只有在正式部署並驗證後才能標為 Released。
