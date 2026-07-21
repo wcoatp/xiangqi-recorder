@@ -1,9 +1,9 @@
 # 象棋記譜 Living SDD
 
 > 文件狀態：Living（持續維護）<br>
-> 文件版本：1.38<br>
+> 文件版本：1.39<br>
 > 最後更新：2026-07-21<br>
-> 程式基準：`main` / 工作包 019 Verified（待 implementation commit）<br>
+> 程式基準：`main` / `748598b` / 工作包 019 Released<br>
 > 使用者文件：[README.md](../README.md)<br>
 > 施工工作包：[docs/sdd/README.md](sdd/README.md)
 
@@ -429,10 +429,11 @@ firebase deploy --only hosting
 - PWA 新版提示與安全更新（工作包 016，2026-07-18 發布；v0.8.0、no-store 版本描述、稍後／立即更新、單飛與錯誤重試）。
 - 經典殘局題庫與局面練習（工作包 017，2026-07-18 發布；v0.9.0、《適情雅趣》12＋48 題、五階相對難度、下載後離線、解題／記錄／人機／分析四入口）。
 - 固定展開的解棋對照工作台（工作包 018，2026-07-19 發布；v0.10.0、移除直向三段控制、保留大棋盤、四分頁獨立捲動與寬橫向雙欄）。
+- 棋盤座位方向與復盤視角控制（工作包 019，2026-07-21 發布；v0.11.0、記譜同向／對向、復盤與解棋紅／黑方在下、本機保存且不改棋譜或備份 v2）。
 
 ### 施工中
 
-- 棋盤座位方向與復盤視角控制（工作包 019，v0.11.0；程式、31 個 test files／231 tests、production build、點棋座標與 320～1366 px 瀏覽器驗證完成，待 commit／push／正式發布）。
+- 無已授權且尚未發布的工作包。
 
 ### 下一階段候選
 
@@ -456,6 +457,7 @@ firebase deploy --only hosting
 
 | 日期 | 版本 | 內容 |
 |---|---|---|
+| 2026-07-21 | 1.39 | 記錄工作包 019 implementation commit `748598b`、`main` push 與 v0.11.0 Firebase 正式發布；正式站版本檔、新 JS／CSS、no-store／COOP／COEP、既有 3 盤本機棋局保留、記譜同向／對向、復盤紅／黑方視角、820×1180 解棋工作台與 console error 0 均通過。 |
 | 2026-07-21 | 1.38 | 驗證工作包 019：記譜同向／對向、復盤與解棋紅／黑方在下、本機偏好與 v0.11.0 完成；31 個 test files／231 tests、production build、兩方向實際點棋、備份 v2 exact schema、320～1366 px、521～590 px 分割視窗邊界、iPad 直橫切換與人機玩家方在下回歸均通過，待 commit／push／正式發布。 |
 | 2026-07-19 | 1.37 | 記錄工作包 018 implementation commit `f5baae8`、`main` push、v0.10.0 Firebase 正式發布；正式 no-store／COOP／COEP、版本檔、新 JS／CSS、v0.9.0→v0.10.0 確認更新、既有棋局保留、iPad 直橫式固定展開工作台與曲線分頁通過。 |
 | 2026-07-19 | 1.36 | 驗證工作包 018：固定展開解棋窗、四分頁獨立捲動與 v0.10.0 完成；30 個 test files／227 tests、production build、320～1366 px、iPad 直橫切換、真實引擎分析前中後與同步跳著通過，待 commit／push／正式發布。 |

@@ -1,6 +1,6 @@
 # SDD 019：棋盤座位方向與復盤視角控制
 
-> Status：Verified<br>
+> Status：Released<br>
 > Owner：Codex／產品負責人<br>
 > Created：2026-07-21<br>
 > Updated：2026-07-21<br>
@@ -123,7 +123,7 @@
 - [x] 不改完整備份 v2 schema，既有匯出入測試通過。
 - [x] 320×568、390×844、820×1180、1180×820、1366×1024 無水平 overflow。
 - [x] `npm test` 與 `npm run build` 通過。
-- [ ] 文件、版本、commit、push、Firebase deploy 與正式站驗證完成。
+- [x] 文件、版本、commit、push、Firebase deploy 與正式站驗證完成。
 
 ## 9. Test plan
 
@@ -155,7 +155,7 @@
 ### Implementation
 
 - 開始日期：2026-07-21
-- 完成日期：2026-07-21（程式與部署前驗證完成，待發布）。
+- 完成日期：2026-07-21（程式、文件、commit、push、Firebase deploy 與正式站驗證完成）。
 - 實際變更檔案：`src/store/db.ts`、`src/store/db.test.ts`、`src/ui/Board.tsx`、`src/ui/BoardOrientationControl.tsx`、`src/ui/RecordPage.tsx`、`src/ui/ReplayPage.tsx`、`src/ui/SettingsPage.tsx`、`src/styles.css`、`package.json`、`package-lock.json`、`README.md`、`docs/SDD.md`、`docs/sdd/README.md`、本文件。
 - 與原規格的差異：為了讓瀏覽器直接驗證翻轉後的邏輯格，90 格點擊層增加不影響執行的 `data-square`；復盤控制在 580 px 以下獨占標題列第二行，避免 521～580 px 分割視窗把棋局名稱壓成逐字換行。
 
@@ -175,13 +175,16 @@
 - 人機回歸：既有「本機導覽測試」執黑局中將中心位於下方、帥位於上方，且方向控制數量為 0，證明仍沿用 `bottom={playerSide}`。
 - 視覺／無障礙：820×1180 實際截圖確認方向 pills、選中狀態、棋盤與分析工作台不重疊；DOM 暴露「座位方向／觀看方向」group、文字按鈕與 `aria-pressed`，console error 0。
 - Production preview：`127.0.0.1:4173` 既有 v0.10.0 shell 正確顯示「新版 v0.11.0」，點「立即更新」後回首頁；設定頁顯示 v0.11.0 與兩項新方向設定，記譜同向切換後 black-zone／棋子旋轉歸零、overflow 0、console error 0，驗收測試棋局已清理。
+- 正式 HTTP：`https://xiangqi-recorder.web.app/` 與 `app-version.json` 回傳 200，版本為 `0.11.0`、HTML 指向 `index-BMBe3jr8.js`／`index-BtskPEkk.css`；首頁與 `sw.js` 為 `Cache-Control: no-cache, no-store, must-revalidate`，COOP 為 `same-origin`、COEP 為 `require-corp`。
+- 正式 PWA／資料：原本開啟的 v0.10.0 分頁未立即由等待中的 Service Worker 接管，關閉舊分頁並新開正式站後載入 v0.11.0；3 盤既有本機棋局完整保留，不需清除網站資料。
+- 正式互動：設定頁顯示兩項方向設定與 v0.11.0；既有記譜切為同向後黑方區與棋子旋轉歸零，再恢復對向；既有復盤切黑方在下時帥／將位置交換而棋盤維持 1076×504 px、時間軸維持 `-1`，再恢復紅方在下。820×1180 解棋棋盤維持 796×760 px、分析 dock 796×500 px、overflow 0，console error 0；使用者原本的「對向／紅方在下」偏好已恢復。
 - 已知限制：同一台實體 iPad Air 的 standalone 觸感仍由產品負責人在正式發布後補確認；自動化已覆蓋相同 CSS viewport 的冷載、直橫切換與點棋。
 
 ### Git and release
 
-- Commit：未建立。
-- Push：未執行。
-- Deploy：依 repository 預設在 implementation commit／push 後執行；尚未執行。
-- 正式環境驗證：未執行。
+- Commit：`748598b`（`feat: add board orientation controls`）。
+- Push：2026-07-21，`main` 已推送至 configured remote（`8fa1868..748598b`）。
+- Deploy：2026-07-21，v0.11.0 production build 已發布至 Firebase Hosting 專案 `xiangqi-recorder`。
+- 正式環境驗證：2026-07-21，正式版本、headers、新資產、PWA 接管、本機資料保留、兩項方向控制、iPad 代表 viewport 與 console 均通過。
 
 只有在驗證完成後才能標為 Verified；只有在正式部署並驗證後才能標為 Released。
