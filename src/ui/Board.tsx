@@ -183,6 +183,7 @@ export default function Board(props: BoardProps) {
         Array.from({ length: 90 }, (_, s) => (
           <rect
             key={s}
+            data-square={s}
             x={X(fileOf(s)) - C / 2}
             y={Y(rankOf(s)) - C / 2}
             width={C}

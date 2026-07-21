@@ -100,6 +100,8 @@ export interface AppSettings {
   analysisMovetimeMs: number
   /** 記譜棋盤:tabletop = 面對面(黑方棋子/控制列旋轉 180°) */
   tabletop: boolean
+  /** 復盤／解棋的觀看方向；只影響顯示與點擊映射，不改棋譜。 */
+  replayBottom: 'red' | 'black'
   /** v2 預留:AI 白話講解 API Token */
   llmToken: string
 }
@@ -110,6 +112,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   autoRelisten: false,
   analysisMovetimeMs: 1000,
   tabletop: true,
+  replayBottom: 'red',
   llmToken: '',
 }
 
@@ -127,6 +130,10 @@ export function normalizeAppSettings(stored: Record<string, unknown>): AppSettin
         ? stored.analysisMovetimeMs
         : DEFAULT_SETTINGS.analysisMovetimeMs,
     tabletop: typeof stored.tabletop === 'boolean' ? stored.tabletop : DEFAULT_SETTINGS.tabletop,
+    replayBottom:
+      stored.replayBottom === 'red' || stored.replayBottom === 'black'
+        ? stored.replayBottom
+        : DEFAULT_SETTINGS.replayBottom,
     llmToken: typeof stored.llmToken === 'string' ? stored.llmToken : DEFAULT_SETTINGS.llmToken,
   }
 }

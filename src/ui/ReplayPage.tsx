@@ -40,6 +40,7 @@ import { engine } from "../engine/engineClient";
 import { db, type GameRow } from "../store/db";
 import { invalidateGameReview } from "../store/gameReview";
 import Board, { type BoardArrow } from "./Board";
+import BoardOrientationControl from "./BoardOrientationControl";
 import ContinueFromReplayDialog from "./ContinueFromReplayDialog";
 import LiveAnalysis, { scoreLabel } from "./LiveAnalysis";
 
@@ -59,6 +60,11 @@ const ANALYSIS_TABS: Array<{ id: AnalysisTab; label: string }> = [
   { id: "moves", label: "棋譜" },
 ];
 
+const REPLAY_ORIENTATION_OPTIONS = [
+  { value: "red", label: "紅方在下" },
+  { value: "black", label: "黑方在下" },
+] as const;
+
 export default function ReplayPage({
   gameId,
   autoAnalyze,
@@ -66,7 +72,7 @@ export default function ReplayPage({
   gameId: number;
   autoAnalyze?: boolean;
 }) {
-  const { go, settings } = useApp();
+  const { go, settings, updateSettings } = useApp();
   const [game, setGame] = useState<GameRow | null>(null);
   const [currentId, setCurrentId] = useState("");
   const [playing, setPlaying] = useState(false);
@@ -248,6 +254,13 @@ export default function ReplayPage({
             {RESULT_LABEL[game.result]}
           </span>
         </div>
+        <BoardOrientationControl
+          className="replay-orientation-control"
+          label="觀看方向"
+          value={settings.replayBottom}
+          options={REPLAY_ORIENTATION_OPTIONS}
+          onChange={(replayBottom) => updateSettings({ replayBottom })}
+        />
         <button onClick={() => setShowInfo(true)}>✏️</button>
         <button onClick={() => setShowExport(true)}>📤</button>
       </div>
@@ -279,7 +292,7 @@ export default function ReplayPage({
           <div className="board-wrap replay-board-wrap">
             <Board
               fen={fen}
-              bottom="red"
+              bottom={settings.replayBottom}
               lastMove={current.move}
               selected={selected}
               targets={

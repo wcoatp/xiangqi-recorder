@@ -1,9 +1,9 @@
 # 象棋記譜 Living SDD
 
 > 文件狀態：Living（持續維護）<br>
-> 文件版本：1.37<br>
-> 最後更新：2026-07-19<br>
-> 程式基準：`main` / `f5baae8` / 工作包 018 Released<br>
+> 文件版本：1.38<br>
+> 最後更新：2026-07-21<br>
+> 程式基準：`main` / 工作包 019 Verified（待 implementation commit）<br>
 > 使用者文件：[README.md](../README.md)<br>
 > 施工工作包：[docs/sdd/README.md](sdd/README.md)
 
@@ -69,6 +69,7 @@
 | D-020 | PWA 更新必須由使用者確認，版本描述由 package 單一來源在 build 時產生 | 等待中的新版不得在記譜／對弈途中自動重載；版本描述檔不進 precache 且 no-store，每次正式功能發布必須更新 package version。 |
 | D-021 | 經典殘局採可追溯的公版古譜、版本化靜態題包與四種局面入口 | 內建包須涵蓋五階相對難度；額外包只在使用者主動下載後保存本機；每題可解題、開始記錄、人機對弈或自由分析。不得散布授權不明的現代棋圖、註解或解答，也不得把五階宣稱為協會級段。 |
 | D-022 | 解棋分析窗固定展開，不再讓使用者管理三段高度 | 直向保留大棋盤並以頁面自然捲動承擔總高度；標題與四分頁固定可見，只有分析內容獨立捲動；寬橫向維持雙欄。 |
+| D-023 | 記譜座位方向與復盤觀看方向分開控制 | 記譜「同向／對向」只旋轉黑方閱讀內容；復盤／解棋「紅方在下／黑方在下」只改整盤顯示與點擊映射，不改 FEN、棋譜或分析。人機仍自動讓玩家方在下。 |
 
 ## 3. 現行功能基準
 
@@ -77,17 +78,17 @@
 | 首頁 | 「帥」品牌、3D 中國漫畫風卡片、山景祥雲背景、三種輸入提示、最近對局 | `src/ui/HomePage.tsx`, `src/styles.css` |
 | 全站導覽 | 上方品牌列、漢堡按鈕、左側可收納抽屜與全部公開功能捷徑 | `src/ui/AppMenu.tsx`, `src/content/guide.ts` |
 | 功能與資源 | 完整 App 使用說明、台灣官方教學／棋規連結、標示查閱日的近期賽程 | `src/ui/GuidePage.tsx`, `src/content/guide.ts` |
-| 實體記譜 | 姓名、先手、面對面模式、語音／WXF／棋盤點按／照片、合法著法、悔棋 | `src/ui/RecordPage.tsx` |
+| 實體記譜 | 姓名、先手、棋盤旁即時切換同向／對向、語音／WXF／棋盤點按／照片、合法著法、悔棋 | `src/ui/RecordPage.tsx`, `src/ui/BoardOrientationControl.tsx` |
 | 人機對弈 | 獨立設定頁、執紅／執黑、級段階梯、提示、悔棋、認輸、自動記譜 | `src/ui/PlaySetupPage.tsx`, `src/ui/PlayPage.tsx`, `src/ui/playLevels.ts` |
 | 對局清單 | 依復盤或分析意圖選局 | `src/ui/GamesPage.tsx` |
-| 復盤 | 主線／變著、播放、註解、從任一步另開記譜／對弈局、匯入、匯出、完整本機備份 v2 | `src/ui/ReplayPage.tsx`, `src/ui/ContinueFromReplayDialog.tsx`, `src/ui/ImportDialog.tsx` |
-| 解棋 | 本機引擎逐著分析、評分曲線、著法標記、建議變化；固定展開對照工作台與四個分析分頁 | `src/engine/analysis.ts`, `src/ui/ReplayPage.tsx` |
+| 復盤 | 主線／變著、播放、註解、紅方／黑方在下、從任一步另開記譜／對弈局、匯入、匯出、完整本機備份 v2 | `src/ui/ReplayPage.tsx`, `src/ui/BoardOrientationControl.tsx`, `src/ui/ContinueFromReplayDialog.tsx`, `src/ui/ImportDialog.tsx` |
+| 解棋 | 本機引擎逐著分析、評分曲線、著法標記、建議變化；紅方／黑方視角、固定展開對照工作台與四個分析分頁 | `src/engine/analysis.ts`, `src/ui/ReplayPage.tsx` |
 | 經典殘局與擺盤 | 《適情雅趣》12 題五階離線包、48 題主動下載包、搜尋／難度／來源／進度篩選、解題／記錄／人機／分析四入口，以及擺盤合法性檢查、照片擺盤、MultiPV 分析與試走 | `src/endgames/`, `src/store/endgameLibrary.ts`, `src/ui/EndgameLibrary.tsx`, `src/ui/EndgamePage.tsx` |
 | 拍照辨識 | 棋盤偵測、透視校正、紅黑／空格判斷、合法著法比對、棋子分類 | `src/vision/` |
 | 棋子外觀校準 | 拍標準開局照，建立目前棋具的本機範本 | `src/ui/CalibrateDialog.tsx`, `src/vision/templates.ts` |
 | 段級校準實驗室 Phase 1＋2A／2B／2C | 預設隱藏、PIN 上鎖、10 個固定錨點、匿名協助者、schema v1/v2 原子匯入／匯出與版本隔離統計；已接上 fixed-nodes／seeded MultiPV 現場對弈、紅黑交替、逐著 CAS 保存與中斷續局 | `src/calibration/`, `src/engine/engineClient.ts`, `src/store/rankCalibration.ts`, `src/store/rankCalibrationMatch.ts`, `src/ui/RankCalibrationPage.tsx` |
 | 棋規中心 | 113 年版勝負和摘要、循環判定矩陣、長捉例外與實體規則邊界 | `src/core/adjudication.ts`, `src/ui/RulesPage.tsx` |
-| 設定 | 語音、面對面模式、分析強度、照片校準、授權資訊；feature gate 開啟後顯示段級校準入口 | `src/ui/SettingsPage.tsx` |
+| 設定 | 語音、記譜座位方向、復盤觀看方向、分析強度、照片校準、授權資訊；feature gate 開啟後顯示段級校準入口 | `src/ui/SettingsPage.tsx` |
 | 回饋 | 透過使用者自己的郵件 App 寄送，可附診斷資訊 | `src/ui/FeedbackDialog.tsx` |
 | PWA 更新 | 新版等待時顯示目前／可用版本，可稍後、單次套用或在失敗後重試；版本描述不進 precache | `src/pwa/`, `src/ui/PwaUpdatePrompt.tsx`, `vite.config.ts` |
 
@@ -114,6 +115,7 @@
 | FR-VIEWPORT-001 | App 在手機、平板、直向、橫向與分割視窗使用系統實際分配的完整畫布。 | root／header 不受 640px 上限；無水平 overflow；safe-area 保留，長文與棋盤以局部最大寬度維持可讀性。 |
 | FR-VIEWPORT-002 | 人機對弈棋盤首次進入與旋轉後都以實際內容空間穩定排版。 | 不依賴 `vh` 限高；SVG 有固定比例，棋盤、狀態與操作列在 iPad 直／橫向可用範圍內。 |
 | FR-ANALYSIS-001 | 解棋時可穩定對照棋盤與分析結果。 | 分析前／中／後與分頁切換時棋盤尺寸不變；直向分析窗固定展開且內容獨立捲動，寬橫向為雙欄，曲線／關鍵著／棋譜皆可同步棋盤。 |
+| FR-ORIENTATION-001 | 棋友可依裝置座位與檢討觀點調整棋盤方向。 | 記譜可即時切換同向／對向；復盤與解棋可切換紅／黑方在下；棋子、標記、箭頭與點擊格同步，且不改棋譜資料。 |
 | FR-UPDATE-001 | 使用者可知道新版已就緒並自行決定更新時機。 | 顯示目前／可用版本；可稍後或立即更新；不自動打斷操作、連點只套用一次，失敗可重試。 |
 | FR-ENDGAME-001 | 棋友可從可追溯的公版古譜題庫，依五階相對難度選擇解題、實體記錄、人機對弈或自由分析。 | 首次離線可使用五階內建題；額外包須明確下載、整包驗證並在重開後離線可用；四入口控制方與文案一致；保存來源快照且不把難度冒充協會級段。 |
 
@@ -162,6 +164,8 @@ flowchart TD
 3. **點棋盤**：點起點與終點直接走子。
 
 WXF 代號鍵盤是手動輸入的進階輔助，不另算第四條產品入口。無論來源為何，寫入前都必須經過合法著法與目前局面檢查。
+
+記譜棋盤旁的「座位方向」可在當局直接切換：「同向」讓所有內容朝裝置持有者，「對向」則把黑方棋子與上方控制列旋轉 180°，適合裝置平放在兩位棋手之間。復盤／解棋另有「紅方在下／黑方在下」觀看方向；兩者都是顯示與點擊映射，不轉換 FEN 或棋譜節點。人機對弈仍固定讓使用者執棋方在下。
 
 ### 5.3 棋規與對局判決
 
@@ -232,7 +236,7 @@ flowchart LR
 
 - `games`：對局基本資料、模式、玩家、結果、初始 FEN、棋譜樹、著數、分析結果，以及 optional 復盤接續／殘局來源自含快照。
 - `players`：曾使用的玩家名稱。
-- `settings`：key/value 設定；包含語音、分析、面對面模式、`pieceCalibration` 棋子範本、已驗證的額外殘局題包與本機練習進度。
+- `settings`：key/value 設定；包含語音、分析、記譜 `tabletop`、本機復盤 `replayBottom`、`pieceCalibration` 棋子範本、已驗證的額外殘局題包與本機練習進度。
 - `rankCalibrators`：匿名協助者 profile、自報級／段、制度來源與本機同意時間。
 - `rankCalibrationGames`：保存 immutable schema v1 legacy 與 self-contained schema v2 校準原始棋局；PIN 內現場 controller 會先保存 ply 0，再以 CAS transaction 逐著更新同一筆 v2 row。
 
@@ -261,6 +265,8 @@ backup schema v2 包含：
 - 以 `float32-le-base64` 明確編碼的棋子照片校準衍生範本；不含原始照片。
 - 段級校準 nested schema v1／v2 的 frozen anchors、profiles 與 mixed v1/v2 games 技術快照。
 - `appVersion`、backup `version` 與 `exportedAt`。
+
+`replayBottom` 是每台裝置的觀看 UI 偏好，不屬於既有五項可攜偏好；工作包 019 不升級 backup schema v2，還原備份也不覆寫目的端的復盤方向。
 
 檔案永遠排除 `llmToken`、`rankCalibrationGate`、PIN、salt／verifier、enabled／auto-lock 與 unlock 狀態。JSON 未加密，可能含棋譜、棋手姓名、匿名協助者代號、自報級段與 notes，必須在 UI 提醒使用者妥善保管。
 
@@ -325,6 +331,7 @@ Phase 1 已凍結 `A01`～`A10` 的 `2026.07-v1` 設定並完成本機 PIN／pro
 - 支援窄螢幕、safe-area、深色模式與 `prefers-reduced-motion`。
 - App shell 支援完整可用 viewport、iPad 直向／橫向與分割視窗；內容區依用途局部限制寬度，不以全域手機上限裁切畫布。
 - 人機對弈棋盤由 page flex container 的剩餘空間配置，SVG 明確保留 9:10 比例；不得要求 iPad 使用者先旋轉才能取得正確滿版。
+- 方向控制必須以文字、選中樣式與 `aria-pressed` 同時表達；翻轉後所有棋盤疊加層與透明點擊格共用同一座標映射。
 - 文案使用台灣繁體中文與全形中文標點。
 
 ### 9.4 部署條件
@@ -349,7 +356,7 @@ Phase 1 已凍結 `A01`～`A10` 的 `2026.07-v1` 設定並完成本機 PIN／pro
 9. 建立語意清楚的 commit 並 push 到遠端。
 10. 已確認的功能／介面施工預設在 push 後 deploy，並驗證正式 URL；當次明確說不要部署時才停在 Git。
 
-目前已發布驗證基準（2026-07-18）：30 個 test files、227 tests 全部通過。
+目前施工驗證基準（2026-07-21）：31 個 test files、231 tests 全部通過。
 
 ## 11. 開發與發布 Runbook
 
@@ -425,7 +432,7 @@ firebase deploy --only hosting
 
 ### 施工中
 
-- 目前無已授權但尚未驗證／發布的工作包。
+- 棋盤座位方向與復盤視角控制（工作包 019，v0.11.0；程式、31 個 test files／231 tests、production build、點棋座標與 320～1366 px 瀏覽器驗證完成，待 commit／push／正式發布）。
 
 ### 下一階段候選
 
@@ -449,6 +456,7 @@ firebase deploy --only hosting
 
 | 日期 | 版本 | 內容 |
 |---|---|---|
+| 2026-07-21 | 1.38 | 驗證工作包 019：記譜同向／對向、復盤與解棋紅／黑方在下、本機偏好與 v0.11.0 完成；31 個 test files／231 tests、production build、兩方向實際點棋、備份 v2 exact schema、320～1366 px、521～590 px 分割視窗邊界、iPad 直橫切換與人機玩家方在下回歸均通過，待 commit／push／正式發布。 |
 | 2026-07-19 | 1.37 | 記錄工作包 018 implementation commit `f5baae8`、`main` push、v0.10.0 Firebase 正式發布；正式 no-store／COOP／COEP、版本檔、新 JS／CSS、v0.9.0→v0.10.0 確認更新、既有棋局保留、iPad 直橫式固定展開工作台與曲線分頁通過。 |
 | 2026-07-19 | 1.36 | 驗證工作包 018：固定展開解棋窗、四分頁獨立捲動與 v0.10.0 完成；30 個 test files／227 tests、production build、320～1366 px、iPad 直橫切換、真實引擎分析前中後與同步跳著通過，待 commit／push／正式發布。 |
 | 2026-07-19 | 1.35 | 授權工作包 018：解棋直向分析窗移除棋盤優先／半開／分析優先三段控制，改為固定展開、分頁內容獨立捲動並保留大棋盤；寬橫向雙欄與四分頁同步跳著維持不變，目標版本 v0.10.0。 |

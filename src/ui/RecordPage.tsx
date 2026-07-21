@@ -36,12 +36,17 @@ import {
 import { db, type GameRow } from "../store/db";
 import { invalidateGameReview } from "../store/gameReview";
 import Board from "./Board";
+import BoardOrientationControl from "./BoardOrientationControl";
 import PhotoDialog from "./PhotoDialog";
 
 const SIDE_ZH: Record<Side, string> = { red: "紅", black: "黑" };
+const RECORD_ORIENTATION_OPTIONS = [
+  { value: "same", label: "同向" },
+  { value: "opposite", label: "對向" },
+] as const;
 
 export default function RecordPage({ gameId }: { gameId: number }) {
-  const { go, settings } = useApp();
+  const { go, settings, updateSettings } = useApp();
   const [game, setGame] = useState<GameRow | null>(null);
   const [currentId, setCurrentId] = useState("");
   const [selected, setSelected] = useState<number | null>(null);
@@ -255,17 +260,26 @@ export default function RecordPage({ gameId }: { gameId: number }) {
   return (
     <div className="record-page">
       {zone("black")}
-      <div className="board-wrap">
-        <Board
-          fen={fen}
-          bottom="red"
-          tabletop={settings.tabletop}
-          lastMove={lastMove}
-          selected={selected}
-          targets={targets}
-          checkSq={checkSq}
-          onTap={onTap}
+      <div className="record-board-stage">
+        <BoardOrientationControl
+          className="record-orientation-control"
+          label="座位方向"
+          value={settings.tabletop ? "opposite" : "same"}
+          options={RECORD_ORIENTATION_OPTIONS}
+          onChange={(value) => updateSettings({ tabletop: value === "opposite" })}
         />
+        <div className="board-wrap">
+          <Board
+            fen={fen}
+            bottom="red"
+            tabletop={settings.tabletop}
+            lastMove={lastMove}
+            selected={selected}
+            targets={targets}
+            checkSq={checkSq}
+            onTap={onTap}
+          />
+        </div>
       </div>
       <div className="banner">
         {flash ? (

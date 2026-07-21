@@ -37,6 +37,7 @@
 | 016 | [PWA 新版提示與安全更新](016-pwa-update-prompt.md) | Released | `11de252` | 2026-07-18 / [正式站](https://xiangqi-recorder.web.app/) | v0.8.0 改為確認式更新，含 no-store 版本描述、單飛套用與錯誤重試；27 個 test files／216 tests、production build、320～1366 px 與正式 headers 通過。 |
 | 017 | [經典殘局題庫與局面練習](017-classic-endgame-library.md) | Released | `c3b11f7` | 2026-07-18 / [正式站](https://xiangqi-recorder.web.app/) | v0.9.0 公版古譜 12＋48 題、五級難度、下載後離線，以及解題／記錄／人機／分析四入口；30 個 test files／227 tests、正式 headers／資產與響應式流程通過。 |
 | 018 | [固定展開的解棋對照工作台](018-always-open-analysis-workspace.md) | Released | `f5baae8` | 2026-07-19 / [正式站](https://xiangqi-recorder.web.app/) | v0.10.0 移除直向三段面板控制，改為固定展開、內容獨立捲動並保留大棋盤與寬橫向雙欄；30 個 test files／227 tests、真實引擎、320～1366 px 與正式站通過。 |
+| 019 | [棋盤座位方向與復盤視角控制](019-board-orientation-controls.md) | Verified | 待建立 | 待發布 | v0.11.0 記譜可即時切換同向／對向，復盤與解棋可切換紅／黑方在下；本機保存、不改棋譜或備份 v2，31 個 test files／231 tests、兩方向點棋與 320～1366 px 通過。 |
 
 新增工作包請複製 [TEMPLATE.md](TEMPLATE.md)，檔名使用 `NNN-kebab-case.md`。ID 一旦使用就不要重編，避免舊 commit 與討論失去指向。
 

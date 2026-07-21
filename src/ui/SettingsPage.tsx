@@ -94,14 +94,31 @@ export default function SettingsPage() {
         <h3>棋盤</h3>
         <div className="settings-row">
           <div>
-            面對面模式
-            <div className="muted">記譜時黑方棋子與控制列旋轉 180°,手機平放桌上雙方都正向</div>
+            記譜座位方向
+            <div className="muted">「對向」會將黑方棋子與控制列旋轉 180°，適合把裝置平放在雙方之間</div>
           </div>
-          <input
-            type="checkbox"
-            checked={settings.tabletop}
-            onChange={(e) => updateSettings({ tabletop: e.target.checked })}
-          />
+          <select
+            value={settings.tabletop ? "opposite" : "same"}
+            onChange={(e) => updateSettings({ tabletop: e.target.value === "opposite" })}
+            aria-label="記譜座位方向"
+          >
+            <option value="same">同向</option>
+            <option value="opposite">對向</option>
+          </select>
+        </div>
+        <div className="settings-row">
+          <div>
+            復盤觀看方向
+            <div className="muted">復盤與解棋可從紅方或黑方視角觀看，不會改動棋譜</div>
+          </div>
+          <select
+            value={settings.replayBottom}
+            onChange={(e) => updateSettings({ replayBottom: e.target.value as "red" | "black" })}
+            aria-label="復盤觀看方向"
+          >
+            <option value="red">紅方在下</option>
+            <option value="black">黑方在下</option>
+          </select>
         </div>
       </div>
 

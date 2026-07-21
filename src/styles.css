@@ -3395,6 +3395,100 @@ h3 {
   touch-action: manipulation;
 }
 
+/* ---------- 棋盤方向 ---------- */
+.board-orientation-control {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.board-orientation-label {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.board-orientation-options {
+  display: inline-grid;
+  min-width: 0;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 7%, var(--panel-soft));
+  box-shadow: inset 0 1px 2px rgba(56, 31, 12, 0.08);
+}
+
+.board-orientation-options button {
+  display: inline-flex;
+  min-width: 86px;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 5px 10px;
+  color: var(--muted);
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: none;
+  font-size: 13px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.board-orientation-options button[aria-pressed="true"] {
+  color: var(--accent-ink);
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--accent) 82%, #c77139),
+    var(--accent)
+  );
+  box-shadow: 0 2px 5px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.board-orientation-dot {
+  width: 7px;
+  height: 7px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  opacity: 0.65;
+}
+
+.board-orientation-options button[aria-pressed="true"] .board-orientation-dot {
+  background: currentColor;
+  opacity: 1;
+}
+
+.record-board-stage {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.record-orientation-control .board-orientation-options button {
+  min-height: 30px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+
+.replay-orientation-control {
+  flex: 0 0 auto;
+}
+
+.replay-orientation-control .board-orientation-options button {
+  min-width: 88px;
+}
+
 .play-page {
   gap: 8px;
 }
@@ -3863,6 +3957,43 @@ h3 {
     min-width: 0;
     max-width: 90px;
     padding: 7px 5px;
+  }
+}
+
+@media (max-width: 580px) {
+  .replay-page > .topbar {
+    flex-wrap: wrap;
+  }
+
+  .replay-page > .topbar .replay-orientation-control {
+    order: 5;
+    flex: 1 0 100%;
+  }
+
+  .replay-orientation-control .board-orientation-label {
+    display: none;
+  }
+
+  .replay-orientation-control .board-orientation-options {
+    width: min(100%, 280px);
+  }
+
+  .replay-orientation-control .board-orientation-options button {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 350px) {
+  .record-orientation-control .board-orientation-label {
+    display: none;
+  }
+
+  .record-orientation-control .board-orientation-options {
+    width: min(100%, 220px);
+  }
+
+  .record-orientation-control .board-orientation-options button {
+    min-width: 0;
   }
 }
 
